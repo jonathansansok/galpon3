@@ -1,0 +1,50 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Backend - Nest",
+        "type": "shell",
+        "command": "npm run start:dev",
+        "options": {
+          "cwd": "${workspaceFolder}/backend"
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated"
+        }
+      },
+      {
+        "label": "Prisma Studio",
+        "type": "shell",
+        "command": "npx prisma studio",
+        "options": {
+          "cwd": "${workspaceFolder}/backend"
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated"
+        }
+      },
+      {
+        "label": "Frontend - Next.js",
+        "type": "shell",
+        "command": "npm run dev",
+        "options": {
+          "cwd": "${workspaceFolder}/frontend"
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated"
+        }
+      },
+      {
+        "label": "Start All",
+        "dependsOn": ["Backend - Nest", "Prisma Studio", "Frontend - Next.js"],
+        "type": "shell",
+        "presentation": {
+          "reveal": "always",
+          "panel": "shared"
+        }
+      }
+    ]
+  }

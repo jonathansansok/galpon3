@@ -1,0 +1,11 @@
+vPara ejecutar todas las tareas juntas en Visual Studio Code, sigue estos pasos:
+
+Abre el menú de comandos:
+
+Presiona Ctrl + Shift + P (o Cmd + Shift + P en macOS).
+Busca y selecciona:
+
+Escribe Ejecutar tarea y selecciona la opción "Tareas: Ejecutar tarea" (en español).
+Selecciona la tarea compuesta:
+
+En la lista de tareas, selecciona "Start All" (o el nombre que hayas configurado en el archivo tasks.json).

@@ -1,0 +1,9 @@
+.bg-light-blue {
+    background-color: #e0f7fa;
+  }
+  
+  .modal-content {
+    position: relative;
+    z-index: 10;
+  }
+

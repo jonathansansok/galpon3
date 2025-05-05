@@ -1,0 +1,55 @@
+Listado de rutas de carpetas
+El n�mero de serie del volumen es DA7C-0EC2
+C:.
+����.next
+�   ����cache
+�   �   ����eslint
+�   �   ����swc
+�   �   �   ����plugins
+�   �   �       ����v7_windows_x86_64_0.106.15
+�   �   ����webpack
+�   �       ����client-development
+�   �       ����client-production
+�   �       ����edge-server-production
+�   �       ����server-development
+�   �       ����server-production
+�   ����server
+�   �   ����app
+�   �   �   ����favicon.ico
+�   �   �   ����products
+�   �   �   �   ����new
+�   �   �   �   ����[id]
+�   �   �   �       ����edit
+�   �   �   ����_not-found
+�   �   ����vendor-chunks
+�   ����static
+�   �   ����chunks
+�   �   �   ����app
+�   �   �       ����products
+�   �   �       �   ����new
+�   �   �       �   ����[id]
+�   �   �       �       ����edit
+�   �   �       ����_not-found
+�   �   ����css
+�   �   �   ����app
+�   �   ����development
+�   �   ����media
+�   �   ����webpack
+�   �       ����app
+�   ����types
+�       ����app
+�           ����products
+�               ����new
+�               ����[id]
+�                   ����edit
+
+����public
+����src
+    ����app
+    �   ����products
+    �       ����new
+    �       ����[id]
+    �           ����edit
+    ����components
+    �   ����ui
+    ����lib

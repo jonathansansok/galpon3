@@ -1,0 +1,153 @@
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
+import { getAgresiones } from "./agresiones.api";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { SearchBarAgresiones } from "@/components/ui/SearchBars/SearchBarAgresiones";
+import { Agresion, SearchResult } from "@/types/Agresion";
+import { useRouter } from "next/navigation";
+import Table from "@/components/eventossearch/Table";
+import DateTimeFormatter from "@/components/eventossearch/DateTimeFormatter";
+import { formatInternosInvolucrados, formatPersonalInvolucrado } from "@/app/utils/formatUtils";
+
+export const dynamic = "force-dynamic";
+
+export default function AgresionesPage() {
+  const [agresiones, setAgresiones] = useState<Agresion[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [sortColumn, setSortColumn] = useState<keyof Agresion | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const router = useRouter();
+
+  const handleLoadData = async () => {
+    try {
+      const data = await getAgresiones();
+      const formattedData = Array.isArray(data) ? data : [];
+      setAgresiones(formattedData);
+      setSearchResults(formattedData.map((item) => ({ item, matches: [] })));
+    } catch (error) {
+      console.error("Error al obtener las agresiones:", error);
+      setAgresiones([]);
+      setSearchResults([]);
+    }
+  };
+
+  const handleSearchResults = (results: SearchResult[]) => {
+    setSearchResults(results);
+  };
+
+  const handleRowClick = (id: string) => {
+    router.push(`/portal/eventos/agresiones/${id}`);
+  };
+
+  const handleEditClick = (id: string) => {
+    router.push(`/portal/eventos/agresiones/${id}/edit`);
+  };
+
+  const handleSort = (column: keyof Agresion): void => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  };
+
+  const columns = [
+    {
+      key: "internosinvolucrado",
+      label: "Internos Involucrados",
+      render: (item: Agresion) => (
+        <div dangerouslySetInnerHTML={{ __html: formatInternosInvolucrados(item.internosinvolucrado || "") }} />
+      ),
+    },
+    {
+      key: "personalinvolucrado",
+      label: "Personal Involucrado",
+      render: (item: Agresion) => (
+        <div dangerouslySetInnerHTML={{ __html: formatPersonalInvolucrado(item.personalinvolucrado || "") }} />
+      ),
+    },
+    { key: "establecimiento", label: "Establecimiento" },
+    { key: "modulo_ur", label: "Módulo - U.R." },
+    { key: "pabellon", label: "Pabellón" },
+    { key: "sector", label: "Sector" },
+    { key: "tipoAgresion", label: "Tipo de Agresión" },
+    { key: "expediente", label: "Expediente" },
+    { key: "foco_igneo", label: "Foco Ígneo" },
+    { key: "reyerta", label: "Reyerta" },
+    { key: "interv_requisa", label: "Intervención de Requisa" },
+    { key: "observacion", label: "Observaciones" },
+    { key: "ubicacionMap", label: "Ubicación en el Mapa" },
+     {
+      key: "createdAt",
+      label: "Creado el",
+      render: (item: any) => <DateTimeFormatter dateTime={item.createdAt} />, 
+    },
+    {
+      key: "updatedAt",
+      label: "Actualizado el",
+      render: (item: any) => <DateTimeFormatter dateTime={item.updatedAt} />, 
+    },
+    { key: "email", label: "Email" },
+  ];
+
+  return (
+    <div className="flex justify-start items-start flex-col w-full px-4 py-6">
+      <h1 className="text-4xl font-bold mb-4">Agresiones al personal penitenciario</h1>
+
+      <Link
+        href="/portal/eventos/agresiones/new"
+        className={buttonVariants()}
+        style={{ marginBottom: "20px" }}
+      >
+        Agregar Agresión
+      </Link>
+
+      <button
+        onClick={handleLoadData}
+        className={buttonVariants({ variant: "outline" })}
+        style={{ marginBottom: "20px" }}
+      >
+        Cargar historial
+      </button>
+
+      <ExportButton<Agresion>
+        data={searchResults.map((result) => result.item)}
+        fileName="Agresiones"
+      />
+
+      <SearchBarAgresiones data={agresiones} onSearchResults={handleSearchResults} />
+
+      {searchResults.length > 0 ? (
+        <Table
+          data={searchResults.map((result) => result.item)}
+          columns={columns}
+          sortColumn={sortColumn}
+          sortDirection={sortDirection}
+          onSort={handleSort}
+          onRowClick={handleRowClick}
+          onEditClick={handleEditClick}
+          onViewClick={handleRowClick}
+          hasPDFs={(item) =>
+            [
+              item.pdf1,
+              item.pdf2,
+              item.pdf3,
+              item.pdf4,
+              item.pdf5,
+              item.pdf6,
+              item.pdf7,
+              item.pdf8,
+              item.pdf9,
+              item.pdf10,
+            ].some((pdf) => pdf && pdf.trim() !== "")
+          }
+        />
+      ) : (
+        <p> </p>
+      )}
+    </div>
+  );
+}

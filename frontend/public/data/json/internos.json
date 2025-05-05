@@ -1,0 +1,32 @@
+{
+  "internos": [
+    {
+      "lpu": "123448/P",
+      "nombreApellido": "Juan SANCHEZ"
+    },
+    {
+      "lpu": "133568/P",
+      "nombreApellido": "Lucas MONTERO"
+    },
+    {
+      "lpu": "8888888/P",
+      "nombreApellido": "Iván CORTEZ"
+    },
+    {
+      "lpu": "1234568/P",
+      "nombreApellido": "Juan PEREZ"
+    },
+    {
+      "lpu": "123448/P",
+      "nombreApellido": "Juan SANABRIA"
+    },
+    {
+      "lpu": "7777777/P",
+      "nombreApellido": "Ariel LOPEZ"
+    },
+    {
+      "lpu": "1234568/P",
+      "nombreApellido": "Erick LAV"
+    }
+  ]
+}

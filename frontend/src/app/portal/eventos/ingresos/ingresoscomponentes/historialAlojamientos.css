@@ -1,0 +1,16 @@
+.editable {
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .edit-icon {
+    display: none;
+    position: absolute;
+    right: -20px;
+    top: 0;
+    color: green;
+  }
+  
+  .editable:hover .edit-icon {
+    display: inline;
+  }

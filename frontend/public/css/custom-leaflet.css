@@ -1,0 +1,4 @@
+/* custom-leaflet.css */
+.leaflet-popup-pane {
+    display: block !important;
+}
