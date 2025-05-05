@@ -299,6 +299,10 @@ export class IngresosService {
           { sexualidad: { contains: query } },
           { estadoCivil: { contains: query } },
           { internosinvolucrado: { contains: query } },
+          { telefono: { contains: query } }, // Agregado
+          { email: { contains: query } }, // Agregado
+          { telefono: { contains: query } }, // Agregado
+          { emailCliente: { contains: query } }, // Agregado
         ],
       },
     });

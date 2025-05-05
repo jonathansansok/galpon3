@@ -27,18 +27,17 @@ const IngresoInfo = ({
     window.open(`/portal/eventos/ingresos/${id}/edit`, "_blank");
   };
 
-
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <div className="w-full">
-          <Link
-  className="bg-orange-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 transition duration-300"
-  href="/portal/eventos/ingresos"
->
-  Volver
-</Link>
+            <Link
+              className="bg-orange-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 transition duration-300"
+              href="/portal/eventos/ingresos"
+            >
+              Volver
+            </Link>
             <button
               className="mt-0 bg-blue-500 text-white px-4 py-2.5 rounded-lg shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300 ml-4"
               onClick={() => handleEditClick(ingreso.id)}
@@ -93,11 +92,12 @@ const IngresoInfo = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Renderizar el historial */}
           <div className="col-span-2 mt-4">
-  <HistorialEgresos 
-    historial={historialEgresos} 
-    setHistorial={setHistorialEgresos} 
-  />
-</div>
+            <HistorialEgresos
+              historial={historialEgresos}
+              setHistorial={setHistorialEgresos}
+            />
+          </div>
+
           <p>
             <strong>Fecha de ingreso:</strong>{" "}
             {ingreso.fechaHoraIng
@@ -108,7 +108,6 @@ const IngresoInfo = ({
                   .reverse()
                   .join("/")
               : "No"}
-
             <strong
               className={ingreso.esAlerta ? "text-red-500" : "text-green-500"}
             >
@@ -120,6 +119,13 @@ const IngresoInfo = ({
               ? "No"
               : "No"}
           </p>
+          <p>
+            <strong>Teléfono:</strong> {ingreso.telefono || "No"}
+          </p>
+          <p>
+            <strong>Email Cliente:</strong> {ingreso.emailCliente || "No"}
+          </p>
+
           <p>
             <strong>Condición:</strong> {ingreso.condicion || "No"}
           </p>
@@ -183,29 +189,29 @@ const IngresoInfo = ({
                 <strong>Alias:</strong> {ingreso.alias || "No"}
               </p>
               <p>
-              <strong>Cronología de alojamientos actual:</strong>
-            </p>
-            <div className="mt-2 space-y-2 w-full col-span-2">
-              {ingreso.historial
-                ? ingreso.historial
-                    .split("\n")
-                    .map((line: string, index: number) => {
-                      const isEgreso = line.includes("Egresado");
-                      return (
-                        <div
-                          key={index}
-                          className={`w-full p-2 rounded-lg shadow-md ${
-                            isEgreso
-                              ? "bg-red-100 text-red-800"
-                              : "bg-blue-100 text-blue-800"
-                          }`}
-                        >
-                          {line}
-                        </div>
-                      );
-                    })
-                : "No hay historial disponible"}
-            </div>
+                <strong>Cronología de alojamientos actual:</strong>
+              </p>
+              <div className="mt-2 space-y-2 w-full col-span-2">
+                {ingreso.historial
+                  ? ingreso.historial
+                      .split("\n")
+                      .map((line: string, index: number) => {
+                        const isEgreso = line.includes("Egresado");
+                        return (
+                          <div
+                            key={index}
+                            className={`w-full p-2 rounded-lg shadow-md ${
+                              isEgreso
+                                ? "bg-red-100 text-red-800"
+                                : "bg-blue-100 text-blue-800"
+                            }`}
+                          >
+                            {line}
+                          </div>
+                        );
+                      })
+                  : "No hay historial disponible"}
+              </div>
               <p>
                 <strong>Nacionalidad:</strong> {ingreso.nacionalidad || "No"}
               </p>
@@ -295,7 +301,6 @@ const IngresoInfo = ({
                 <strong>Profesión:</strong> {ingreso.profesion || "No"}
               </p>
             </>
-            
           )}
         </div>
       </CardContent>

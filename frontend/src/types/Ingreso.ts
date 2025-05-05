@@ -47,6 +47,8 @@ export interface Ingreso {
   historial?: string; // Agregado
   internosinvolucrado?: string; // Agregado
   createdAt?: string | Date; // Agregado
+  telefono?: string; // Agregado
+  emailCliente?: string; // Agregado
   [key: string]: any; // Permitir indexación con una cadena
 }
   export interface Huelga extends Ingreso {

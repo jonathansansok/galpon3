@@ -43,18 +43,31 @@ export default function IngresosPage() {
       title: "Atención",
       text: "Recuerde buscar un interno por L.P.U. antes de agregarlo para no crear duplicaciones. Asimismo, en el formulario de Ingreso, se le indicará si el L.P.U. ya existe.",
       icon: "info",
-      timer: 10000, 
-      timerProgressBar: true, 
-      showConfirmButton: true, 
+      timer: 10000,
+      timerProgressBar: true,
+      showConfirmButton: true,
       confirmButtonText: "Aceptar",
     });
   }, []);
-  const handleSearch = async (queries: { generalQuery: string; apellido: string; nombres: string; lpu: string; lpuProv: string }) => {
-    const { generalQuery, apellido, nombres, lpu, lpuProv } = queries;
-    const query = generalQuery || apellido || nombres || lpu || lpuProv;
+  const handleSearch = async (queries: { 
+    generalQuery: string; 
+    apellido: string; 
+    nombres: string; 
+    lpu: string; 
+    lpuProv: string; 
+    telefono: string; 
+    emailCliente: string; 
+  }) => {
+    console.log("Consultas recibidas en handleSearch:", queries); // Agregado
+  
+    const { generalQuery, apellido, nombres, lpu, lpuProv, telefono, emailCliente } = queries;
+    const query = generalQuery || apellido || nombres || lpu || lpuProv || telefono || emailCliente;
+  
     if (query) {
       try {
-        const data = await searchInternos(query); // Usa la nueva función searchInternos
+        const data = await searchInternos(query);
+        console.log("Resultados de búsqueda recibidos:", data); // Agregado
+  
         if (Array.isArray(data)) {
           if (data.length === 0) {
             Alert.info({
@@ -63,17 +76,20 @@ export default function IngresosPage() {
             });
           }
           setSearchResults(
-            data.filter((item: Ingreso) => 
+            data.filter((item: Ingreso) =>
               (!apellido || item.apellido?.toLowerCase().includes(apellido.toLowerCase())) &&
               (!nombres || item.nombres?.toLowerCase().includes(nombres.toLowerCase())) &&
               (!lpu || item.lpu?.toLowerCase().includes(lpu.toLowerCase())) &&
-              (!lpuProv || item.lpuProv?.toLowerCase().includes(lpuProv.toLowerCase()))
+              (!lpuProv || item.lpuProv?.toLowerCase().includes(lpuProv.toLowerCase())) &&
+              (!telefono || item.telefono?.toLowerCase().includes(telefono.toLowerCase())) && // Agregado
+              (!emailCliente || item.emailCliente?.toLowerCase().includes(emailCliente.toLowerCase())) // Agregado
             ).map((item: Ingreso) => ({ item, matches: [] }))
           );
         } else {
           console.error("Data is not an array:", data);
         }
       } catch (error) {
+        console.error("Error en la búsqueda:", error); // Agregado
         Alert.error({
           title: "Error en la búsqueda",
           text: (error as Error).message,
@@ -157,15 +173,18 @@ export default function IngresosPage() {
     { key: "sexualidad", label: "Sexualidad" },
     { key: "estadoCivil", label: "Estado Civil" },
     { key: "profesion", label: "Profesión" },
-     {
+    { key: "telefono", label: "Teléfono" }, // Agregado
+    { key: "email", label: "Email creador" }, // Agregado
+    { key: "emailCliente", label: "Email Cliente" }, // Agregado
+    {
       key: "createdAt",
       label: "Creado el",
-      render: (item: any) => <DateTimeFormatter dateTime={item.createdAt} />, 
+      render: (item: any) => <DateTimeFormatter dateTime={item.createdAt} />,
     },
     {
       key: "updatedAt",
       label: "Actualizado el",
-      render: (item: any) => <DateTimeFormatter dateTime={item.updatedAt} />, 
+      render: (item: any) => <DateTimeFormatter dateTime={item.updatedAt} />,
     },
   ];
   return (
@@ -208,7 +227,7 @@ export default function IngresosPage() {
         <WatermarkBackground setBackgroundImage={setBackgroundImage} />
         {/* Tabla para mostrar los ingresos */}
         <Table
-          data={sortedResults.map(result => result.item)}
+          data={sortedResults.map((result) => result.item)}
           columns={columns}
           sortColumn={sortColumn}
           sortDirection={sortDirection}

@@ -6,7 +6,15 @@ import { Alert } from "@/components/ui/alert";
 import { InputFieldSimple } from "@/components/ui/inputs/InputFieldSimple";
 
 interface SearchBarProps {
-  onSearch: (queries: { generalQuery: string; apellido: string; nombres: string; lpu: string; lpuProv: string }) => void;
+  onSearch: (queries: { 
+    generalQuery: string; 
+    apellido: string; 
+    nombres: string; 
+    lpu: string; 
+    lpuProv: string; 
+    telefono: string; // Agregado
+    emailCliente: string; // Agregado
+  }) => void;
 }
 
 export function SearchBar({ onSearch }: SearchBarProps) {
@@ -15,6 +23,8 @@ export function SearchBar({ onSearch }: SearchBarProps) {
   const [nombres, setNombres] = useState("");
   const [lpu, setLpu] = useState("");
   const [lpuProv, setLpuProv] = useState("");
+  const [telefono, setTelefono] = useState(""); // Agregado
+  const [emailCliente, setEmailCliente] = useState(""); // Agregado
   const [loading, setLoading] = useState(false);
 
   const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,15 +41,27 @@ export function SearchBar({ onSearch }: SearchBarProps) {
   };
 
   const handleSearchClick = async () => {
-    if (generalQuery.length < 3 && apellido.length < 3 && nombres.length < 3 && lpu.length < 3 && lpuProv.length < 3) {
+    if (
+      generalQuery.length < 3 &&
+      apellido.length < 3 &&
+      nombres.length < 3 &&
+      lpu.length < 3 &&
+      lpuProv.length < 3 &&
+      telefono.length < 3 &&
+      emailCliente.length < 3
+    ) {
       Alert.warning({
         title: 'Búsqueda demasiado corta',
         text: 'Por favor, ingrese al menos tres caracteres en alguno de los campos para buscar.',
       });
       return;
     }
+  
+    const searchParams = { generalQuery, apellido, nombres, lpu, lpuProv, telefono, emailCliente };
+    console.log("Parámetros de búsqueda enviados:", searchParams); // Agregado
+  
     setLoading(true);
-    await onSearch({ generalQuery, apellido, nombres, lpu, lpuProv });
+    await onSearch(searchParams);
     setLoading(false);
   };
 
@@ -79,6 +101,20 @@ export function SearchBar({ onSearch }: SearchBarProps) {
         name="lpuProv"
         label="Buscar por L.P.U. Prov."
         placeholder=""
+      />
+      <InputFieldSimple
+        value={telefono} // Agregado
+        onChange={handleInputChange(setTelefono)} // Agregado
+        name="telefono" // Agregado
+        label="Buscar por Teléfono" // Agregado
+        placeholder="Ingrese el teléfono" // Agregado
+      />
+      <InputFieldSimple
+        value={emailCliente} // Agregado
+        onChange={handleInputChange(setEmailCliente)} // Agregado
+        name="emailCliente" // Agregado
+        label="Buscar por Email Cliente" // Agregado
+        placeholder="Ingrese el email del cliente" // Agregado
       />
       <div className="md:col-span-2 flex justify-start">
         <button

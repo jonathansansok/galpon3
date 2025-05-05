@@ -12,23 +12,23 @@ datasource db {
 }
 
 model Impactos {
-  id                  Int       @id @default(autoincrement()) 
-  createdAt           DateTime  @default(now()) 
-  updatedAt           DateTime  @updatedAt 
+  id                  Int       @id @default(autoincrement())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
   clas_seg            String?   @db.VarChar(10)
   fechaHora           DateTime? @db.DateTime
-  modulo_ur           String?   @db.VarChar(80) 
-  pabellon            String?   @db.VarChar(80) 
-  acontecimiento      String?   @db.VarChar(100) 
+  modulo_ur           String?   @db.VarChar(80)
+  pabellon            String?   @db.VarChar(80)
+  acontecimiento      String?   @db.VarChar(100)
   observacion         String?   @db.Text
   foco_igneo          String?   @db.VarChar(5)
   reyerta             String?   @db.VarChar(5)
   interv_requisa      String?   @db.VarChar(5)
   expediente          String?   @db.VarChar(100)
   establecimiento     String?   @db.VarChar(80)
-  email               String?   @db.VarChar(100) 
+  email               String?   @db.VarChar(100)
   internosinvolucrado String?   @db.Text
-  imagenes            String? 
+  imagenes            String?
   imagen              String?   @db.VarChar(255)
   imagenDer           String?   @db.VarChar(255)
   imagenIz            String?   @db.VarChar(255)
@@ -54,24 +54,24 @@ model Impactos {
 
 model Manifestaciones {
   id                  Int       @id @default(autoincrement())
-  createdAt           DateTime? @default(now()) 
-  updatedAt           DateTime? @updatedAt 
+  createdAt           DateTime? @default(now())
+  updatedAt           DateTime? @updatedAt
   clas_seg            String?   @db.VarChar(10)
-  establecimiento     String?   @db.VarChar(255) 
-  modulo_ur           String?   @db.VarChar(255) 
-  pabellon            String?   @db.VarChar(255) 
+  establecimiento     String?   @db.VarChar(255)
+  modulo_ur           String?   @db.VarChar(255)
+  pabellon            String?   @db.VarChar(255)
   sector              String?   @db.VarChar(255)
-  fechaHora           DateTime? @db.DateTime 
+  fechaHora           DateTime? @db.DateTime
   internosinvolucrado String?   @db.Text
   personalinvolucrado String?   @db.LongText
   foco_igneo          String?   @db.VarChar(5)
   reyerta             String?   @db.VarChar(5)
   interv_requisa      String?   @db.VarChar(5)
   expediente          String?   @db.VarChar(255)
-  observacion         String? 
+  observacion         String?
   ims                 String?   @db.VarChar(255)
   rojos               String?   @db.VarChar(255)
-  email               String?   @db.VarChar(255) 
+  email               String?   @db.VarChar(255)
   imagen              String?   @db.VarChar(255)
   imagenDer           String?   @db.VarChar(255)
   imagenIz            String?   @db.VarChar(255)
@@ -97,12 +97,12 @@ model Manifestaciones {
 }
 
 model Manifestaciones2 {
-  id                  Int       @id @default(autoincrement()) 
-  createdAt           DateTime  @default(now()) 
-  updatedAt           DateTime  @updatedAt 
+  id                  Int       @id @default(autoincrement())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
   clas_seg            String?   @db.VarChar(10)
-  establecimiento     String?   @db.VarChar(100) 
-  modulo_ur           String?   @db.VarChar(100) 
+  establecimiento     String?   @db.VarChar(100)
+  modulo_ur           String?   @db.VarChar(100)
   sector              String?   @db.VarChar(150) // Campo opcional (VARCHAR(150))
   fechaHora           DateTime? @db.DateTime // Campo opcional (DATETIME)
   expediente          String?   @db.VarChar(100) // Campo opcional (VARCHAR(100))
@@ -182,11 +182,13 @@ model Agresiones {
 }
 
 model Ingresos {
-  id              Int       @id @default(autoincrement()) // Clave primaria autoincremental
-  lpu             String?   @db.VarChar(50) // Puede cambiar
-  identificadorUnico String? @unique @db.VarChar(255) // Clave única adicional
+  id                        Int       @id @default(autoincrement()) // Clave primaria autoincremental
+  lpu                       String?   @db.VarChar(50) // Puede cambiar
+  identificadorUnico        String?   @unique @db.VarChar(255) // Clave única adicional
   createdAt                 DateTime? @default(now()) // TIMESTAMP con valor por defecto
   email                     String?   @db.VarChar(255) // VARCHAR(255)
+  telefono                  String?   @db.VarChar(255) // Campo teléfono, puede ser cualquier texto o null
+  emailCliente              String?   @db.VarChar(255) // Campo teléfono, puede ser cualquier texto o null
   imagen                    String?   @db.VarChar(255) // VARCHAR(255)
   imagenDer                 String?   @db.VarChar(255)
   imagenIz                  String?   @db.VarChar(255)
@@ -210,7 +212,7 @@ model Ingresos {
   word1                     String?   @db.VarChar(255)
   imagenes                  String? // LONGTEXT opcional
   condicion                 String?   @db.VarChar(20)
-    historialEgresos Json?    @default("[]") // Historial de egresos como JSON
+  historialEgresos          Json?     @default("[]") // Historial de egresos como JSON
   unidadDeIngreso           String?   @db.VarChar(40) // VARCHAR(40)
   fechaHoraIng              DateTime? @db.DateTime // DATETIME
   apellido                  String?   @db.VarChar(150) // VARCHAR(150)
@@ -235,7 +237,7 @@ model Ingresos {
   establecimiento           String?   @db.VarChar(200) // VARCHAR(40)
   modulo_ur                 String?   @db.VarChar(60)
   pabellon                  String?   @db.VarChar(70)
-  celda                       String?   @db.VarChar(70)
+  celda                     String?   @db.VarChar(70)
   historial                 String?   @db.LongText // LONGTEXT
   titInfoPublic             String?   @db.LongText // VARCHAR(255) opcional
   resumen                   String?   @db.LongText // TEXT opcional
@@ -922,42 +924,42 @@ model Temas {
 }
 
 model Traslados {
-  id        Int       @id @default(autoincrement()) // Clave primaria autoincremental
-  createdAt DateTime  @default(now()) // TIMESTAMP con valor por defecto
-  updatedAt DateTime  @updatedAt // TIMESTAMP con actualización automática
-  clas_seg  String?   @db.VarChar(10)
-  fechaHora DateTime? @db.DateTime // Campo opcional (DATETIME)
-  fechaTraslado   DateTime? @db.DateTime // DATETIME
-  establecimiento  String?   @db.VarChar(200) // VARCHAR(80), opcional
-  establecimiento2 String?   @db.VarChar(200) // VARCHAR(80), opcional
-  comunicacion     String?   @db.VarChar(100) // VARCHAR(100), opcional
-  disposicion      String?   @db.VarChar(255) // VARCHAR(100), opcional
-  disposicion2      String?   @db.VarChar(255) // VARCHAR(100), opcional
-  motivo           String?   @db.Text
-  internosinvolucrado String? @db.Text
-  email                     String? @db.VarChar(100) // VARCHAR(100), opcional
-  imagenes   String? // Campo opcional (LONGTEXT)
-  imagen     String? @db.VarChar(255) // VARCHAR(255)
-  imagenDer  String? @db.VarChar(255)
-  imagenIz   String? @db.VarChar(255)
-  imagenDact String? @db.VarChar(255)
-  imagenSen1 String? @db.VarChar(255)
-  imagenSen2 String? @db.VarChar(255)
-  imagenSen3 String? @db.VarChar(255)
-  imagenSen4 String? @db.VarChar(255)
-  imagenSen5 String? @db.VarChar(255)
-  imagenSen6 String? @db.VarChar(255)
-  pdf1       String? @db.VarChar(255)
-  pdf2       String? @db.VarChar(255)
-  pdf3       String? @db.VarChar(255)
-  pdf4       String? @db.VarChar(255)
-  pdf5       String? @db.VarChar(255)
-  pdf6       String? @db.VarChar(255)
-  pdf7       String? @db.VarChar(255)
-  pdf8       String? @db.VarChar(255)
-  pdf9       String? @db.VarChar(255)
-  pdf10      String? @db.VarChar(255)
-  word1      String? @db.VarChar(255)
+  id                  Int       @id @default(autoincrement()) // Clave primaria autoincremental
+  createdAt           DateTime  @default(now()) // TIMESTAMP con valor por defecto
+  updatedAt           DateTime  @updatedAt // TIMESTAMP con actualización automática
+  clas_seg            String?   @db.VarChar(10)
+  fechaHora           DateTime? @db.DateTime // Campo opcional (DATETIME)
+  fechaTraslado       DateTime? @db.DateTime // DATETIME
+  establecimiento     String?   @db.VarChar(200) // VARCHAR(80), opcional
+  establecimiento2    String?   @db.VarChar(200) // VARCHAR(80), opcional
+  comunicacion        String?   @db.VarChar(100) // VARCHAR(100), opcional
+  disposicion         String?   @db.VarChar(255) // VARCHAR(100), opcional
+  disposicion2        String?   @db.VarChar(255) // VARCHAR(100), opcional
+  motivo              String?   @db.Text
+  internosinvolucrado String?   @db.Text
+  email               String?   @db.VarChar(100) // VARCHAR(100), opcional
+  imagenes            String? // Campo opcional (LONGTEXT)
+  imagen              String?   @db.VarChar(255) // VARCHAR(255)
+  imagenDer           String?   @db.VarChar(255)
+  imagenIz            String?   @db.VarChar(255)
+  imagenDact          String?   @db.VarChar(255)
+  imagenSen1          String?   @db.VarChar(255)
+  imagenSen2          String?   @db.VarChar(255)
+  imagenSen3          String?   @db.VarChar(255)
+  imagenSen4          String?   @db.VarChar(255)
+  imagenSen5          String?   @db.VarChar(255)
+  imagenSen6          String?   @db.VarChar(255)
+  pdf1                String?   @db.VarChar(255)
+  pdf2                String?   @db.VarChar(255)
+  pdf3                String?   @db.VarChar(255)
+  pdf4                String?   @db.VarChar(255)
+  pdf5                String?   @db.VarChar(255)
+  pdf6                String?   @db.VarChar(255)
+  pdf7                String?   @db.VarChar(255)
+  pdf8                String?   @db.VarChar(255)
+  pdf9                String?   @db.VarChar(255)
+  pdf10               String?   @db.VarChar(255)
+  word1               String?   @db.VarChar(255)
 }
 
 model Users {
@@ -965,7 +967,7 @@ model Users {
   email               String   @unique // email debe ser único
   createdAt           DateTime @default(now()) // Fecha de creación
   updatedAt           DateTime @updatedAt // Fecha de actualización automática
-  privilege           String? 
+  privilege           String?
   internosinvolucrado String?  @db.Text
   comp                String?  @db.VarChar(255) // Nueva columna para almacenar el valor de comp
 }

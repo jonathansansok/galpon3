@@ -13,7 +13,14 @@ export class CreateIngresoDto {
   @IsOptional()
   @Transform(({ value }) => value.trim())
   email?: string;
-
+  @IsEmail()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  emailCliente?: string;
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  telefono?: string;
   @IsString()
   @IsOptional()
   @Transform(({ value }) => value.trim())

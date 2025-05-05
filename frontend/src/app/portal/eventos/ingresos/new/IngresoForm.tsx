@@ -79,6 +79,8 @@ interface Interno {
   nacionalidad: string;
   tipoDoc: string;
   numeroDni: string | number;
+  telefono?: string; // Agregado
+  emailCliente?: string; // Agregado
 }
 interface Electrodomestico {
   Electrodomestico: string;
@@ -129,6 +131,8 @@ interface Causa {
 export function IngresoForm({ ingreso }: { ingreso: any }) {
   const { handleSubmit, setValue, register, watch } = useForm<FormValues>({
     defaultValues: {
+      telefono: ingreso?.telefono || "",
+      emailCliente: ingreso?.emailCliente || "",
       establecimiento: ingreso?.establecimiento || "",
       modulo_ur: ingreso?.modulo_ur || "",
       pabellon: ingreso?.pabellon || "",
@@ -666,6 +670,8 @@ const [selectedIngresoCelda, setSelectedIngresoCelda] = useState<string>(ingreso
         selectedCausas?.map((causa) => causa.num_causa).join(", ") || "";
 
       const payload: any = {
+        telefono: data.telefono,
+        emailCliente: data.emailCliente,
         apellido: data.apellido,
         nombres: data.nombres,
         alias: data.alias,
@@ -962,6 +968,18 @@ const [selectedIngresoCelda, setSelectedIngresoCelda] = useState<string>(ingreso
           placeholder=""
         />
         <InputField register={register} name="nombres" label="Nombres" />
+        <InputField
+  register={register}
+  name="telefono"
+  label="Teléfono"
+  placeholder="Ingrese el número de teléfono"
+/>
+<InputField
+  register={register}
+  name="emailCliente"
+  label="Email Cliente"
+  placeholder="Ingrese el email del cliente"
+/>
         <InputField register={register} name="alias" label="Alias" />
         <SelectTipoDocConNacionalidad
   tipoDoc={tipoDoc}
