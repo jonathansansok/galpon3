@@ -70,7 +70,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
         value={lpu}
         onChange={handleInputChange(setLpu)}
         name="lpu"
-        label="Buscar por L.P.U."
+        label="Buscar por patente"
         placeholder=""
       />
       <InputFieldSimple

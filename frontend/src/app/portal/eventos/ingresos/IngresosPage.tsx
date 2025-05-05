@@ -3,14 +3,15 @@
 import Swal from "sweetalert2";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { getIngresos } from "./ingresos.api";
 import { buttonVariants } from "@/components/ui/button";
 import { searchInternos } from "./ingresos.api";
 import { ExportButton } from "@/components/ui/ExportButton";
 import { SearchBar } from "@/components/ui/SearchBars/SearchBarIngresos";
-import { Ingreso } from "@/types/Ingreso"; // Importa la interfaz Ingreso
 import { IngresoSearchResult } from "@/types/SearchResult"; // Importa la interfaz IngresoSearchResult
 import { Alert } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
+import { Ingreso, SearchResult } from "@/types/Ingreso";
 import Table from "@/components/eventossearch/Table";
 import DateTimeFormatter from "@/components/eventossearch/DateTimeFormatter"; // Importa el componente Table
 import WatermarkBackground from "@/components/WatermarkBackground"; // Importa el componente de marca de agua
@@ -18,11 +19,24 @@ import WatermarkBackground from "@/components/WatermarkBackground"; // Importa e
 export const dynamic = "force-dynamic";
 
 export default function IngresosPage() {
+  const [ingresos, setIngresos] = useState<Ingreso[]>([]);
   const [searchResults, setSearchResults] = useState<IngresoSearchResult[]>([]);
   const [sortColumn, setSortColumn] = useState<keyof Ingreso | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null); // Definir el estado backgroundImage
   const router = useRouter();
+  const handleLoadData = async () => {
+    try {
+      const data = await getIngresos();
+      const formattedData = Array.isArray(data) ? data : [];
+      setIngresos(formattedData);
+      setSearchResults(formattedData.map((item) => ({ item, matches: [] })));
+    } catch (error) {
+      console.error("Error al obtener setIngresos:", error);
+      setIngresos([]);
+      setSearchResults([]);
+    }
+  };
   // Mostrar SweetAlert al iniciar la página
   useEffect(() => {
     Swal.fire({
@@ -166,6 +180,13 @@ export default function IngresosPage() {
       >
         Agregar interno
       </Link>
+      <button
+        onClick={handleLoadData}
+        className={buttonVariants({ variant: "outline" })}
+        style={{ marginBottom: "20px" }}
+      >
+        Cargar historial
+      </button>
 
       {/* Botón para exportar los ingresos a Excel */}
       <ExportButton<Ingreso>

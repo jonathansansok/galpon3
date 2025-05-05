@@ -21,7 +21,7 @@ async function IngresoesNewPage({ params }: Props) {
       <Card>
         <CardHeader>
           <CardTitle>
-            {id ? "Editar Interno" : "Agregar Interno"}
+            {id ? "Editar cliente" : "Agregar cliente"}
           </CardTitle>
         </CardHeader>
         <CardContent>

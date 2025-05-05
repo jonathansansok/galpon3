@@ -1,3 +1,4 @@
+//frontend\src\app\portal\eventos\ingresos\ingresos.api.ts
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 function getCsrfTokenFromCookies() {
@@ -13,7 +14,7 @@ function getCsrfTokenFromCookies() {
   console.log("[CSRF] Token CSRF leído de las cookies:", token);
   return token;
 }
-
+//frontend\src\app\portal\eventos\ingresos\ingresos.api.ts
 export async function getIngresos() {
   try {
     const res = await fetch(`${BACKEND_URL}/api/ingresos`, {

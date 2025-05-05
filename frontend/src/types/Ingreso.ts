@@ -57,7 +57,10 @@ export interface Ingreso {
 }
 
 
-
+export interface SearchResult {
+  item: Ingreso;
+  matches: any[];
+}
 export interface Extramuro extends Ingreso {
   fecha: Date;
   fecha_reintegro?: Date;
