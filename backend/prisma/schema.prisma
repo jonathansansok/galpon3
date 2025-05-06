@@ -194,7 +194,7 @@ model Ingresos {
   numeroCuit                String?   @db.VarChar(20) // Número de CUIT
   dias                      String?   @db.VarChar(10) // Días
   iva                       String?   @db.VarChar(50) // Condición frente al IVA
-  pyme String? @db.VarChar(5) // Indica si es PyME
+  pyme                      String?   @db.VarChar(5) // Indica si es PyME
   porcB                     String?   @db.VarChar(10) // Porcentaje B
   porcRetIB                 String?   @db.VarChar(10) // Porcentaje Retención IB
   imagen                    String?   @db.VarChar(255) // VARCHAR(255)
@@ -267,6 +267,27 @@ model Ingresos {
   estadoCivil               String?   @db.VarChar(30) // VARCHAR(30) opcional
   internosinvolucrado       String?   @db.LongText
   imagenesHistorial         Json? // Historial de imágenes
+  moviles                   Moviles[]
+}
+
+model Moviles {
+  id          Int      @id @default(autoincrement())
+  patente     String   @db.VarChar(50)
+  marca       String   @db.VarChar(100)
+  modelo      String   @db.VarChar(100)
+  anio        Int
+  color       String   @db.VarChar(50)
+  tipoPintura String   @db.VarChar(100)
+  paisOrigen  String   @db.VarChar(100)
+  tipoVehic   String   @db.VarChar(100)
+  motor       String   @db.VarChar(100)
+  chasis      String   @db.VarChar(100)
+  combustion  String   @db.VarChar(50)
+  vin         String   @db.VarChar(100)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  ingresoId   Int
+  ingreso     Ingresos @relation(fields: [ingresoId], references: [id])
 }
 
 model Preingresos {

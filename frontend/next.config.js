@@ -53,6 +53,10 @@ const nextConfig = {
         destination: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/:path*`, // Proxy to Backend
       },
       {
+        source: "/api/uploads/:path*",
+        destination: `${process.env.NEXT_PUBLIC_BACKEND_URL}/moviles/uploads/:path*`, // Proxy to Backend
+      },
+      {
         source: "/api/pdfs/:path*",
         destination: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/:path*`, // Proxy to Backend
       },

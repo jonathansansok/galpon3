@@ -26,7 +26,7 @@ import { TemasModule } from './temas/temas.module';
 import { TrasladosModule } from './traslados/traslados.module';
 import { CsrfModule } from './csrf/csrf.module';
 import { CsrfMiddleware } from './csrf/csrf.middleware'; // Importar el middleware de CSRF
-
+import { MovilesModule } from './moviles/moviles.module'; // Importar el módulo de móviles
 @Module({
   imports: [
     ConfigModule,
@@ -53,6 +53,7 @@ import { CsrfMiddleware } from './csrf/csrf.middleware'; // Importar el middlewa
     EgresosModule,
     TemasModule,
     TrasladosModule,
+    MovilesModule,
   ],
   controllers: [], // Registrar el controlador
   providers: [PrismaService],

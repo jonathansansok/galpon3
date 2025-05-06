@@ -1,7 +1,6 @@
-//frontend\src\components\ui\SearchBars\SearchBarTemas.tsx
 import { useState } from "react";
 import Fuse from "fuse.js";
-import { Tema, SearchResult } from "@/types/Tema";
+import { Movil, SearchResult } from "@/types/Movil";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { ImSpinner2 } from "react-icons/im";
@@ -11,7 +10,7 @@ import SearchAndFilter from "@/components/ui/searchandfilter/SearchAndFilter";
 const MySwal = withReactContent(Swal);
 
 interface SearchBarProps {
-  data: Tema[];
+  data: Movil[];
   onSearchResults: (results: SearchResult[]) => void;
 }
 
@@ -23,7 +22,7 @@ function formatDate(date: Date): string {
   return date.toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires" });
 }
 
-export function SearchBarTemas({ data = [], onSearchResults }: SearchBarProps) {
+export function SearchBarMoviles({ data = [], onSearchResults }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const [additionalQuery, setAdditionalQuery] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -45,8 +44,11 @@ export function SearchBarTemas({ data = [], onSearchResults }: SearchBarProps) {
             normalizedItem[key] = formatDate(normalizedItem[key]);
           }
         }
-        if (item.fechaHora) {
-          normalizedItem.fechaHoraFormatted = formatDate(new Date(item.fechaHora));
+        if (item.createdAt) {
+          normalizedItem.createdAtFormatted = formatDate(new Date(item.createdAt));
+        }
+        if (item.updatedAt) {
+          normalizedItem.updatedAtFormatted = formatDate(new Date(item.updatedAt));
         }
         return normalizedItem;
       })
@@ -54,14 +56,20 @@ export function SearchBarTemas({ data = [], onSearchResults }: SearchBarProps) {
 
   const fuse = new Fuse(normalizedData, {
     keys: [
-      "email",
-      "observacion",
-      "fechaHoraFormatted",
-      "internosinvolucrado",
-      "imagenes",
-      "establecimiento",
-      "modulo_ur",
-      "pabellon",
+      "patente",
+      "marca",
+      "modelo",
+      "anio",
+      "color",
+      "tipoPintura",
+      "paisOrigen",
+      "tipoVehic",
+      "motor",
+      "chasis",
+      "combustion",
+      "vin",
+      "createdAtFormatted",
+      "updatedAtFormatted",
     ],
     threshold: 0.3,
     ignoreLocation: true,
@@ -103,7 +111,7 @@ export function SearchBarTemas({ data = [], onSearchResults }: SearchBarProps) {
     }
 
     results = results.filter((result) => {
-      const itemDate = result.item.fechaHora ? new Date(result.item.fechaHora) : undefined;
+      const itemDate = result.item.createdAt ? new Date(result.item.createdAt) : undefined;
       if (startDate && endDate) {
         return itemDate && itemDate >= startDate && itemDate <= endDate;
       } else if (startDate) {
