@@ -30,7 +30,7 @@ const formatDateTime = (dateTime: string): string => {
 
   return `${formattedDate} ${formattedTime}  `;
 };
-const formatPerfilesString = (perfiles: string): string => {
+/* const formatPerfilesString = (perfiles: string): string => {
   try {
     const perfilesArray = JSON.parse(perfiles);
     return perfilesArray.map((p: { option: string }) => p.option).join(", ");
@@ -39,7 +39,7 @@ const formatPerfilesString = (perfiles: string): string => {
     return "No especificado";
   }
 };
-
+ */
 export const showAlert = async (
   success: boolean,
   mensajeTitulo: string,
@@ -50,7 +50,6 @@ export const showAlert = async (
     mensajeTitulo,
     data,
   }); // Agrega este console.log
-  const formattedPerfilesString = formatPerfilesString(data.perfilesString);
 
   if (success) {
     const title =
@@ -98,7 +97,6 @@ export const showAlert = async (
   *Delitos*: ${data.electrodomesticosString || "No especificado"} -
   *Organización Criminal*: ${data.orgCrim || "No especificado"} -
   *Nombre Org. Crim.*: ${data.cualorg || "No especificado"} -
-  *Perfil*: ${formattedPerfilesString || "No especificado"} - 
   *Cicatrices*: ${data.heridasString || "No especificado"} - 
   *Tatuajes*: ${data.tatuajesString || "No especificado"} - 
   *Patologías*: ${data.patologiasString || "No especificado"} - 

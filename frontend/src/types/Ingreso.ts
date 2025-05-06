@@ -29,6 +29,7 @@ export interface Ingreso {
   resumen?: string;
   observacion?: string;
   link?: string;
+  cp?: string;
   patologias?: any;
   tatuajes?: any;
   cicatrices?: any;

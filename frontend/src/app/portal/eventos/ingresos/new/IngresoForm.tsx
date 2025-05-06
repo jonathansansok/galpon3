@@ -1,19 +1,20 @@
 //frontend\src\app\portal\eventos\ingresos\new\IngresoForm.tsx
 "use client";
-import { handleLpuBlur } from "./handleLpuBlur"; 
+import SelectIVA from "@/components/ui/SelectIVA";
+import DiasInput from "@/components/ui/DiasInput";
+import InputMau from "@/components/ui/InputMau";
+import Condicion from "@/components/ui/Condicion";
+import PymeCheckbox from "@/components/ui/PymeCheckbox";
+import { handleLpuBlur } from "./handleLpuBlur";
 import { Button } from "@/components/ui/button";
-import SelectTipoDocConNacionalidad from "@/components/ui/SelectTipoDoc2";
 import {
-  validateRequiredFields,
   validateEmptyFields,
-  validateFieldFormats
+  validateFieldFormats,
 } from "../../../../utils/validationUtils";
 import { excludedFields } from "../../../../utils/excludedFields";
-import HistorialEgresos from "@/components/ui/historialegreso/HistorialEgresos";
 import PhotosModal from "@/components/ui/MultimediaModals/PhotosModal";
 import PdfModal from "@/components/ui/MultimediaModals/PdfModal";
 import WordModal from "@/components/ui/MultimediaModals/WordModal";
-import SelectComp from "@/components/ui/SelectAnidaciones";
 import Textarea from "@/components/ui/Textarea";
 import { useForm, SubmitHandler } from "react-hook-form";
 import WatermarkBackground from "@/components/WatermarkBackground";
@@ -21,44 +22,17 @@ import { createIngreso, updateIngreso } from "../ingresos.api";
 import { useParams, useRouter } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
 import { useState, useEffect } from "react";
-import SelectProcedencia from "@/components/ui/SelectProcedencia";
-import FechaDeIngreso from "@/components/ui/FechaDeIngreso";
-import { Edad } from "@/components/ui/edad";
-import SelectUnidadDeIngreso from "@/components/ui/SelectUnidadDeIngreso";
-import SelectCondicion from "@/components/ui/Condicion";
 import { InputField } from "@/components/ui/InputField";
-import FechaDeNacimiento from "@/components/ui/FechaDeNacimiento";
-import SelectNacionalidad from "@/components/ui/Nacionalidad";
-import SelectProvincia from "@/components/ui/SelectProvincia";
 import { DomiciliosModal } from "@/components/ui/DomiciliosModal";
-import { DomicilioMapaModal } from "@/components/ui/DomicilioMapaModal";
-import { JuzgadoSelector } from "@/components/ui/JuzgadoSelector";
-import { ElectrodomesticoSelector } from "@/components/ui/ElectrodomesticosSelector";
-import { PatologiaSelector } from "@/components/ui/PatologiasSelector";
-import { HeridasSelector } from "@/components/ui/HeridasSelector";
-import { TatuajesSelector } from "@/components/ui/TatuajesSelector";
-import { PerfilesSelector } from "@/components/ui/PerfilesSelector";
 import ToggleAlerta from "@/components/ui/ToggleAlerta";
-import { CausasModal } from "@/components/ui/CausasModal";
-import SelectSituacionProcesal from "@/components/ui/sitProc";
+import SelectProvincia from "@/components/ui/SelectProvincia";
 import { showAlert, showCancelAlert } from "../../../../utils/alertUtils";
-import SelectSexo from "@/components/ui/SelectSexo";
-import SelectSubGrupo from "@/components/ui/SelectSubgrupo";
-import SelectSexualidad from "@/components/ui/SelectSexualidad";
-import SelectEstadoCivil from "@/components/ui/SelectEstadoCivil";
-import SelectOrgCrim from "@/components/ui/SelectOrgCrim";
 import generatePDF from "../../../../utils/pdf2";
 import { useUserStore } from "@/lib/store";
-import Reingresos from "@/components/ui/Reingresos";
-import { loadGoogleMaps } from "@/app/utils/googleMapsLoader";
-import HistorialAlojamientos from "@/app/portal/eventos/ingresos/ingresoscomponentes/HistorialAlojamientos";
 import Modal from "@/components/ui/Modal";
 interface Domicilio {
   domicilio: string;
   establecimiento?: string;
-}
-interface Juzgado {
-  Juzgado: string;
 }
 
 interface Interno {
@@ -69,6 +43,7 @@ interface Interno {
   detalle: string;
   establecimiento: string;
   apellido: string;
+  cp: string;
   nombres: string;
   sexo: string;
   perfil: string;
@@ -82,69 +57,28 @@ interface Interno {
   telefono?: string; // Agregado
   emailCliente?: string; // Agregado
 }
-interface Electrodomestico {
-  Electrodomestico: string;
-  Norma: string;
-  titulo: number;
-  capitulo: number;
-  articulo: number;
-  inciso: number;
-  apartado: number;
-  Otros: number;
-  "Tipo de Electrodomestico": string;
-  DetalleUser?: string;
-}
-
-interface Patologia {
-  level: number;
-  code: string;
-  description: string;
-  code_2: string;
-  code_0: string;
-  code_1: string;
-  detalles?: string;
-}
-
-interface Herida {
-  zona: string;
-  type: string;
-  detail: string;
-}
-
-interface Tatuaje {
-  zona: string;
-  details: string[];
-}
 
 interface FormValues {
   [key: string]: string;
 }
 
-interface Perfil {
-  option: string;
-}
-
-interface Causa {
-  num_causa: string;
-}
-
 export function IngresoForm({ ingreso }: { ingreso: any }) {
   const { handleSubmit, setValue, register, watch } = useForm<FormValues>({
     defaultValues: {
+      numeroCuit: ingreso?.numeroCuit || "",
+      dias: ingreso?.dias || "",
+      iva: ingreso?.iva || "Consumidor Final",
+      condicion: ingreso?.condicion || "Cliente",
+      pyme: ingreso?.pyme || "false",
+      porcB: ingreso?.porcB || "",
+      porcRetIB: ingreso?.porcRetIB || "",
+      provincia: ingreso?.provincia || "",
+      numeroDni: ingreso?.numeroDni || "",
       telefono: ingreso?.telefono || "",
       emailCliente: ingreso?.emailCliente || "",
-      establecimiento: ingreso?.establecimiento || "",
-      modulo_ur: ingreso?.modulo_ur || "",
-      pabellon: ingreso?.pabellon || "",
       apellido: ingreso?.apellido || "",
+      cp: ingreso?.cp || "",
       nombres: ingreso?.nombres || "",
-      alias: ingreso?.alias || "",
-      tipoDoc: ingreso?.tipoDoc || "",
-      docNacionalidad: ingreso?.docNacionalidad || "",
-      numeroDni: ingreso?.numeroDni || "",
-      lpu: ingreso?.lpu || "",
-      lpuProv: ingreso?.lpuProv || "",
-      unidadDeIngreso: ingreso?.unidadDeIngreso || "",
       imagen: ingreso?.imagen || "",
       imagenDer: ingreso?.imagenDer || "",
       imagenIz: ingreso?.imagenIz || "",
@@ -166,39 +100,11 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
       pdf9: ingreso?.pdf9 || "",
       pdf10: ingreso?.pdf10 || "",
       word1: ingreso?.word1 || "",
-      fechaIngreso: ingreso?.fechaHoraIng || "",
-      fechaNacimiento: ingreso?.fechaNacimiento || "",
-      edad: ingreso?.edad_ing || "",
       observacion: ingreso?.observacion || "",
-      temaInf: ingreso?.temaInf || "",
-      nacionalidad: ingreso?.nacionalidad || "",
-      provincia: ingreso?.provincia || "",
-      ubicacionMap: ingreso?.ubicacionMap || "",
-      num_causa: ingreso?.numeroCausa || "",
-
-      sitProc: ingreso?.sitProc || "",
       domicilios: ingreso?.domicilios || "",
-      juzgados: ingreso?.juzgados || "",
-      numeroCausa: ingreso?.numeroCausa || "",
-      electrodomesticos: ingreso?.electrodomesticos || [],
-      patologias: ingreso?.patologias
-        ? JSON.stringify(ingreso.patologias)
-        : "[]",
-      cicatrices: ingreso?.cicatrices || "",
-      tatuajes: ingreso?.tatuajes ? JSON.stringify(ingreso.tatuajes) : "[]",
-      perfil: ingreso?.perfil ? JSON.stringify(ingreso.perfil) : "",
-      sexo: ingreso?.sexo || "",
-      subGrupo: ingreso?.subGrupo || "",
-      sexualidad: ingreso?.sexualidad || "",
-      estadoCivil: ingreso?.estadoCivil || "",
-      profesion: ingreso?.profesion || "",
-      titInfoPublic: ingreso?.titInfoPublic || "",
-      resumen: ingreso?.resumen || "",
-      link: ingreso?.link || "",
-      orgCrim: ingreso?.orgCrim || "",
-      cualorg: ingreso?.cualorg || "",
       esAlerta: ingreso?.esAlerta || "No",
-      condicion: ingreso?.condicion || "",
+
+      resumen: ingreso?.resumen || "",
       internosinvolucrado: JSON.stringify(ingreso?.internosinvolucrado || []),
     },
   });
@@ -223,37 +129,6 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
     }
     return [];
   });
-  const [historial, setHistorial] = useState<string>(ingreso?.historial || "");
-  // Declarar los estados faltantes
-const [selectedIngresoEstablecimiento, setSelectedIngresoEstablecimiento] = useState<string>(ingreso?.establecimiento || "");
-const [selectedIngresoModuloUr, setSelectedIngresoModuloUr] = useState<string>(ingreso?.modulo_ur || "");
-const [selectedIngresoPabellon, setSelectedIngresoPabellon] = useState<string>(ingreso?.pabellon || "");
-const [selectedIngresoCelda, setSelectedIngresoCelda] = useState<string>(ingreso?.celda || "");
-
-  useEffect(() => {
-    setSelectedIngresoEstablecimiento(ingreso?.establecimiento || "");
-    setSelectedIngresoModuloUr(ingreso?.modulo_ur || "");
-    setSelectedIngresoPabellon(ingreso?.pabellon || "");
-    setSelectedIngresoCelda(ingreso?.celda || "");
-  }, [ingreso]);
-    const handleIngresoCeldaChange = (value: string) => {
-      setSelectedIngresoCelda(value);
-      setValue("celda", value);
-    };
-  const handleIngresoEstablecimientoChange = (value: string) => {
-    setSelectedIngresoEstablecimiento(value);
-    setValue("establecimiento", value);
-  };
-
-  const handleIngresoModuloUrChange = (value: string) => {
-    setSelectedIngresoModuloUr(value);
-    setValue("modulo_ur", value);
-  };
-
-  const handleIngresoPabellonChange = (value: string) => {
-    setSelectedIngresoPabellon(value);
-    setValue("pabellon", value);
-  };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -261,36 +136,12 @@ const [selectedIngresoCelda, setSelectedIngresoCelda] = useState<string>(ingreso
     setIsModalOpen(!isModalOpen);
   };
 
-  const [orgCrim, setOrgCrim] = useState<string>(ingreso?.orgCrim || "");
-  const [cualorg, setCualorg] = useState<string>(ingreso?.cualorg || "");
-  const [estadoCivil, setEstadoCivil] = useState<string>(
-    ingreso?.estadoCivil || ""
-  );
-  const [sexo, setSexo] = useState<string>(ingreso?.sexo || "");
-  const [subGrupo, setSubGrupo] = useState<string>(ingreso?.subGrupo || "");
-  const [sexualidad, setSexualidad] = useState<string>(
-    ingreso?.sexualidad || ""
-  );
   const [observacion, setobservacion] = useState<string>(
     ingreso?.observacion || ""
   );
-  const [temaInf, setTemaInf] = useState<string>(ingreso?.temaInf || "");
-  const [link, setlink] = useState<string>(ingreso?.link || "");
-  const [titInfoPublic, setTitInfoPublic] = useState<string>(
-    ingreso?.titInfoPublic || ""
-  );
-  const [resumen, setResumen] = useState<string>(ingreso?.resumen || "");
-  const [procedencia, setProcedencia] = useState<string>(
-    ingreso?.procedencia || ""
-  );
   const [condicion, setCondicion] = useState<string>(ingreso?.condicion || "");
-  const [nacionalidad, setNacionalidad] = useState<string>(
-    ingreso?.nacionalidad || ""
-  );
+  const [resumen, setResumen] = useState<string>(ingreso?.resumen || "");
   const [provincia, setProvincia] = useState<string>(ingreso?.provincia || "");
-  const [ubicacionMap, setUbicacionMap] = useState<string>(
-    ingreso?.ubicacionMap || ""
-  );
   const [imagen, setImagen] = useState<string | null>(
     ingreso?.imagen
       ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagen}`
@@ -402,11 +253,11 @@ const [selectedIngresoCelda, setSelectedIngresoCelda] = useState<string>(ingreso
   }>(ingreso?.imagenesHistorial || {});
   const nombres = watch("nombres");
   const apellido = watch("apellido");
-  const lpu = watch("lpu");
-  const lpuProv = watch("lpuProv");
+  const telefono = watch("telefono");
+  const email = watch("emailCliente");
   const nDoc = watch("numeroDni");
   const generateFileName = (type: string) => {
-    return `${apellido}_${nombres}_L.P.U._${lpu}_L.P.U. PROV_${lpuProv}_NºDoc. ${nDoc}_${type}.png`.replace(
+    return `${apellido}_${nombres}_Telefono:${telefono}_Nº D.n.i.: ${nDoc}_Email:${email}_ ${type}.png`.replace(
       /\s+/g,
       "_"
     );
@@ -441,114 +292,11 @@ const [selectedIngresoCelda, setSelectedIngresoCelda] = useState<string>(ingreso
     return [];
   });
   const [isDomiciliosModalOpen, setIsDomiciliosModalOpen] = useState(false);
-  const [selectedJuzgados, setSelectedJuzgados] = useState<string[]>(() => {
-    if (ingreso?.juzgados) {
-      return ingreso.juzgados.split(", ");
-    }
-    return [];
-  });
-  const [selectedElectrodomesticos, setSelectedElectrodomesticos] = useState<
-    Electrodomestico[]
-  >([]);
-  const [selectedPatologias, setSelectedPatologias] = useState<Patologia[]>(
-    () => {
-      if (ingreso?.patologias) {
-        try {
-          return JSON.parse(ingreso.patologias);
-        } catch (error) {
-          console.error("Error parsing patologias JSON:", error);
-          return [];
-        }
-      }
-      return [];
-    }
-  );
-  const [detallesPatologia, setDetallesPatologia] = useState<string>("");
-  const [selectedHeridas, setSelectedHeridas] = useState<Herida[]>(() => {
-    if (ingreso?.cicatrices) {
-      return ingreso.cicatrices.split(", ").map((cicatriz: string) => {
-        const [zona, type, detail] = cicatriz.split(" - ");
-        return { zona, type, detail };
-      });
-    }
-    return [];
-  });
-  const [selectedTatuajes, setSelectedTatuajes] = useState<Tatuaje[]>(() => {
-    if (ingreso?.tatuajes) {
-      try {
-        return JSON.parse(ingreso.tatuajes);
-      } catch (error) {
-        console.error("Error parsing tatuajes JSON:", error);
-        return [];
-      }
-    }
-    return [];
-  });
-  const [selectedPerfiles, setSelectedPerfiles] = useState<Perfil[]>(() => {
-    if (ingreso?.perfil) {
-      try {
-        return JSON.parse(ingreso.perfil);
-      } catch (error) {
-        console.error("Error parsing perfil JSON:", error);
-        return [];
-      }
-    }
-    return [];
-  });
-  const [selectedCausas, setSelectedCausas] = useState<Causa[]>(
-    ingreso?.numeroCausa ? [{ num_causa: ingreso.numeroCausa }] : []
-  );
-  const [selectedCountry, setSelectedCountry] = useState<string>(
-    ingreso?.establecimiento || ""
-  );
-  const [unidadDeIngreso, setUnidadDeIngreso] = useState<string>(
-    ingreso?.unidadDeIngreso || ""
-  );
-  const [tipoDoc, setTipoDoc] = useState<string>(ingreso?.tipoDoc || "");
-  const [docNacionalidad, setDocNacionalidad] = useState<string>(
-    ingreso?.docNacionalidad || ""
-  );
-  const handleTipoDocChange = (value: string) => {
-    setTipoDoc(value);
-    setValue("tipoDoc", value);
-  };
 
-  const handleDocNacionalidadChange = (value: string) => {
-    setDocNacionalidad(value);
-    setValue("docNacionalidad", value);
-  };
   const [esAlerta, setEsAlerta] = useState<string>(ingreso?.esAlerta || "No");
-
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-  useEffect(() => {}, [selectedJuzgados]);
 
   const user = useUserStore((state) => state.user);
   const setUser = useUserStore((state) => state.setUser);
-
-  const [googleLoaded, setGoogleLoaded] = useState(false);
-
-  useEffect(() => {
-    const fetchApiKey = async () => {
-      try {
-        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-        if (apiKey) {
-          loadGoogleMaps(apiKey)
-            .then((google) => {
-              setGoogleLoaded(true);
-            })
-            .catch((error) => {
-              console.error("Error loading Google Maps:", error);
-            });
-        } else {
-          console.error("Google Maps API key is missing");
-        }
-      } catch (error) {
-        console.error("Error fetching Google Maps API key:", error);
-      }
-    };
-
-    fetchApiKey();
-  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -573,35 +321,16 @@ const [selectedIngresoCelda, setSelectedIngresoCelda] = useState<string>(ingreso
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
 
   const fieldLabels: Record<string, string> = {
-    establecimiento: "Establecimiento",
     apellido: "Apellido",
     nombres: "Nombres",
-    numeroDni: "Num. Doc",
   };
 
-  const requiredFields = [
-    "establecimiento",
-    "apellido",
-    "nombres",
-    "numeroDni",
-  ];
+  const requiredFields = ["apellido", "nombres"];
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    const missingFields = validateRequiredFields(
-      data,
-      requiredFields,
-      fieldLabels
-    );
     const emptyFields = validateEmptyFields(data, fieldLabels, excludedFields);
 
-  const formatErrors = validateFieldFormats(data);
+    const formatErrors = validateFieldFormats(data);
 
-    if (missingFields.length > 0) {
-      Alert.error({
-        title: "Error",
-        text: `Faltan campos obligatorios: ${missingFields.join(" - ")}.`,
-      });
-      return;
-    }
     if (emptyFields.length > 0) {
       const confirmation = await Alert.confirm({
         title: "Advertencia",
@@ -615,6 +344,7 @@ const [selectedIngresoCelda, setSelectedIngresoCelda] = useState<string>(ingreso
         return; // El usuario decidió no continuar
       }
     }
+
     if (formatErrors.length > 0) {
       Alert.error({
         title: "Error de formato",
@@ -622,7 +352,7 @@ const [selectedIngresoCelda, setSelectedIngresoCelda] = useState<string>(ingreso
       });
       return;
     }
-  
+
     const confirmation = await Alert.confirm({
       title: "¿Estás seguro?",
       text: "¿Deseas enviar el formulario?",
@@ -642,86 +372,30 @@ const [selectedIngresoCelda, setSelectedIngresoCelda] = useState<string>(ingreso
       // Inicialización de las variables necesarias
       const domiciliosString =
         domicilios?.map((d) => d.domicilio).join(", ") || "";
-      const juzgadosString = selectedJuzgados?.join(", ") || "";
-      const electrodomesticosString =
-        selectedElectrodomesticos
-          ?.map(
-            (electrodomestico) =>
-              `${electrodomestico.Electrodomestico} (${
-                electrodomestico.Norma
-              }) - Tipo: ${
-                electrodomestico["Tipo de Electrodomestico"]
-              } - Detalle: ${electrodomestico.DetalleUser || ""}`
-          )
-          .join(", ") || "";
-      const patologiasString = JSON.stringify(selectedPatologias || []);
-      const patologiasConDetalles = `${patologiasString} - Detalles de Patologías: ${
-        detallesPatologia || ""
-      }`;
-      const heridasString =
-        selectedHeridas
-          ?.map(
-            (herida) => `${herida.zona} - ${herida.type} - ${herida.detail}`
-          )
-          .join(", ") || "";
-      const tatuajesString = JSON.stringify(selectedTatuajes || []);
-      const perfilesString = JSON.stringify(selectedPerfiles || []);
-      const numeroCausa =
-        selectedCausas?.map((causa) => causa.num_causa).join(", ") || "";
 
       const payload: any = {
+        numeroCuit: data.numeroCuit,
+        dias: data.dias,
+        iva: data.iva,
+        condicion: data.condicion,
+        pyme: data.pyme === "true", // Convertir a boolean
+        porcB: data.porcB,
+        porcRetIB: data.porcRetIB,
+        provincia: data.provincia,
+        resumen: data.resumen,
+        numeroDni: data.numeroDni,
         telefono: data.telefono,
         emailCliente: data.emailCliente,
         apellido: data.apellido,
+        cp: data.cp,
         nombres: data.nombres,
-        alias: data.alias,
-        tipoDoc: data.tipoDoc,
-        docNacionalidad: data.docNacionalidad,
-        numeroDni: data.numeroDni,
-        lpu: data.lpu,
-        lpuProv: data.lpuProv,
-        sitProc: data.sitProc,
-        edad_ing: data.edad,
-        unidadDeIngreso: data.unidadDeIngreso,
-        procedencia: data.procedencia,
-        condicion: data.condicion,
-        fechaHoraIng: data.fechaIngreso,
-        celda: data.celda, // Agregar este campo
-        nacionalidad: data.nacionalidad,
-        provincia: data.provincia,
         domicilios: domiciliosString,
-        ubicacionMap: data.ubicacionMap,
-        juzgados: juzgadosString,
-        numeroCausa: numeroCausa,
-        electrodomesticos: electrodomesticosString,
-        cicatrices: heridasString,
-        tatuajes: tatuajesString,
-        patologias: patologiasString,
-        orgCrim: data.orgCrim,
-        cualorg: data.cualorg,
-        perfil: perfilesString,
-        sexo: data.sexo,
-        subGrupo: data.subGrupo,
-        sexualidad: data.sexualidad,
-        estadoCivil: data.estadoCivil,
-        profesion: data.profesion,
         observacion: data.observacion,
-        temaInf: data.temaInf,
-        titInfoPublic: data.titInfoPublic,
-        resumen: data.resumen,
-        link: data.link,
         email: user?.email,
         esAlerta: esAlerta,
-        internosinvolucrado: JSON.stringify(selectedInternos || []),
-        establecimiento: data.establecimiento,
-        modulo_ur: data.modulo_ur,
-        pabellon: data.pabellon,
-        historial: historial,
-      };
 
-      if (data.fechaNacimiento) {
-        payload.fechaNacimiento = data.fechaNacimiento;
-      }
+        internosinvolucrado: JSON.stringify(selectedInternos || []),
+      };
 
       const formData = new FormData();
       for (const key in payload) {
@@ -776,31 +450,20 @@ const [selectedIngresoCelda, setSelectedIngresoCelda] = useState<string>(ingreso
       }
 
       const mensajeTitulo = params.id
-        ? "Actualización de Interno"
-        : "Creación de Interno";
+        ? "Actualización de Cliente"
+        : "Creación de Cliente";
 
       const alertData = {
         ...data,
-        fechaIngreso: data.fechaIngreso,
-        procedencia: data.procedencia,
-        condicion: data.condicion,
         provincia: data.provincia,
+        condicion: data.condicion,
         domiciliosString: domiciliosString,
-        ubicacionMap: data.ubicacionMap,
-        numeroCausa: numeroCausa,
-        juzgadosString: juzgadosString,
-        electrodomesticosString: electrodomesticosString,
-        patologiasString: patologiasConDetalles,
-        heridasString: heridasString,
-        tatuajesString: tatuajesString,
-        perfilesString: perfilesString,
-        link: data.link,
         esAlerta: esAlerta,
       };
 
       if (response.success) {
         await showAlert(response.success, mensajeTitulo, alertData);
-      
+
         if (esAlerta !== "No") {
           const historialEgresos = ingreso.historialEgresos || []; // Asegúrate de que sea un array
           console.log("Historial que se pasa al PDF:", historialEgresos); // Verificar el historial antes de pasarlo
@@ -843,13 +506,6 @@ const [selectedIngresoCelda, setSelectedIngresoCelda] = useState<string>(ingreso
     >
       <WatermarkBackground setBackgroundImage={setBackgroundImage} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 auto-rows-auto items-start">
-{/*         <Reingresos
-          initialInternos={selectedInternos}
-          onSelect={(value) => {
-            setSelectedInternos(value);
-            setValue("internosinvolucrado", JSON.stringify(value));
-          }}
-        /> */}
         <Button
           type="button"
           onClick={() => setIsPhotosOpen(true)}
@@ -929,193 +585,33 @@ const [selectedIngresoCelda, setSelectedIngresoCelda] = useState<string>(ingreso
           word1={word1}
           setWord1={setWord1}
         />
-<SelectCondicion
-  value={condicion}
-  onChange={(value) => {
-    setCondicion(value);
-    setValue("condicion", value);
-  }}
-/>
-<HistorialEgresos
-  historial={ingreso?.historialEgresos || []}
-  setHistorial={(newHistorial) => {
-    // Convierte el historial a una cadena JSON antes de actualizarlo
-    setValue("historialEgresos", JSON.stringify(newHistorial));
-  }}
-/>
-        <FechaDeIngreso
-          value={fechaIngreso}
-          onChange={(value: string) => {
-            setFechaIngreso(value);
-            setValue("fechaIngreso", value);
-          }}
-        />
-        <FechaDeNacimiento
-          value={fechaNacimiento}
-          onChange={(value: string) => {
-            setFechaNacimiento(value);
-            setValue("fechaNacimiento", value);
-          }}
-        />
-        <Edad
-          fechaNacimiento={fechaNacimiento}
-          onChange={(edad) => setValue("edad", edad.toString())}
-        />
+        <Button
+          type="button"
+          onClick={() => setIsPdfOpen(true)}
+          className="bg-cyan-600 hover:bg-cyan-800 text-white px-4 py-2 rounded-lg"
+        >
+          Autos
+        </Button>
+
         <InputField
           register={register}
           name="apellido"
-          label="Apellido"
+          label="Apellido o razón social"
           placeholder=""
         />
         <InputField register={register} name="nombres" label="Nombres" />
-        <InputField
-  register={register}
-  name="telefono"
-  label="Teléfono"
-  placeholder="Ingrese el número de teléfono"
-/>
-<InputField
-  register={register}
-  name="emailCliente"
-  label="Email Cliente"
-  placeholder="Ingrese el email del cliente"
-/>
-        <InputField register={register} name="alias" label="Alias" />
-        <SelectTipoDocConNacionalidad
-  tipoDoc={tipoDoc}
-  docNacionalidad={docNacionalidad} // Cambiado de "nacionalidad" a "docNacionalidad"
-  onTipoDocChange={handleTipoDocChange}
-  onDocNacionalidadChange={handleDocNacionalidadChange}
-/>
         <InputField register={register} name="numeroDni" label="Número Doc." />
         <InputField
-        register={register}
-        name="lpu"
-        label="L.P.U"
-    
-      />
-        <InputField register={register} name="lpuProv" label="L.P.U Prov." />
-
-        <SelectSituacionProcesal
-          value={ingreso?.sitProc || ""}
-          onChange={(value) => {
-            setValue("sitProc", value);
-          }}
+          register={register}
+          name="telefono"
+          label="Teléfono"
+          placeholder=""
         />
-        <SelectProcedencia
-          value={procedencia}
-          onChange={(value) => {
-            setProcedencia(value);
-            setValue("procedencia", value);
-          }}
-        />
-        <SelectUnidadDeIngreso
-          value={unidadDeIngreso}
-          onChange={(value) => {
-            setUnidadDeIngreso(value);
-            setValue("unidadDeIngreso", value);
-          }}
-        />
-<SelectComp
-  initialEstablecimiento={selectedIngresoEstablecimiento}
-  initialModuloUr={selectedIngresoModuloUr}
-  initialPabellon={selectedIngresoPabellon}
-  initialCelda={selectedIngresoCelda}
-  onEstablecimientoChange={handleIngresoEstablecimientoChange}
-  onModuloUrChange={handleIngresoModuloUrChange}
-  onPabellonChange={handleIngresoPabellonChange}
-  onCeldaChange={handleIngresoCeldaChange}
-  showPabellon={true}
-  showCelda={true}
-/>
-        <button
-          type="button"
-          onClick={toggleModal}
-          className="w-full text-white bg-teal-500 hover:bg-teal-500 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-teal-500 dark:hover:bg-teal-600 dark:focus:ring-teal-400"
-        >
-          Cronología de alojamientos
-        </button>
-        <Modal isOpen={isModalOpen} onClose={toggleModal}>
-          <HistorialAlojamientos
-            historial={historial}
-            setHistorial={setHistorial}
-            ingreso={ingreso}
-          />
-        </Modal>
-        <SelectNacionalidad
-          value={nacionalidad}
-          onChange={(value) => {
-            setNacionalidad(value);
-            setValue("nacionalidad", value);
-          }}
-        />
-        <SelectProvincia
-          value={provincia}
-          onChange={(value) => {
-            setProvincia(value);
-            setValue("provincia", value);
-          }}
-        />
-        <JuzgadoSelector
-          initialJuzgados={selectedJuzgados}
-          onSelect={(selectedJuzgados) => {
-            setSelectedJuzgados(selectedJuzgados);
-            setValue("juzgados", selectedJuzgados.join(", "));
-          }}
-        />
-        <CausasModal
-          initialCausas={selectedCausas}
-          onSelect={(selectedCausas) => {
-            setSelectedCausas(selectedCausas);
-            setValue(
-              "numeroCausa",
-              selectedCausas.map((causa) => causa.num_causa).join(", ")
-            );
-          }}
-        />
-        <ElectrodomesticoSelector
-          initialElectrodomesticos={ingreso?.electrodomesticos || ""}
-          onSelect={(selectedElectrodomesticos: Electrodomestico[]) => {
-            setSelectedElectrodomesticos(selectedElectrodomesticos);
-          }}
-        />
-        <PatologiaSelector
-          defaultPatologias={selectedPatologias}
-          onSelect={(selectedPatologias: Patologia[]) => {
-            setSelectedPatologias(selectedPatologias);
-            setValue("patologias", JSON.stringify(selectedPatologias));
-          }}
-        />
-        <PerfilesSelector
-          initialPerfiles={selectedPerfiles}
-          onSelect={(selectedPerfiles) => {
-            setSelectedPerfiles(selectedPerfiles);
-            setValue("perfil", JSON.stringify(selectedPerfiles));
-          }}
-        />
-
-        <TatuajesSelector
-          defaultTatuajes={selectedTatuajes}
-          onSelect={(selectedTatuajes: Tatuaje[]) => {
-            setSelectedTatuajes(selectedTatuajes);
-            setValue("tatuajes", JSON.stringify(selectedTatuajes));
-          }}
-        />
-
-        <HeridasSelector
-          defaultHeridas={selectedHeridas}
-          onSelect={(selectedHeridas: Herida[]) => {
-            setSelectedHeridas(selectedHeridas);
-            setValue(
-              "cicatrices",
-              selectedHeridas
-                .map(
-                  (herida) =>
-                    `${herida.zona} - ${herida.type} - ${herida.detail}`
-                )
-                .join(", ")
-            );
-          }}
+        <InputField
+          register={register}
+          name="emailCliente"
+          label="Email Cliente"
+          placeholder=""
         />
 
         <Button
@@ -1125,65 +621,53 @@ const [selectedIngresoCelda, setSelectedIngresoCelda] = useState<string>(ingreso
         >
           Cargar domicilios
         </Button>
-        <Button
-          type="button"
-          onClick={() => setIsMapaModalOpen(true)}
-          className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg"
-        >
-          Mapa de calor
-        </Button>
-        <SelectOrgCrim
-          orgCrim={orgCrim}
-          cualorg={cualorg}
-          onChange={(orgCrim, cualorg) => {
-            setOrgCrim(orgCrim);
-            setCualorg(cualorg);
-            setValue("orgCrim", orgCrim);
-            setValue("cualorg", cualorg);
+        <SelectProvincia
+          value={provincia}
+          onChange={(value) => {
+            setProvincia(value);
+            setValue("provincia", value);
           }}
+        />
+        <InputField register={register} name="cp" label="C.P." placeholder="" />
+        <InputMau
+          register={register}
+          name="numeroCuit"
+          label="Número de CUIT"
         />
 
-        <SelectSubGrupo
-          value={subGrupo}
-          onChange={(value) => {
-            setSubGrupo(value);
-            setValue("subGrupo", value);
-          }}
+        <DiasInput register={register} name="dias" label="Días" />
+
+        <InputMau register={register} name="porcB" label="Porcentaje B" />
+
+        <InputMau
+          register={register}
+          name="porcRetIB"
+          label="Porcentaje Retención IB"
         />
-        <SelectSexo
-          value={sexo}
-          onChange={(value) => {
-            setSexo(value);
-            setValue("sexo", value);
-          }}
-        />
-        <SelectSexualidad
-          value={sexualidad}
-          onChange={(value) => {
-            setSexualidad(value);
-            setValue("sexualidad", value);
-          }}
-        />
-        <SelectEstadoCivil
-          value={estadoCivil}
-          onChange={(value) => {
-            setEstadoCivil(value);
-            setValue("estadoCivil", value);
-          }}
+        <PymeCheckbox
+  checked={watch("pyme") === "true"} // Convertir la cadena a booleano
+  onChange={(checked) => setValue("pyme", checked ? "true" : "false")} // Convertir el booleano a cadena
+/>
+        <SelectIVA
+          value={watch("iva")}
+          onChange={(value) => setValue("iva", value)}
         />
 
-        <InputField register={register} name="profesion" label="Profesión/es" />
+        <Condicion
+          value={watch("condicion")}
+          onChange={(value) => setValue("condicion", value)}
+        />
+
         <Textarea
-          id="titInfoPublic"
-          value={titInfoPublic}
+          id="resumen"
+          value={resumen}
           onChange={(value) => {
-            setTitInfoPublic(value);
-            setValue("titInfoPublic", value);
+            setResumen(value);
+            setValue("resumen", value);
           }}
-          label="Título de información pública"
-          placeholder="Escribe Título de información pública aquí..."
+          label="Referencia"
+          placeholder="Escribe la referencia aquí..."
         />
-
         <Textarea
           id="observacion"
           value={observacion}
@@ -1194,46 +678,21 @@ const [selectedIngresoCelda, setSelectedIngresoCelda] = useState<string>(ingreso
           label="Observaciones"
           placeholder="Escribe las observaciones aquí..."
         />
-        <Textarea
-          id="temaInf"
-          value={temaInf}
-          onChange={(value) => {
-            setTemaInf(value);
-            setValue("temaInf", value);
-          }}
-          label="Tema informativo"
-          placeholder="Escribe Tema Informativo aquí..."
-        />
-        <Textarea
-          id="resumen"
-          value={resumen}
-          onChange={(value) => {
-            setResumen(value);
-            setValue("resumen", value);
-          }}
-          label="Resumen"
-          placeholder="Escribe el resumen aquí..."
-        />
-        <Textarea
-          id="link"
-          value={link}
-          onChange={(value) => {
-            setlink(value);
-            setValue("link", value);
-          }}
-          label="Link"
-          placeholder="Escribe los detalles de los delitos aquí..."
-        />
+
         <div className="font-bold ">
           <ToggleAlerta
             id="esAlerta"
             value={esAlerta === "Si"}
             onChange={(value) => setEsAlerta(value)}
-            label="¿Es Alerta?"
+            label="¿Expedir PDF?"
           />
         </div>
         <div className="flex space-x-4">
-          <Button type="button" onClick={goToIngresos} className="bg-orange-500">
+          <Button
+            type="button"
+            onClick={goToIngresos}
+            className="bg-orange-500"
+          >
             Volver
           </Button>
           <Button
@@ -1257,15 +716,6 @@ const [selectedIngresoCelda, setSelectedIngresoCelda] = useState<string>(ingreso
         domicilios={domicilios}
         onAddDomicilio={handleAddDomicilio}
         onRemoveDomicilio={handleRemoveDomicilio}
-      />
-      <DomicilioMapaModal
-        isOpen={isMapaModalOpen}
-        onClose={() => setIsMapaModalOpen(false)}
-        ubicacionMap={ubicacionMap}
-        setUbicacionMap={(value) => {
-          setUbicacionMap(value);
-          setValue("ubicacionMap", value); // Asegúrate de actualizar el valor en el formulario
-        }}
       />
     </form>
   );

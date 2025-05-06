@@ -79,13 +79,13 @@ export const handleLpuBlur = async (lpuValue: string) => {
       } else {
         Swal.fire({
           title: "Sin coincidencias",
-          text: "No se encontraron internos con el LPU ingresado.",
+          text: "No se encontraron clientes con el D.N.I. ingresado.",
           icon: "info",
           confirmButtonText: "Aceptar",
         });
       }
     } catch (error) {
-      console.error("Error al buscar internos:", error);
+      console.error("Error al buscar clientes:", error);
       Swal.fire({
         title: "Error",
         text: "Ocurrió un error al buscar internos. Por favor, inténtelo de nuevo.",

@@ -76,20 +76,19 @@ export default function AppContentLayoutComponent(
                     </div>
                   </Link>
                   <Link
-                        href="/portal/eventos/establecimientos"
-                        onClick={handleLinkClick}
-                      >
-                        <div className="flex mb-2 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
-                          <MdSearch className="text-2xl text-gray-600 group-hover:text-white" />
-                          <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
-                            Establecimientos
-                          </h3>
-                        </div>
-                      </Link>
+                    href="/portal/eventos/establecimientos"
+                    onClick={handleLinkClick}
+                  >
+                    <div className="flex mb-2 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
+                      <MdSearch className="text-2xl text-gray-600 group-hover:text-white" />
+                      <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
+                        Establecimientos
+                      </h3>
+                    </div>
+                  </Link>
                   {/* Enlaces visibles solo para usuarios que no son B1 */}
                   {privilege !== "B1" && (
                     <>
-                      
                       <Link
                         href="/portal/eventos/redes"
                         onClick={handleLinkClick}

@@ -96,13 +96,6 @@ export function SearchBar({ onSearch }: SearchBarProps) {
         placeholder=""
       />
       <InputFieldSimple
-        value={lpuProv}
-        onChange={handleInputChange(setLpuProv)}
-        name="lpuProv"
-        label="Buscar por L.P.U. Prov."
-        placeholder=""
-      />
-      <InputFieldSimple
         value={telefono} // Agregado
         onChange={handleInputChange(setTelefono)} // Agregado
         name="telefono" // Agregado
@@ -114,7 +107,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
         onChange={handleInputChange(setEmailCliente)} // Agregado
         name="emailCliente" // Agregado
         label="Buscar por Email Cliente" // Agregado
-        placeholder="Ingrese el email del cliente" // Agregado
+        placeholder="" // Agregado
       />
       <div className="md:col-span-2 flex justify-start">
         <button

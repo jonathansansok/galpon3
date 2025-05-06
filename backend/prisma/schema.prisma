@@ -186,9 +186,17 @@ model Ingresos {
   lpu                       String?   @db.VarChar(50) // Puede cambiar
   identificadorUnico        String?   @unique @db.VarChar(255) // Clave única adicional
   createdAt                 DateTime? @default(now()) // TIMESTAMP con valor por defecto
+  updatedAt                 DateTime? @default(now()) // TIMESTAMP con valor por defecto
   email                     String?   @db.VarChar(255) // VARCHAR(255)
+  cp                        String?   @db.VarChar(255) // VARCHAR(255)
   telefono                  String?   @db.VarChar(255) // Campo teléfono, puede ser cualquier texto o null
-  emailCliente              String?   @db.VarChar(255) // Campo teléfono, puede ser cualquier texto o null
+  emailCliente              String?   @db.VarChar(255)
+  numeroCuit                String?   @db.VarChar(20) // Número de CUIT
+  dias                      String?   @db.VarChar(10) // Días
+  iva                       String?   @db.VarChar(50) // Condición frente al IVA
+  pyme String? @db.VarChar(5) // Indica si es PyME
+  porcB                     String?   @db.VarChar(10) // Porcentaje B
+  porcRetIB                 String?   @db.VarChar(10) // Porcentaje Retención IB
   imagen                    String?   @db.VarChar(255) // VARCHAR(255)
   imagenDer                 String?   @db.VarChar(255)
   imagenIz                  String?   @db.VarChar(255)

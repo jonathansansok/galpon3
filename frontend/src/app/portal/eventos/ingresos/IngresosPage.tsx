@@ -15,7 +15,6 @@ import { Ingreso, SearchResult } from "@/types/Ingreso";
 import Table from "@/components/eventossearch/Table";
 import DateTimeFormatter from "@/components/eventossearch/DateTimeFormatter"; // Importa el componente Table
 import WatermarkBackground from "@/components/WatermarkBackground"; // Importa el componente de marca de agua
-
 export const dynamic = "force-dynamic";
 
 export default function IngresosPage() {
@@ -40,8 +39,8 @@ export default function IngresosPage() {
   // Mostrar SweetAlert al iniciar la página
   useEffect(() => {
     Swal.fire({
-      title: "Atención",
-      text: "Recuerde buscar un interno por L.P.U. antes de agregarlo para no crear duplicaciones. Asimismo, en el formulario de Ingreso, se le indicará si el L.P.U. ya existe.",
+      title: "Buena práctica:",
+      text: "Recuerde buscar persona D.N.I. antes de agregarlo para no crear duplicaciones.",
       icon: "info",
       timer: 10000,
       timerProgressBar: true,
@@ -49,25 +48,40 @@ export default function IngresosPage() {
       confirmButtonText: "Aceptar",
     });
   }, []);
-  const handleSearch = async (queries: { 
-    generalQuery: string; 
-    apellido: string; 
-    nombres: string; 
-    lpu: string; 
-    lpuProv: string; 
-    telefono: string; 
-    emailCliente: string; 
+  const handleSearch = async (queries: {
+    generalQuery: string;
+    apellido: string;
+    nombres: string;
+    lpu: string;
+    lpuProv: string;
+    telefono: string;
+    emailCliente: string;
   }) => {
     console.log("Consultas recibidas en handleSearch:", queries); // Agregado
-  
-    const { generalQuery, apellido, nombres, lpu, lpuProv, telefono, emailCliente } = queries;
-    const query = generalQuery || apellido || nombres || lpu || lpuProv || telefono || emailCliente;
-  
+
+    const {
+      generalQuery,
+      apellido,
+      nombres,
+      lpu,
+      lpuProv,
+      telefono,
+      emailCliente,
+    } = queries;
+    const query =
+      generalQuery ||
+      apellido ||
+      nombres ||
+      lpu ||
+      lpuProv ||
+      telefono ||
+      emailCliente;
+
     if (query) {
       try {
         const data = await searchInternos(query);
         console.log("Resultados de búsqueda recibidos:", data); // Agregado
-  
+
         if (Array.isArray(data)) {
           if (data.length === 0) {
             Alert.info({
@@ -76,14 +90,33 @@ export default function IngresosPage() {
             });
           }
           setSearchResults(
-            data.filter((item: Ingreso) =>
-              (!apellido || item.apellido?.toLowerCase().includes(apellido.toLowerCase())) &&
-              (!nombres || item.nombres?.toLowerCase().includes(nombres.toLowerCase())) &&
-              (!lpu || item.lpu?.toLowerCase().includes(lpu.toLowerCase())) &&
-              (!lpuProv || item.lpuProv?.toLowerCase().includes(lpuProv.toLowerCase())) &&
-              (!telefono || item.telefono?.toLowerCase().includes(telefono.toLowerCase())) && // Agregado
-              (!emailCliente || item.emailCliente?.toLowerCase().includes(emailCliente.toLowerCase())) // Agregado
-            ).map((item: Ingreso) => ({ item, matches: [] }))
+            data
+              .filter(
+                (item: Ingreso) =>
+                  (!apellido ||
+                    item.apellido
+                      ?.toLowerCase()
+                      .includes(apellido.toLowerCase())) &&
+                  (!nombres ||
+                    item.nombres
+                      ?.toLowerCase()
+                      .includes(nombres.toLowerCase())) &&
+                  (!lpu ||
+                    item.lpu?.toLowerCase().includes(lpu.toLowerCase())) &&
+                  (!lpuProv ||
+                    item.lpuProv
+                      ?.toLowerCase()
+                      .includes(lpuProv.toLowerCase())) &&
+                  (!telefono ||
+                    item.telefono
+                      ?.toLowerCase()
+                      .includes(telefono.toLowerCase())) && // Agregado
+                  (!emailCliente ||
+                    item.emailCliente
+                      ?.toLowerCase()
+                      .includes(emailCliente.toLowerCase())) // Agregado
+              )
+              .map((item: Ingreso) => ({ item, matches: [] }))
           );
         } else {
           console.error("Data is not an array:", data);
@@ -133,49 +166,16 @@ export default function IngresosPage() {
   const columns = [
     { key: "apellido", label: "Apellido" },
     { key: "nombres", label: "Nombres" },
-    { key: "lpu", label: "LPU" },
-    { key: "sitProc", label: "Situación Procesal" },
-    { key: "lpuProv", label: "LPU Prov" },
-    { key: "establecimiento", label: "Establecimiento" },
-    { key: "modulo_ur", label: "Módulo - U.R." },
-    { key: "pabellon", label: "Pabellón" },
-    { key: "celda", label: "Celda" },
-    { key: "tipoDoc", label: "Tipo de Documento" },
-    { key: "docNacionalidad", label: "Nacionalidad del Documento" }, // Agregado
-    { key: "numeroDni", label: "Número de Documento" },
-    { key: "condicion", label: "Condición" },
-    { key: "fechaHoraIng", label: "Fecha de Ingreso" },
-    { key: "alias", label: "Alias" },
-    { key: "esAlerta", label: "Es Alerta" },
-    { key: "fechaNacimiento", label: "Fecha de Nacimiento" },
-    { key: "edad_ing", label: "Edad" },
-    { key: "nacionalidad", label: "Nacionalidad" },
-    { key: "provincia", label: "Provincia" },
-    { key: "domicilios", label: "Domicilios" },
-    { key: "numeroCausa", label: "Número/s de Causa/s" },
-    { key: "procedencia", label: "Procedencia" },
-    { key: "orgCrim", label: "Organización Criminal" },
-    { key: "electrodomesticos", label: "Delitos" },
-    { key: "juzgados", label: "Juzgados" },
-    { key: "ubicacionMap", label: "Ubicación en el Mapa" },
-    { key: "perfil", label: "Perfil" },
-    { key: "reingreso", label: "Reingreso" },
-    { key: "titInfoPublic", label: "Título de Información Pública" },
-    { key: "temaInf", label: "Tema informativo" },
-    { key: "resumen", label: "Resumen" },
-    { key: "observacion", label: "Observación" },
-    { key: "link", label: "Link" },
-    { key: "patologias", label: "Patologías" },
-    { key: "tatuajes", label: "Tatuajes" },
-    { key: "cicatrices", label: "Cicatrices" },
-    { key: "subGrupo", label: "Subgrupo" },
-    { key: "sexo", label: "Sexo" },
-    { key: "sexualidad", label: "Sexualidad" },
-    { key: "estadoCivil", label: "Estado Civil" },
-    { key: "profesion", label: "Profesión" },
+    { key: "numeroDni", label: "D.N.I." },
     { key: "telefono", label: "Teléfono" }, // Agregado
-    { key: "email", label: "Email creador" }, // Agregado
+    { key: "domicilios", label: "Domicilios" },
+    { key: "provincia", label: "Localidad" },
+    { key: "cp", label: "C.P." },
     { key: "emailCliente", label: "Email Cliente" }, // Agregado
+    { key: "resumen", label: "Referencia" },
+    { key: "observacion", label: "Observación" },
+    { key: "email", label: "Email creador" }, // Agregado
+
     {
       key: "createdAt",
       label: "Creado el",
@@ -197,7 +197,7 @@ export default function IngresosPage() {
         className={buttonVariants()}
         style={{ marginBottom: "20px" }}
       >
-        Agregar interno
+        Agregar Cliente
       </Link>
       <button
         onClick={handleLoadData}

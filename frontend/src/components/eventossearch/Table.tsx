@@ -1,7 +1,7 @@
 //frontend\src\components\eventossearch\Table.tsx
 import React, { ReactNode, useState } from "react";
 import { FaEdit, FaEye, FaFilePdf } from "react-icons/fa";
-
+import { formatDateTime } from "@/app/utils/formatData";
 interface TableProps<T> {
   data: T[];
   columns: { key: keyof T; label: string; render?: (item: T) => ReactNode }[];
@@ -14,7 +14,7 @@ interface TableProps<T> {
   hasPDFs?: (item: T) => boolean; // Función opcional para verificar PDFs
 }
 
-const Table = <T extends { id: string | number }>({
+const Table = <T extends { id: string | number; [key: string]: any }>({
   data,
   columns,
   sortColumn,
@@ -25,7 +25,9 @@ const Table = <T extends { id: string | number }>({
   onViewClick,
   hasPDFs,
 }: TableProps<T>) => {
-  const [expandedRows, setExpandedRows] = useState<Set<string | number>>(new Set());
+  const [expandedRows, setExpandedRows] = useState<Set<string | number>>(
+    new Set()
+  );
 
   const handleRowClick = (id: string | number) => {
     const newExpandedRows = new Set(expandedRows);
@@ -66,10 +68,18 @@ const Table = <T extends { id: string | number }>({
                 key={column.key as string}
                 className="py-2 px-4 border-b text-left cursor-pointer"
                 onClick={() => onSort(column.key)}
-                style={{ minWidth: "50px", maxWidth: "200px", borderRight: "1px solid #ccc" }}
+                style={{
+                  minWidth: "50px",
+                  maxWidth: "200px",
+                  borderRight: "1px solid #ccc",
+                }}
               >
                 {column.label}{" "}
-                {sortColumn === column.key ? (sortDirection === "asc" ? "▲" : "▼") : "▲▼"}
+                {sortColumn === column.key
+                  ? sortDirection === "asc"
+                    ? "▲"
+                    : "▼"
+                  : "▲▼"}
               </th>
             ))}
           </tr>
@@ -86,7 +96,7 @@ const Table = <T extends { id: string | number }>({
                   style={{ minWidth: "60px", borderRight: "1px solid #ccc" }}
                 >
                   <div className="flex justify-center items-center space-x-2">
-                  {hasPDFs && hasPDFs(item) && (
+                    {hasPDFs && hasPDFs(item) && (
                       <button
                         className="text-red-500 hover:text-red-700"
                         onClick={(e) => {
@@ -120,7 +130,6 @@ const Table = <T extends { id: string | number }>({
                     </button>
 
                     {/* Botón de PDF (si tiene PDFs) */}
-                    
                   </div>
                 </td>
                 {columns.map((column) => (
@@ -137,18 +146,55 @@ const Table = <T extends { id: string | number }>({
                   >
                     {column.render
                       ? column.render(item) // Renderiza columnas personalizadas
-                      : item[column.key] as ReactNode}
+                      : (item[column.key] as ReactNode)}
                   </td>
                 ))}
               </tr>
+
               {expandedRows.has(item.id) && (
                 <tr>
-                  <td colSpan={columns.length + 1} className="py-2 px-4 border-b">
+                  <td
+                    colSpan={columns.length + 1}
+                    className="py-2 px-4 border-b"
+                  >
                     <div className="p-4 bg-gray-100 font-sans text-sm rounded-b-lg">
-                      <div className="whitespace-pre-wrap break-words">
-                        {Object.entries(item).map(([key, value]) => (
-                          <div key={key}>
-                            <strong>{key}:</strong> {value}
+                      <div className="space-y-4">
+                        {/* Renderizar solo los campos seleccionados */}
+                        {[
+                          { label: "ID", key: "id" },
+                          { label: "Apellido", key: "apellido" },
+                          { label: "Nombres", key: "nombres" },
+                          { label: "D.N.I.", key: "numeroDni" },
+                          { label: "Teléfono", key: "telefono" },
+                          { label: "Email Cliente", key: "emailCliente" },
+                          { label: "Domicilios", key: "domicilios" },
+                          { label: "Localidad", key: "provincia" },
+                          { label: "C.P.", key: "cp" },
+                          { label: "Referencia", key: "resumen" },
+                          { label: "Observación", key: "observacion" },
+
+                          { label: "Email creador", key: "email" },
+                          {
+                            label: "Creado el",
+                            key: "createdAt",
+                            format: formatDateTime,
+                          },
+                          {
+                            label: "Actualizado el",
+                            key: "updatedAt",
+                            format: formatDateTime,
+                          },
+                        ].map(({ label, key, format }) => (
+                          <div key={key} className="flex flex-col">
+                            <div className="flex">
+                              <strong className="mr-2">{label}:</strong>
+                              <span>
+                                {format
+                                  ? format(item[key])
+                                  : item[key] || "No disponible"}
+                              </span>
+                            </div>
+                            <hr className="border-t-2 border-turquoise-500 my-2" />
                           </div>
                         ))}
                       </div>
