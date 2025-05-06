@@ -601,18 +601,6 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
         />
         <InputField register={register} name="nombres" label="Nombres" />
         <InputField register={register} name="numeroDni" label="Número Doc." />
-        <InputField
-          register={register}
-          name="telefono"
-          label="Teléfono"
-          placeholder=""
-        />
-        <InputField
-          register={register}
-          name="emailCliente"
-          label="Email Cliente"
-          placeholder=""
-        />
 
         <Button
           type="button"
@@ -629,6 +617,16 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
           }}
         />
         <InputField register={register} name="cp" label="C.P." placeholder="" />
+        <InputField
+          register={register}
+          name="telefono"
+          label="Teléfono"
+          placeholder=""
+        />
+        <SelectIVA
+          value={watch("iva")}
+          onChange={(value) => setValue("iva", value)}
+        />
         <InputMau
           register={register}
           name="numeroCuit"
@@ -637,6 +635,16 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
 
         <DiasInput register={register} name="dias" label="Días" />
 
+        <Condicion
+          value={watch("condicion")}
+          onChange={(value) => setValue("condicion", value)}
+        />
+        <InputField
+          register={register}
+          name="emailCliente"
+          label="Email Cliente"
+          placeholder=""
+        />
         <InputMau register={register} name="porcB" label="Porcentaje B" />
 
         <InputMau
@@ -645,17 +653,8 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
           label="Porcentaje Retención IB"
         />
         <PymeCheckbox
-  checked={watch("pyme") === "true"} // Convertir la cadena a booleano
-  onChange={(checked) => setValue("pyme", checked ? "true" : "false")} // Convertir el booleano a cadena
-/>
-        <SelectIVA
-          value={watch("iva")}
-          onChange={(value) => setValue("iva", value)}
-        />
-
-        <Condicion
-          value={watch("condicion")}
-          onChange={(value) => setValue("condicion", value)}
+          checked={watch("pyme") === "true"} // Convertir la cadena a booleano
+          onChange={(checked) => setValue("pyme", checked ? "true" : "false")} // Convertir el booleano a cadena
         />
 
         <Textarea
