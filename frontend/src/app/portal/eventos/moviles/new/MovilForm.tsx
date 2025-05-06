@@ -19,7 +19,7 @@ interface FormValues {
   patente: string;
   marca: string;
   modelo: string;
-  anio: string;
+  anio: string; // Se recibe como string desde el formulario
   color: string;
   tipoPintura: string;
   paisOrigen: string;
@@ -36,7 +36,7 @@ export function MovilForm({ movil }: { movil: any }) {
       patente: movil?.patente || "",
       marca: movil?.marca || "",
       modelo: movil?.modelo || "",
-      anio: movil?.anio?.toString() || "",
+      anio: movil?.anio?.toString() || "", // Convertir a string para el formulario
       color: movil?.color || "",
       tipoPintura: movil?.tipoPintura || "",
       paisOrigen: movil?.paisOrigen || "",
@@ -52,71 +52,13 @@ export function MovilForm({ movil }: { movil: any }) {
   const params = useParams<{ id: string }>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Estados para archivos multimedia
-  const [imagen, setImagen] = useState<string | null>(
-    movil?.imagen
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/moviles/uploads/${movil.imagen}`
-      : null
-  );
-  const [imagenDer, setImagenDer] = useState<string | null>(null);
-  const [imagenIz, setImagenIz] = useState<string | null>(null);
-  const [imagenDact, setImagenDact] = useState<string | null>(null);
-  const [imagenSen1, setImagenSen1] = useState<string | null>(null);
-  const [imagenSen2, setImagenSen2] = useState<string | null>(null);
-  const [imagenSen3, setImagenSen3] = useState<string | null>(null);
-  const [imagenSen4, setImagenSen4] = useState<string | null>(null);
-  const [imagenSen5, setImagenSen5] = useState<string | null>(null);
-  const [imagenSen6, setImagenSen6] = useState<string | null>(null);
-
-  const [pdf1, setPdf1] = useState<string | null>(null);
-  const [pdf2, setPdf2] = useState<string | null>(null);
-  const [pdf3, setPdf3] = useState<string | null>(null);
-  const [pdf4, setPdf4] = useState<string | null>(null);
-  const [pdf5, setPdf5] = useState<string | null>(null);
-  const [pdf6, setPdf6] = useState<string | null>(null);
-  const [pdf7, setPdf7] = useState<string | null>(null);
-  const [pdf8, setPdf8] = useState<string | null>(null);
-  const [pdf9, setPdf9] = useState<string | null>(null);
-  const [pdf10, setPdf10] = useState<string | null>(null);
-
-  const [word1, setWord1] = useState<string | null>(null);
-
-  const fieldLabels: Record<string, string> = {
-    patente: "Patente",
-    marca: "Marca",
-    modelo: "Modelo",
-    anio: "Año",
-    color: "Color",
-    tipoPintura: "Tipo de Pintura",
-    paisOrigen: "País de Origen",
-    tipoVehic: "Tipo de Vehículo",
-    motor: "Motor",
-    chasis: "Chasis",
-    combustion: "Combustión",
-    vin: "VIN",
-  };
-
-  const requiredFields = Object.keys(fieldLabels);
-
-  const generateFileName = (type: string) => {
-    return `movil_${Date.now()}_${type}`.replace(/\s+/g, "_");
-  };
-
-  const getImageUrl = (imagePath: string): string => {
-    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/moviles/uploads/${imagePath.split("/").pop()}`;
-  };
-
-  const getPdfUrl = (pdfPath: string): string => {
-    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/moviles/uploads/${pdfPath.split("/").pop()}`;
-  };
-
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     console.log("[SUBMIT] Datos originales:", data);
-  
+
     // Validar campos obligatorios y vacíos
     const missingFields = validateRequiredFields(data, requiredFields, fieldLabels);
     const emptyFields = validateEmptyFields(data, fieldLabels, excludedFields);
-  
+
     if (missingFields.length > 0) {
       Alert.error({
         title: "Error",
@@ -124,50 +66,49 @@ export function MovilForm({ movil }: { movil: any }) {
       });
       return;
     }
-  
+
     if (emptyFields.length > 0) {
       const confirmation = await Alert.confirm({
         title: "Advertencia",
         text: `Hay campos vacíos: ${emptyFields.join(" - ")}. ¿Deseas continuar?`,
         icon: "warning",
       });
-  
+
       if (!confirmation.isConfirmed) {
         console.log("[SUBMIT] El usuario decidió no continuar debido a campos vacíos.");
         return;
       }
     }
-  
+
     const confirmation = await Alert.confirm({
       title: "¿Estás seguro?",
       text: "¿Deseas enviar el formulario?",
       icon: "warning",
     });
-  
+
     if (!confirmation.isConfirmed) {
       console.log("[SUBMIT] El usuario canceló la confirmación.");
       return;
     }
-  
+
     setIsSubmitting(true);
-  
+
     try {
       // Preparar los datos para enviar
       const payload = {
         ...data,
         anio: parseInt(data.anio, 10), // Convertir a número entero
-        ingresoId: 1, // Asegúrate de enviar un ingresoId válido
       };
-  
+
       console.log("[SUBMIT] Datos procesados para enviar:", payload);
-  
+
       const formData = new FormData();
       Object.entries(payload).forEach(([key, value]) => {
         formData.append(key, value.toString()); // Convertir todos los valores a string
       });
-  
+
       console.log("[SUBMIT] FormData inicial:", Array.from(formData.entries()));
-  
+
       // Procesar archivos multimedia
       const processFile = async (
         file: string | null,
@@ -185,7 +126,7 @@ export function MovilForm({ movil }: { movil: any }) {
           console.log(`[SUBMIT] Archivo procesado: ${key} -> ${uniqueFileName}`);
         }
       };
-  
+
       await Promise.all([
         processFile(imagen, "imagen", "png"),
         processFile(imagenDer, "imagenDer", "png"),
@@ -209,9 +150,9 @@ export function MovilForm({ movil }: { movil: any }) {
         processFile(pdf10, "pdf10", "pdf"),
         processFile(word1, "word1", "docx"),
       ]);
-  
+
       console.log("[SUBMIT] FormData final con archivos:", Array.from(formData.entries()));
-  
+
       // Enviar los datos al backend
       let response;
       if (params?.id) {
@@ -221,7 +162,7 @@ export function MovilForm({ movil }: { movil: any }) {
         response = await createMovil(formData);
         console.log("[SUBMIT] Respuesta del backend (create):", response);
       }
-  
+
       if (response.success) {
         Alert.success({
           title: "Éxito",
@@ -269,90 +210,6 @@ export function MovilForm({ movil }: { movil: any }) {
             />
           </div>
         ))}
-      </div>
-
-      {/* Modales para archivos multimedia */}
-      <div className="flex space-x-4">
-        <Button
-          type="button"
-          onClick={() => setImagen("")}
-          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
-        >
-          Fotografías
-        </Button>
-        <PhotosEvModal
-          isOpen={!!imagen}
-          onClose={() => setImagen(null)}
-          imagen={imagen}
-          setImagen={setImagen}
-          imagenDer={imagenDer}
-          setImagenDer={setImagenDer}
-          imagenIz={imagenIz}
-          setImagenIz={setImagenIz}
-          imagenDact={imagenDact}
-          setImagenDact={setImagenDact}
-          imagenSen1={imagenSen1}
-          setImagenSen1={setImagenSen1}
-          imagenSen2={imagenSen2}
-          setImagenSen2={setImagenSen2}
-          imagenSen3={imagenSen3}
-          setImagenSen3={setImagenSen3}
-          imagenSen4={imagenSen4}
-          setImagenSen4={setImagenSen4}
-          imagenSen5={imagenSen5}
-          setImagenSen5={setImagenSen5}
-          imagenSen6={imagenSen6}
-          setImagenSen6={setImagenSen6}
-          getImageUrl={getImageUrl}
-          generateFileName={generateFileName}
-        />
-
-        <Button
-          type="button"
-          onClick={() => setPdf1("")}
-          className="bg-red-600 hover:bg-red-800 text-white px-4 py-2 rounded-lg"
-        >
-          PDFs
-        </Button>
-        <PdfModal
-          isOpen={!!pdf1}
-          onClose={() => setPdf1(null)}
-          pdf1={pdf1}
-          setPdf1={setPdf1}
-          pdf2={pdf2}
-          setPdf2={setPdf2}
-          pdf3={pdf3}
-          setPdf3={setPdf3}
-          pdf4={pdf4}
-          setPdf4={setPdf4}
-          pdf5={pdf5}
-          setPdf5={setPdf5}
-          pdf6={pdf6}
-          setPdf6={setPdf6}
-          pdf7={pdf7}
-          setPdf7={setPdf7}
-          pdf8={pdf8}
-          setPdf8={setPdf8}
-          pdf9={pdf9}
-          setPdf9={setPdf9}
-          pdf10={pdf10}
-          setPdf10={setPdf10}
-          getPdfUrl={getPdfUrl}
-        />
-
-        <Button
-          type="button"
-          onClick={() => setWord1("")}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-        >
-          Word
-        </Button>
-        <WordModal
-          isOpen={!!word1}
-          onClose={() => setWord1(null)}
-          word1={word1}
-          setWord1={setWord1}
-        />
       </div>
 
       <div className="flex justify-end space-x-4">

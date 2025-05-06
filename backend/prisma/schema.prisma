@@ -267,7 +267,6 @@ model Ingresos {
   estadoCivil               String?   @db.VarChar(30) // VARCHAR(30) opcional
   internosinvolucrado       String?   @db.LongText
   imagenesHistorial         Json? // Historial de imágenes
-  moviles                   Moviles[]
 }
 
 model Moviles {
@@ -286,8 +285,6 @@ model Moviles {
   vin         String   @db.VarChar(100)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  ingresoId   Int
-  ingreso     Ingresos @relation(fields: [ingresoId], references: [id])
 }
 
 model Preingresos {
