@@ -16,24 +16,28 @@ export class TemasService {
 
   async create(createTemasDto: CreateTemaDto) {
     try {
+      console.log('[DEBUG] DTO recibido en el servicio:', createTemasDto);
+
       const result = await this.prismaService.temas.create({
         data: createTemasDto,
       });
+
+      console.log('[DEBUG] Resultado de Prisma:', result);
       return result;
     } catch (error) {
-      // Log del error
+      console.error('[ERROR] Error en el servicio al crear tema:', error);
+
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          // Log del error de conflicto
           throw new ConflictException(
-            `Temas record with identifier ${createTemasDto.establecimiento} already exists`,
+            `El registro con el identificador ${createTemasDto.establecimiento} ya existe.`,
           );
         }
       }
-      throw new InternalServerErrorException();
+
+      throw new InternalServerErrorException('Error al crear el tema');
     }
   }
-
   async findAll() {
     try {
       const result = await this.prismaService.temas.findMany();

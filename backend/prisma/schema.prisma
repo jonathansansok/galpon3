@@ -897,40 +897,29 @@ model Egresos {
 }
 
 model Temas {
-  id                  Int       @id @default(autoincrement()) // Clave primaria autoincremental
-  createdAt           DateTime  @default(now()) // TIMESTAMP con valor por defecto
-  updatedAt           DateTime  @updatedAt // TIMESTAMP con actualización automática
-  fechaHora           DateTime? @db.DateTime // Campo opcional (DATETIME)
-  observacion         String?   @db.LongText // TEXT opcional
-  email               String?   @db.VarChar(100) // VARCHAR(100) opcional
-  internosinvolucrado String?   @db.Text
-  establecimiento     String?   @db.VarChar(200)
-  modulo_ur           String?   @db.VarChar(80)
-  pabellon            String?   @db.VarChar(90)
-  imagenes            String?   @db.LongText // LONGTEXT opcional
-  imagen              String?   @db.VarChar(255) // VARCHAR(255)
-  imagenDer           String?   @db.VarChar(255)
-  imagenIz            String?   @db.VarChar(255)
-  imagenDact          String?   @db.VarChar(255)
-  imagenSen1          String?   @db.VarChar(255)
-  imagenSen2          String?   @db.VarChar(255)
-  imagenSen3          String?   @db.VarChar(255)
-  imagenSen4          String?   @db.VarChar(255)
-  imagenSen5          String?   @db.VarChar(255)
-  imagenSen6          String?   @db.VarChar(255)
-  pdf1                String?   @db.VarChar(255)
-  pdf2                String?   @db.VarChar(255)
-  pdf3                String?   @db.VarChar(255)
-  pdf4                String?   @db.VarChar(255)
-  pdf5                String?   @db.VarChar(255)
-  pdf6                String?   @db.VarChar(255)
-  pdf7                String?   @db.VarChar(255)
-  pdf8                String?   @db.VarChar(255)
-  pdf9                String?   @db.VarChar(255)
-  pdf10               String?   @db.VarChar(255)
-  word1               String?   @db.VarChar(255)
+  id                  Int       @id @default(autoincrement())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  fechaHora           DateTime?
+  observacion         String?
+  email               String?
+  internosinvolucrado String?
+  establecimiento     String?
+  modulo_ur           String?
+  pabellon            String?
+  patente             String?
+  marca               String?
+  modelo              String?
+   anio               String?  // Cambiado de Int a String
+  color               String?
+  tipoPintura         String?
+  paisOrigen          String?
+  tipoVehic           String?
+  motor               String?
+  chasis              String?
+  combustion          String?
+  vin                 String?
 }
-
 model Traslados {
   id                  Int       @id @default(autoincrement()) // Clave primaria autoincremental
   createdAt           DateTime  @default(now()) // TIMESTAMP con valor por defecto

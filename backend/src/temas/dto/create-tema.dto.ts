@@ -147,4 +147,60 @@ export class CreateTemaDto {
   @IsOptional()
   @Transform(({ value }) => value.trim())
   word1?: string;
+
+  // Nuevos campos @IsString() @IsOptional() @Transform(({ value }) => value.trim()) patente?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value.trim())
+  marca?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value.trim())
+  modelo?: string;
+
+  @IsOptional()
+  @IsString()
+  anio?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value.trim())
+  color?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value.trim())
+  tipoPintura?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value.trim())
+  paisOrigen?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value.trim())
+  tipoVehic?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value.trim())
+  motor?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value.trim())
+  chasis?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value.trim())
+  combustion?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value.trim())
+  vin?: string;
 }

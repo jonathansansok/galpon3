@@ -1,5 +1,7 @@
 //frontend\src\app\portal\eventos\temas\new\TemaForm.tsx
 "use client";
+import { InputField } from "@/components/ui/InputField";
+import { InputAnio } from "@/components/ui/InputAnio";
 import { Button } from "@/components/ui/button";
 import {
   validateRequiredFields,
@@ -26,12 +28,6 @@ import WordModal from "@/components/ui/MultimediaModals/WordModal";
 
 interface FormValues {
   [key: string]: string;
-  observacion: string;
-  fechaHora: string;
-  establecimiento: string;
-  modulo_ur: string;
-  email: string;
-  internosinvolucrado: string;
 }
 
 interface Interno {
@@ -76,6 +72,18 @@ export function TemaForm({ tema }: { tema: any }) {
         pdf9: tema?.pdf9 || "",
         pdf10: tema?.pdf10 || "",
         word1: tema?.word1 || "",
+        patente: tema?.patente || "",
+        marca: tema?.marca || "",
+        modelo: tema?.modelo || "",
+        anio: tema?.anio?.toString() || "",
+        color: tema?.color || "",
+        tipoPintura: tema?.tipoPintura || "",
+        paisOrigen: tema?.paisOrigen || "",
+        tipoVehic: tema?.tipoVehic || "",
+        motor: tema?.motor || "",
+        chasis: tema?.chasis || "",
+        combustion: tema?.combustion || "",
+        vin: tema?.vin || "",
       },
     });
 
@@ -211,7 +219,7 @@ export function TemaForm({ tema }: { tema: any }) {
       ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.word1}`
       : null
   );
-
+  const [anio, setAnio] = useState<string>(tema?.anio?.toString() || "");
   const nombres = watch("establecimiento");
   const apellido = watch("establecimiento");
   const lpu = watch("establecimiento");
@@ -271,6 +279,8 @@ export function TemaForm({ tema }: { tema: any }) {
 
   const requiredFields = ["establecimiento", "fechaHora"];
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    console.log("[DEBUG] Valor de anio antes de parsear:", anio);
+
     const missingFields = validateRequiredFields(
       data,
       requiredFields,
@@ -319,8 +329,21 @@ export function TemaForm({ tema }: { tema: any }) {
         pabellon: selectedPabellon,
         internosinvolucrado: JSON.stringify(selectedInternos),
         email: user?.email,
+        patente: data.patente,
+        marca: data.marca,
+        modelo: data.modelo,
+        anio: anio, // `anio` ya es una cadena
+        color: data.color,
+        tipoPintura: data.tipoPintura,
+        paisOrigen: data.paisOrigen,
+        tipoVehic: data.tipoVehic,
+        motor: data.motor,
+        chasis: data.chasis,
+        combustion: data.combustion,
+        vin: data.vin,
       };
 
+      console.log("[DEBUG] Payload enviado al backend:", payload);
       const formData = new FormData();
       for (const key in payload) {
         formData.append(key, payload[key]);
@@ -367,40 +390,49 @@ export function TemaForm({ tema }: { tema: any }) {
         processFile(word1, "word1", "docx"),
       ]);
 
-
       try {
         let response;
-      
+
         if (params?.id) {
           response = await updateTema(params.id, formData);
         } else {
           response = await createTema(formData);
         }
-      
+
         const mensajeTitulo = params?.id
           ? "Actualización de Tema informativo"
           : "Creación de Tema informativo";
-      
+
         console.log("[DEBUG] response completo:", response);
         console.log("[DEBUG] response.success:", response.success);
         console.log("[DEBUG] response.data:", response.data);
         console.log("[DEBUG] response.error:", response.error);
-      
-        await ShowTemas(response.success, mensajeTitulo, response.data ?? response.error);
-      
+
+        await ShowTemas(
+          response.success,
+          mensajeTitulo,
+          response.data ?? response.error
+        );
+
         if (response.success) {
           router.push("/portal/eventos/temas");
         } else {
-          console.error("[ERROR] Error al crear o actualizar tema:", response.error);
+          console.error(
+            "[ERROR] Error al crear o actualizar tema:",
+            response.error
+          );
           ShowTemas(false, "Error", response.error);
         }
       } catch (error) {
         console.error("[EXCEPTION] Error inesperado:", error);
-        ShowTemas(false, "Error inesperado", error instanceof Error ? error.message : "Error desconocido");
+        ShowTemas(
+          false,
+          "Error inesperado",
+          error instanceof Error ? error.message : "Error desconocido"
+        );
       } finally {
         setIsSubmitting(false);
       }
-      
     } finally {
       setIsSubmitting(false); // Desbloquear el botón
     }
@@ -501,6 +533,80 @@ export function TemaForm({ tema }: { tema: any }) {
           word1={word1}
           setWord1={setWord1}
         />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <InputField
+            register={register}
+            name="patente"
+            label="Patente"
+            placeholder=""
+          />
+          <InputField
+            register={register}
+            name="marca"
+            label="Marca"
+            placeholder=""
+          />
+          <InputField
+            register={register}
+            name="modelo"
+            label="Modelo"
+            placeholder=""
+          />
+          <InputAnio
+            value={anio} // `anio` debe ser una cadena
+            onChange={(e) => setAnio(e.target.value)} // Actualiza el estado como cadena
+            label="Año"
+            placeholder="Ingrese el año"
+          />
+          <InputField
+            register={register}
+            name="color"
+            label="Color"
+            placeholder=""
+          />
+          <InputField
+            register={register}
+            name="tipoPintura"
+            label="Tipo de Pintura"
+            placeholder=""
+          />
+          <InputField
+            register={register}
+            name="paisOrigen"
+            label="País de Origen"
+            placeholder=""
+          />
+          <InputField
+            register={register}
+            name="tipoVehic"
+            label="Tipo de Vehículo"
+            placeholder=""
+          />
+          <InputField
+            register={register}
+            name="motor"
+            label="Motor"
+            placeholder=""
+          />
+          <InputField
+            register={register}
+            name="chasis"
+            label="Chasis"
+            placeholder=""
+          />
+          <InputField
+            register={register}
+            name="combustion"
+            label="Combustión"
+            placeholder=""
+          />
+          <InputField
+            register={register}
+            name="vin"
+            label="VIN"
+            placeholder=""
+          />
+        </div>
 
         <FechaHoraEvento
           value={fechaHora}
