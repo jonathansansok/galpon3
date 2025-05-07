@@ -1,7 +1,7 @@
-//frontend\src\components\eventossearch\Table.tsx
 import React, { ReactNode, useState } from "react";
 import { FaEdit, FaEye, FaFilePdf } from "react-icons/fa";
 import { formatDateTime } from "@/app/utils/formatData";
+
 interface TableProps<T> {
   data: T[];
   columns: { key: keyof T; label: string; render?: (item: T) => ReactNode }[];
@@ -101,7 +101,7 @@ const Table = <T extends { id: string | number; [key: string]: any }>({
                         className="text-red-500 hover:text-red-700"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onViewClick(item.id.toString()); // Puedes cambiar la acción aquí
+                          onViewClick(item.id.toString());
                         }}
                       >
                         <FaFilePdf size={18} />
@@ -128,8 +128,6 @@ const Table = <T extends { id: string | number; [key: string]: any }>({
                     >
                       <FaEye size={18} />
                     </button>
-
-                    {/* Botón de PDF (si tiene PDFs) */}
                   </div>
                 </td>
                 {columns.map((column) => (
@@ -159,45 +157,35 @@ const Table = <T extends { id: string | number; [key: string]: any }>({
                   >
                     <div className="p-4 bg-gray-100 font-sans text-sm rounded-b-lg">
                       <div className="space-y-4">
+                        {/* Renderizar solo los campos seleccionados */}
                         {[
-                          { label: "ID", key: "id" },
-                          { label: "Apellido", key: "apellido" },
-                          { label: "Nombres", key: "nombres" },
-                          { label: "D.N.I.", key: "numeroDni" },
-                          { label: "Teléfono", key: "telefono" },
-                          { label: "Email Cliente", key: "emailCliente" },
-                          { label: "Domicilios", key: "domicilios" },
-                          { label: "Localidad", key: "provincia" },
-                          { label: "C.P.", key: "cp" },
-                          { label: "Referencia", key: "resumen" },
+                          { label: "Patente", key: "patente" },
+                          { label: "Marca", key: "marca" },
+                          { label: "Modelo", key: "modelo" },
+                          { label: "Año", key: "anio" },
+                          { label: "Color", key: "color" },
+                          { label: "Tipo de Pintura", key: "tipoPintura" },
+                          { label: "País de Origen", key: "paisOrigen" },
+                          { label: "Tipo de Vehículo", key: "tipoVehic" },
+                          { label: "Motor", key: "motor" },
+                          { label: "Chasis", key: "chasis" },
+                          { label: "Combustión", key: "combustion" },
+                          { label: "VIN", key: "vin" },
                           { label: "Observación", key: "observacion" },
-                          { label: "Email creador", key: "email" },
                           {
-                            label: "PyME",
-                            key: "pyme",
-                            format: (value: string) =>
-                              value === "true" ? "Sí" : "No",
-                          }, // Tipo explícito
-                          { label: "Días", key: "dias" }, // Agregado
-                          {
-                            label: "Porcentaje B",
-                            key: "porcB",
-                            format: (value: string) => `%${value}`,
-                          }, // Tipo explícito
-                          {
-                            label: "Porcentaje Retención IB",
-                            key: "porcRetIB",
-                            format: (value: string) => `%${value}`,
-                          }, // Tipo explícito
+                            label: "Fecha y Hora",
+                            key: "fechaHora",
+                            format: formatDateTime,
+                          },
                           {
                             label: "Creado el",
                             key: "createdAt",
-                            format: (value: string) => formatDateTime(value), // Tipo explícito
+                            format: formatDateTime,
                           },
                           {
                             label: "Actualizado el",
                             key: "updatedAt",
-                            format: (value: string) => formatDateTime(value), // Tipo explícito
+                            format: formatDateTime,
                           },
                         ].map(({ label, key, format }) => (
                           <div key={key} className="flex flex-col">

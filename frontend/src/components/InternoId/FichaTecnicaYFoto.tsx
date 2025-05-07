@@ -1,9 +1,8 @@
+//frontend\src\components\InternoId\FichaTecnicaYFoto.tsx
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { useState } from "react";
 import Link from "next/link";
 import "@/../public/css/botonesSearch.css";
-import HistorialEgresos from "@/components/ui/historialegreso/HistorialEgresos";
-import { FaChevronUp, FaChevronDown } from "react-icons/fa";
 import Image from "next/image";
 
 interface IngresoInfoProps {
@@ -14,12 +13,7 @@ interface IngresoInfoProps {
 
 const IngresoInfo = ({
   ingreso,
-  showAllFields,
-  toggleFields,
 }: IngresoInfoProps) => {
-  const [historialEgresos, setHistorialEgresos] = useState<any[]>(
-    ingreso.historialEgresos || []
-  );
 
   const handleEditClick = (id: string) => {
     window.open(`/portal/eventos/ingresos/${id}/edit`, "_blank");
@@ -28,7 +22,7 @@ const IngresoInfo = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex justify-between items-center">
+      <CardTitle className="flex justify-between items-center">
           <div className="w-full">
             <Link
               className="bg-orange-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 transition duration-300"
@@ -44,28 +38,12 @@ const IngresoInfo = ({
               cliente
             </button>
             <h1 className="text-3xl font-bold my-4">
-              Cliente e historial de reparaciones:
+              Cliente e historial de reparaciones/moviles:
             </h1>
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center space-x-4">
-                <button
-                  className="custom-button flex items-center"
-                  onClick={toggleFields}
-                >
-                  {showAllFields ? (
-                    <>
-                      <FaChevronUp className="text-blue-500 mr-2" /> Contraer
-                    </>
-                  ) : (
-                    <>
-                      <FaChevronDown className="text-green-500 mr-2" /> Expandir
-                    </>
-                  )}
-                </button>
                 <span className="text-green-500 text-3xl">
-                  {ingreso.apellido +
-                    ", " +
-                    ingreso.nombres }
+                  {ingreso.apellido + ", " + ingreso.nombres}
                 </span>
               </div>
               {ingreso.imagen && (
@@ -86,16 +64,10 @@ const IngresoInfo = ({
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Renderizar el historial */}
-          <div className="col-span-2 mt-4">
-            <HistorialEgresos
-              historial={historialEgresos}
-              setHistorial={setHistorialEgresos}
-            />
-          </div>
+          
 
           {/* Información del ingreso */}
           <div className="space-y-2">
-            
             <div>
               <strong className="text-gray-700">Condición:</strong>{" "}
               <span
@@ -112,49 +84,53 @@ const IngresoInfo = ({
             </div>
             <div>
               <strong className="text-gray-700">Teléfono:</strong>{" "}
-              <span>{ingreso.telefono || "No"}</span>
+              <span>{ingreso.telefono || "No disponible"}</span>
+            </div>
+         
+            <div>
+              <strong className="text-gray-700">Condición:</strong>{" "}
+              <span>{ingreso.condicion || "No disponible"}</span>
+            </div>
+            
+            <div>
+              <strong className="text-gray-700">Número de Documento:</strong>{" "}
+              <span>{ingreso.numeroDni || "No disponible"}</span>
+            </div>
+            <div>
+              <strong className="text-gray-700">Localidad:</strong>{" "}
+              <span>{ingreso.provincia || "No disponible"}</span>
+            </div>
+            <div>
+              <strong className="text-gray-700">Domicilios:</strong>{" "}
+              <span>{ingreso.domicilios || "No disponible"}</span>
+            </div>
+            <div>
+              <strong className="text-gray-700">C.P.:</strong>{" "}
+              <span>{ingreso.cp || "No disponible"}</span>
             </div>
             <div>
               <strong className="text-gray-700">Email Cliente:</strong>{" "}
-              <span>{ingreso.emailCliente || "No"}</span>
+              <span>{ingreso.emailCliente || "No disponible"}</span>
             </div>
             <div>
-              <strong className="text-gray-700">Condición:</strong>{" "}
-              <span>{ingreso.condicion || "No"}</span>
+              <strong className="text-gray-700">Días:</strong>{" "}
+              <span>{ingreso.dias || "No disponible"}</span>
             </div>
             <div>
-              <strong className="text-gray-700">Apellido:</strong>{" "}
-              <span>{ingreso.apellido || "No"}</span>
+              <strong className="text-gray-700">Porcentaje B:</strong>{" "}
+              <span>
+                {ingreso.porcB ? `%${ingreso.porcB}` : "No disponible"}
+              </span>
             </div>
             <div>
-              <strong className="text-gray-700">Nombres:</strong>{" "}
-              <span>{ingreso.nombres || "No"}</span>
-            </div>
-           
-            <div>
-              <strong className="text-gray-700">Número de Documento:</strong>{" "}
-              <span>{ingreso.numeroDni || "No"}</span>
+              <strong className="text-gray-700">Porcentaje Retención IB:</strong>{" "}
+              <span>
+                {ingreso.porcRetIB
+                  ? `%${ingreso.porcRetIB}`
+                  : "No disponible"}
+              </span>
             </div>
           </div>
-
-          {/* Campos adicionales si están expandidos */}
-          {showAllFields && (
-            <div className="space-y-2">
-            
-              <div>
-                <strong className="text-gray-700">Provincia:</strong>{" "}
-                <span>{ingreso.provincia || "No"}</span>
-              </div>
-              <div>
-                <strong className="text-gray-700">Domicilios:</strong>{" "}
-                <span>{ingreso.domicilios || "No"}</span>
-              </div>
-              <div>
-                <strong className="text-gray-700">C.P.:</strong>{" "}
-                <span>{ingreso.cp || "No"}</span>
-              </div>
-            </div>
-          )}
         </div>
       </CardContent>
     </Card>

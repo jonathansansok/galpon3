@@ -8,10 +8,10 @@ import { getTemas } from "./Temas.api";
 import { ExportButton } from "@/components/ui/ExportButton";
 import { Tema, SearchResult } from "@/types/Tema";
 import { useRouter } from "next/navigation";
-import Table from "@/components/eventossearch/Table";
+import TableMoviles from "@/components/eventossearch/TableMoviles";
 import DateTimeFormatter from "@/components/eventossearch/DateTimeFormatter";
 import { SearchBarTemas } from "@/components/ui/SearchBars/SearchBarTemas";
-import { formatInternosInvolucrados, formatPersonalInvolucrado } from "@/app/utils/formatUtils";
+
 
 export const dynamic = "force-dynamic";
 
@@ -56,41 +56,35 @@ export default function TemasPage() {
     }
   };
 
+ 
   const columns = [
-    {
-      key: "internosinvolucrado",
-      label: "Internos Involucrados",
-      render: (item: Tema) => (
-        <div dangerouslySetInnerHTML={{ __html: formatInternosInvolucrados(item.internosinvolucrado || "") }} />
-      ),
-    },
-    {
-      key: "personalinvolucrado",
-      label: "Personal Involucrado",
-      render: (item: Tema) => (
-        <div dangerouslySetInnerHTML={{ __html: formatPersonalInvolucrado(item.personalinvolucrado || "") }} />
-      ),
-    },
-    { key: "establecimiento", label: "Establecimiento" },
-    { key: "modulo_ur", label: "Módulo - U.R." },
-    { key: "pabellon", label: "Pabellón" },
+    { key: "patente", label: "Patente" },
+    { key: "marca", label: "Marca" },
+    { key: "modelo", label: "Modelo" },
+    { key: "anio", label: "Año" },
+    { key: "color", label: "Color" },
+    { key: "tipoPintura", label: "Tipo de Pintura" },
+    { key: "paisOrigen", label: "País de Origen" },
+    { key: "tipoVehic", label: "Tipo de Vehículo" },
+    { key: "motor", label: "Motor" },
+    { key: "chasis", label: "Chasis" },
+    { key: "combustion", label: "Combustión" },
+    { key: "vin", label: "VIN" },
+    { key: "observacion", label: "Observación" },
     {
       key: "fechaHora",
       label: "Fecha y Hora",
-      render: (item: Tema) => <DateTimeFormatter dateTime={item.fechaHora} />, // Usar el nuevo componente
+      render: (item: Tema) => <DateTimeFormatter dateTime={item.fechaHora} />,
     },
-    { key: "expediente", label: "Expediente" },
-    { key: "observacion", label: "Observación" },
-    { key: "email", label: "Email" },
-     {
+    {
       key: "createdAt",
       label: "Creado el",
-      render: (item: any) => <DateTimeFormatter dateTime={item.createdAt} />, 
+      render: (item: Tema) => <DateTimeFormatter dateTime={item.createdAt} />,
     },
     {
       key: "updatedAt",
       label: "Actualizado el",
-      render: (item: any) => <DateTimeFormatter dateTime={item.updatedAt} />, 
+      render: (item: Tema) => <DateTimeFormatter dateTime={item.updatedAt} />,
     },
   ];
 
@@ -121,7 +115,7 @@ export default function TemasPage() {
       <SearchBarTemas data={temas} onSearchResults={handleSearchResults} />
 
       {searchResults.length > 0 ? (
-        <Table
+        <TableMoviles
           data={searchResults.map((result) => result.item)}
           columns={columns}
           sortColumn={sortColumn}

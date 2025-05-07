@@ -11,21 +11,6 @@ export class CreateTemaDto {
   @IsString()
   @IsOptional()
   @Transform(({ value }) => value.trim())
-  establecimiento?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  modulo_ur?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  pabellon?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
   observacion?: string;
 
   @IsEmail()

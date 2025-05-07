@@ -29,20 +29,20 @@ export class TemasService {
 
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          throw new ConflictException(
-            `El registro con el identificador ${createTemasDto.establecimiento} ya existe.`,
-          );
+          throw new ConflictException('El registro ya existe.');
         }
       }
 
       throw new InternalServerErrorException('Error al crear el tema');
     }
   }
+
   async findAll() {
     try {
       const result = await this.prismaService.temas.findMany();
       return result;
     } catch (error) {
+      console.error('[ERROR] Error al buscar los registros de temas:', error);
       throw new InternalServerErrorException(
         'Error al buscar los registros de temas',
       );
@@ -58,12 +58,12 @@ export class TemasService {
       });
 
       if (!TemasFound) {
-        // Log del temas no encontrado
         throw new NotFoundException(`Temas record with id ${id} not found`);
       }
 
       return TemasFound;
     } catch (error) {
+      console.error('[ERROR] Error al buscar el registro de temas:', error);
       throw new InternalServerErrorException(
         'Error al buscar el registro de temas',
       );
@@ -80,22 +80,20 @@ export class TemasService {
       });
 
       if (!result) {
-        // Log del temas no encontrado
         throw new NotFoundException(`Temas record with id ${id} not found`);
       }
 
       return result;
     } catch (error) {
-      // Log del error
+      console.error('[ERROR] Error al actualizar el tema:', error);
+
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          // Log del error de conflicto
-          throw new ConflictException(
-            `Temas record with specified data already exists`,
-          );
+          throw new ConflictException('El registro ya existe.');
         }
       }
-      throw new InternalServerErrorException();
+
+      throw new InternalServerErrorException('Error al actualizar el tema');
     }
   }
 
@@ -108,13 +106,12 @@ export class TemasService {
       });
 
       if (!deletedTemas) {
-        // Log del temas no encontrado
         throw new NotFoundException(`Temas record with id ${id} not found`);
       }
 
       return deletedTemas;
     } catch (error) {
-      // Log del error
+      console.error('[ERROR] Error al eliminar el tema:', error);
       throw new InternalServerErrorException(
         'Error al eliminar el registro de temas',
       );

@@ -164,18 +164,22 @@ export default function IngresosPage() {
   });
 
   const columns = [
+    { key: "id", label: "ID" }, // Agregado
     { key: "apellido", label: "Apellido" },
     { key: "nombres", label: "Nombres" },
     { key: "numeroDni", label: "D.N.I." },
-    { key: "telefono", label: "Teléfono" }, // Agregado
+    { key: "telefono", label: "Teléfono" },
+    { key: "emailCliente", label: "Email Cliente" },
     { key: "domicilios", label: "Domicilios" },
     { key: "provincia", label: "Localidad" },
     { key: "cp", label: "C.P." },
-    { key: "emailCliente", label: "Email Cliente" }, // Agregado
     { key: "resumen", label: "Referencia" },
     { key: "observacion", label: "Observación" },
-    { key: "email", label: "Email creador" }, // Agregado
-
+    { key: "email", label: "Email creador" },
+    { key: "pyme", label: "PyME", render: (item: any) => (item.pyme === "true" ? "Sí" : "No") }, // Agregado
+    { key: "dias", label: "Días" }, // Agregado
+    { key: "porcB", label: "Porcentaje B", render: (item: any) => `%${item.porcB}` }, // Agregado
+    { key: "porcRetIB", label: "Porcentaje Retención IB", render: (item: any) => `%${item.porcRetIB}` }, // Agregado
     {
       key: "createdAt",
       label: "Creado el",

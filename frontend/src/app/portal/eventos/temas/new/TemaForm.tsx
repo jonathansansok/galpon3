@@ -18,9 +18,6 @@ import { useState, useEffect } from "react";
 import FechaHoraEvento from "@/components/ui/FechaHoraEvento";
 import { useUserStore } from "@/lib/store"; // Importar el store de Zustand
 import { ShowTemas, showCancelAlert } from "../../../../utils/alertUtils"; // Importa las funciones
-import SelectComp from "@/components/ui/SelectAnidaciones";
-
-import InternosInvolucrados from "@/components/ui/InternosInvolucrados";
 
 import PhotosEvModal from "@/components/ui/MultimediaModals/PhotosEvModal";
 import PdfModal from "@/components/ui/MultimediaModals/PdfModal";
@@ -47,8 +44,7 @@ export function TemaForm({ tema }: { tema: any }) {
       defaultValues: {
         observacion: tema?.observacion || "",
         fechaHora: tema?.fechaHora || "",
-        establecimiento: tema?.establecimiento || "",
-        modulo_ur: tema?.modulo_ur || "",
+       
         email: tema?.email || "",
         internosinvolucrado: JSON.stringify(tema?.internosinvolucrado || []),
         imagen: tema?.imagen || "",
@@ -94,25 +90,7 @@ export function TemaForm({ tema }: { tema: any }) {
   const [observacion, setObservacion] = useState<string>(
     tema?.observacion || ""
   );
-  const [selectedEstablecimiento, setSelectedEstablecimiento] =
-    useState<string>(tema?.establecimiento || "");
-  const [selectedModuloUr, setSelectedModuloUr] = useState<string>(
-    tema?.modulo_ur || ""
-  );
-
-  const [selectedInternos, setSelectedInternos] = useState<Interno[]>(() => {
-    try {
-      if (tema?.internosinvolucrado) {
-        return JSON.parse(tema.internosinvolucrado);
-      }
-    } catch (error) {
-      console.error("Error parsing internosinvolucrado:", error);
-    }
-    return [];
-  });
-  const [selectedPabellon, setSelectedPabellon] = useState<string>(
-    tema?.pabellon || ""
-  );
+  
   const [imagen, setImagen] = useState<string | null>(
     tema?.imagen
       ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.imagen}`
@@ -219,17 +197,40 @@ export function TemaForm({ tema }: { tema: any }) {
       ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.word1}`
       : null
   );
+  const [selectedInternos, setSelectedInternos] = useState<Interno[]>(() => {
+    try {
+      if (tema?.internosinvolucrado) {
+        return JSON.parse(tema.internosinvolucrado);
+      }
+    } catch (error) {
+      console.error("Error parsing internosinvolucrado:", error);
+    }
+    return [];
+  });
   const [anio, setAnio] = useState<string>(tema?.anio?.toString() || "");
   const nombres = watch("establecimiento");
-  const apellido = watch("establecimiento");
-  const lpu = watch("establecimiento");
-  const lpuProv = watch("lpuPestablecimientorov");
-  const nDoc = watch("establecimiento");
+
   const generateFileName = (type: string) => {
-    return `${apellido}_${nombres}_L.P.U._${lpu}_L.P.U. PROV_${lpuProv}_NºDoc. ${nDoc}_${type}.png`.replace(
-      /\s+/g,
-      "_"
-    );
+    return `Documento_${type}.png`.replace(/\s+/g, "_");
+  };
+
+  const validateEmptyFields = () => {
+    const fieldsToValidate = [
+      anio,
+      watch("patente"),
+      watch("marca"),
+      watch("modelo"),
+      watch("color"),
+      watch("tipoPintura"),
+      watch("paisOrigen"),
+      watch("tipoVehic"),
+      watch("motor"),
+      watch("chasis"),
+      watch("combustion"),
+      watch("vin"),
+    ];
+
+    return fieldsToValidate.some((field) => !field || field.trim() === "");
   };
   const [isPhotosOpen, setIsPhotosOpen] = useState(false);
   const getImageUrl = (imagePath: string): string => {
@@ -269,44 +270,16 @@ export function TemaForm({ tema }: { tema: any }) {
   }, [user, setUser, router]);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
 
-  useEffect(() => {
-    setValue("modulo_ur", selectedModuloUr);
-  }, [selectedModuloUr, setValue]);
   const fieldLabels: Record<string, string> = {
     establecimiento: "Establecimiento",
     fechaHora: "Fecha y hora de evento",
   };
 
-  const requiredFields = ["establecimiento", "fechaHora"];
+  const requiredFields = ["", ""];
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     console.log("[DEBUG] Valor de anio antes de parsear:", anio);
 
-    const missingFields = validateRequiredFields(
-      data,
-      requiredFields,
-      fieldLabels
-    );
-    const emptyFields = validateEmptyFields(data, fieldLabels, excludedFields);
-    if (missingFields.length > 0) {
-      Alert.error({
-        title: "Error",
-        text: `Faltan campos obligatorios: ${missingFields.join(" - ")}.`,
-      });
-      return;
-    }
-    if (emptyFields.length > 0) {
-      const confirmation = await Alert.confirm({
-        title: "Advertencia",
-        text: `Hay campos vacíos: ${emptyFields.join(
-          " - "
-        )}. ¿Deseas continuar?`,
-        icon: "warning",
-      });
 
-      if (!confirmation.isConfirmed) {
-        return; // El usuario decidió no continuar
-      }
-    }
     const confirmation = await Alert.confirm({
       title: "¿Estás seguro?",
       text: "¿Deseas enviar el formulario?",
@@ -324,9 +297,6 @@ export function TemaForm({ tema }: { tema: any }) {
       const payload: any = {
         observacion: data.observacion,
         fechaHora: data.fechaHora || null,
-        establecimiento: data.establecimiento,
-        modulo_ur: data.modulo_ur,
-        pabellon: selectedPabellon,
         internosinvolucrado: JSON.stringify(selectedInternos),
         email: user?.email,
         patente: data.patente,
@@ -616,25 +586,7 @@ export function TemaForm({ tema }: { tema: any }) {
           }}
         />
 
-        <SelectComp
-          initialEstablecimiento={selectedEstablecimiento}
-          initialModuloUr={selectedModuloUr}
-          initialPabellon={selectedPabellon}
-          onEstablecimientoChange={(value) => {
-            setSelectedEstablecimiento(value);
-            setValue("establecimiento", value);
-          }}
-          onModuloUrChange={(value) => setSelectedModuloUr(value)}
-          onPabellonChange={(value) => setSelectedPabellon(value)}
-        />
-
-        <InternosInvolucrados
-          initialInternos={selectedInternos}
-          onSelect={(value) => {
-            setSelectedInternos(value);
-            setValue("internosinvolucrado", JSON.stringify(value));
-          }}
-        />
+       
         <Textarea
           id="observacion"
           value={observacion}

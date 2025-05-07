@@ -40,6 +40,7 @@ const formatDateTime = (dateTime: string): string => {
   }
 };
  */
+//frontend\src\app\utils\alertUtils.ts
 export const showAlert = async (
   success: boolean,
   mensajeTitulo: string,
@@ -49,65 +50,52 @@ export const showAlert = async (
     success,
     mensajeTitulo,
     data,
-  }); // Agrega este console.log
+  });
 
   if (success) {
     const title =
-      data.esAlerta === "Si"
-        ? "*📌🚨 R.A.P. - Alerta de Ingreso*"
-        : "*R.A.P. - Ingreso*";
+      mensajeTitulo === "Creación de Cliente"
+        ? "*Nuevo Cliente Registrado*"
+        : "*Cliente Actualizado*";
 
     // Construir las secciones opcionales
-    const moduloUrString = data.modulo_ur
-      ? `*Módulo - U.R.*: ${data.modulo_ur} -`
+    const provinciaString = data.provincia
+      ? `*Localidad*: ${data.provincia} -`
       : "";
-    const pabellonString = data.pabellon
-      ? `*Pabellón*: ${data.pabellon} -`
+    const domiciliosString = data.domicilios
+      ? `*Domicilios*: ${data.domicilios.split(", ").join(" - ")} -`
+      : ""; // Mostrar domicilios con guion entre cada dirección
+    const telefonoString = data.telefono
+      ? `*Teléfono*: ${data.telefono} -`
       : "";
-    const celdaString = data.celda ? `*Celda*: ${data.celda} -` : "";
-    const docNacionalidadString = data.docNacionalidad
-      ? `*Nacionalidad del Documento*: ${data.docNacionalidad} -`
+    const emailClienteString = data.emailCliente
+      ? `*Email Cliente*: ${data.emailCliente} -`
       : "";
+    const pymeString = data.pyme === "true" ? "*PyME*: Sí -" : "*PyME*: No -";
+
+    const porcentajeBString = data.porcB
+      ? `*Porcentaje B*: ${data.porcB}% -`
+      : "*Porcentaje B*: No especificado -";
+
+    const porcentajeRetIBString = data.porcRetIB
+      ? `*Porcentaje Retención IB*: ${data.porcRetIB}% -`
+      : "*Porcentaje Retención IB*: No especificado -";
     const text = cleanText(`${title}
-  *Condición*: ${data.condicion || "No especificado"} -
-  *Fecha de Ingreso*: ${formatDateTime(data.fechaIngreso)} -
-  *Apellidos*: ${data.apellido || "No especificado"} -
+  *Apellido*: ${data.apellido || "No especificado"} -
   *Nombres*: ${data.nombres || "No especificado"} -
-  *L.P.U*: ${data.lpu || "No especificado"} -
-  *L.P.U Prov.*: ${data.lpuProv || "No especificado"} -
-  *Alias*: ${data.alias || "No especificado"} -
-  *Tipo de Documento*: ${data.tipoDoc || "No especificado"} -
-  ${docNacionalidadString}
   *Número de Documento*: ${data.numeroDni || "No especificado"} -
-  *Situación Procesal*: ${data.sitProc || "No especificado"} -
-  *Fecha de Nacimiento*: ${formatDateTime(data.fechaNacimiento)} -
-  *Edad*: ${data.edad_ing || "No especificado"} -
-  *Sexo*: ${data.sexo || "No especificado"} -
-  *Sexualidad*: ${data.sexualidad || "No especificado"} -
-  *Procedencia*: ${data.procedencia || "No especificado"} -
-  *Unidad de Ingreso*: ${data.unidadDeIngreso || "No especificado"} -
-  *Establecimiento asignado*: ${data.establecimiento || "No especificado"} -
-  ${moduloUrString} ${pabellonString} ${celdaString} -
-  *Nacionalidad*: ${data.nacionalidad || "No especificado"} -
-  *Provincia*: ${data.provincia || "No especificado"} -
-  *Domicilios*: ${data.domiciliosString || "No especificado"} -
-  *Ubicación en el Mapa*: ${data.ubicacionMap || "No especificado"} -
-  *Juzgados*: ${data.juzgadosString || "No especificado"} -
-  *Número/s de Causa/s*: ${data.numeroCausa || "No especificado"} -
-  *Delitos*: ${data.electrodomesticosString || "No especificado"} -
-  *Organización Criminal*: ${data.orgCrim || "No especificado"} -
-  *Nombre Org. Crim.*: ${data.cualorg || "No especificado"} -
-  *Cicatrices*: ${data.heridasString || "No especificado"} - 
-  *Tatuajes*: ${data.tatuajesString || "No especificado"} - 
-  *Patologías*: ${data.patologiasString || "No especificado"} - 
-  *G. sanguíneo*: ${data.subGrupo || "No especificado"} -
-  *Estado Civil*: ${data.estadoCivil || "No especificado"} -
-  *Profesión*: ${data.profesion || "No especificado"} -
+  ${provinciaString}
+  ${domiciliosString}
+  ${telefonoString}
+  ${emailClienteString}
+  ${pymeString}
+  *Condición*: ${data.condicion || "No especificado"} -
+  *IVA*: ${data.iva || "No especificado"} -
+  *Días*: ${data.dias || "No especificado"} -
+  ${porcentajeBString}
+  ${porcentajeRetIBString}
+  *Referencia*: ${data.resumen || "No especificado"} -
   *Observaciones*: ${data.observacion || "No especificado"} -
-  *Tema informativo*: ${data.temaInf || "No especificado"} -
-  *Título de Información Pública*: ${data.titInfoPublic || "No especificado"} -
-  *Resumen*: ${data.resumen || "No especificado"} -
-  *Link*: ${data.link || "No especificado"} -
   `);
 
     await Alert.success({
@@ -123,7 +111,6 @@ export const showAlert = async (
     });
   }
 };
-
 export const showManifestacion = async (
   success: boolean,
   mensajeTitulo: string,
@@ -991,24 +978,31 @@ ${personalInvolucrado}
     });
   }
 };
-
 export const ShowTemas = async (
   success: boolean,
   mensajeTitulo: string,
   data: any
 ) => {
   if (success) {
-    const internosInvolucrados = formatInternosInvolucrados(data.internosinvolucrado);
+    const text = `
+*${mensajeTitulo}*
 
-    const text = cleanText(`*${mensajeTitulo}*
-      
-*Fecha y Hora*: ${formatDateTime(data.fechaHora)} -
-*Establecimiento*: ${data.establecimiento || "No especificado"} -
-*Módulo - U.R.*: ${data.modulo_ur || "No especificado"} -
-*Pabellón*: ${data.pabellon || "No especificado"} -
-${internosInvolucrados}
-*Observaciones*: ${data.observacion || "No especificado"} -
-`);
+*Fecha y Hora*: ${data.fechaHora ? formatDateTime(data.fechaHora) : "No especificado"}
+*Patente*: ${data.patente || "No especificado"}
+*Marca*: ${data.marca || "No especificado"}
+*Modelo*: ${data.modelo || "No especificado"}
+*Año*: ${data.anio || "No especificado"}
+*Color*: ${data.color || "No especificado"}
+*Tipo de Pintura*: ${data.tipoPintura || "No especificado"}
+*País de Origen*: ${data.paisOrigen || "No especificado"}
+*Tipo de Vehículo*: ${data.tipoVehic || "No especificado"}
+*Motor*: ${data.motor || "No especificado"}
+*Chasis*: ${data.chasis || "No especificado"}
+*Combustión*: ${data.combustion || "No especificado"}
+*VIN*: ${data.vin || "No especificado"}
+*Observaciones*: ${data.observacion || "No especificado"}
+`;
+
     await Alert.success({
       title: mensajeTitulo,
       text,
@@ -1022,6 +1016,7 @@ ${internosInvolucrados}
     });
   }
 };
+
 export const showCancelAlert = () => {
   Alert.info({
     title: "Cancelado",

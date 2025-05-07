@@ -5,7 +5,6 @@ import DiasInput from "@/components/ui/DiasInput";
 import InputMau from "@/components/ui/InputMau";
 import Condicion from "@/components/ui/Condicion";
 import PymeCheckbox from "@/components/ui/PymeCheckbox";
-import { handleLpuBlur } from "./handleLpuBlur";
 import { Button } from "@/components/ui/button";
 import {
   validateEmptyFields,
@@ -109,13 +108,7 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
     },
   });
 
-  // Registro del campo con onBlur
-  const lpuRegister = register("lpu", {
-    onBlur: async (event) => {
-      const lpuValue = event.target.value;
-      await handleLpuBlur(lpuValue); // Llamar a la función modularizada
-    },
-  });
+ 
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -369,9 +362,9 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
     try {
       let response;
 
-      // Inicialización de las variables necesarias
-      const domiciliosString =
-        domicilios?.map((d) => d.domicilio).join(", ") || "";
+    // Inicialización de las variables necesarias
+    const domiciliosString =
+      domicilios?.map((d) => d.domicilio).join(", ") || "";
 
       const payload: any = {
         numeroCuit: data.numeroCuit,
@@ -453,13 +446,10 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
         ? "Actualización de Cliente"
         : "Creación de Cliente";
 
-      const alertData = {
-        ...data,
-        provincia: data.provincia,
-        condicion: data.condicion,
-        domiciliosString: domiciliosString,
-        esAlerta: esAlerta,
-      };
+        const alertData = {
+          ...response.data, // Utiliza los datos devueltos por el backend
+        };
+    
 
       if (response.success) {
         await showAlert(response.success, mensajeTitulo, alertData);
