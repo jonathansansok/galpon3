@@ -1,3 +1,4 @@
+//backend\src\huelgas\huelgas.controller.ts
 import {
   Controller,
   Get,

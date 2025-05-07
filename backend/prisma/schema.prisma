@@ -267,8 +267,52 @@ model Ingresos {
   estadoCivil               String?   @db.VarChar(30) // VARCHAR(30) opcional
   internosinvolucrado       String?   @db.LongText
   imagenesHistorial         Json? // Historial de imágenes
+  moviles    Temas[]  
 }
-
+model Temas {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  fechaHora  DateTime?
+  observacion String?
+  email      String?
+  patente    String?
+  marca      String?
+  modelo     String?
+  anio       String?  // Cambiado de Int a String
+  color      String?
+  tipoPintura String?
+  paisOrigen String?
+  tipoVehic  String?
+  motor      String?
+  chasis     String?
+  combustion String?
+  vin        String?
+  imagen              String?   @db.VarChar(255) // VARCHAR(255)
+  imagenDer           String?   @db.VarChar(255)
+  imagenIz            String?   @db.VarChar(255)
+  imagenDact          String?   @db.VarChar(255)
+  imagenSen1          String?   @db.VarChar(255)
+  imagenSen2          String?   @db.VarChar(255)
+  imagenSen3          String?   @db.VarChar(255)
+  imagenSen4          String?   @db.VarChar(255)
+  imagenSen5          String?   @db.VarChar(255)
+  imagenSen6          String?   @db.VarChar(255)
+  pdf1                String?   @db.VarChar(255)
+  pdf2                String?   @db.VarChar(255)
+  pdf3                String?   @db.VarChar(255)
+  pdf4                String?   @db.VarChar(255)
+  pdf5                String?   @db.VarChar(255)
+  pdf6                String?   @db.VarChar(255)
+  pdf7                String?   @db.VarChar(255)
+  pdf8                String?   @db.VarChar(255)
+  pdf9                String?   @db.VarChar(255)
+  pdf10               String?   @db.VarChar(255)
+  word1               String?   @db.VarChar(255)
+  internosinvolucrado String?   @db.Text
+  clienteId  Int?
+  cliente    Ingresos? @relation(fields: [clienteId], references: [id])
+}
 model Preingresos {
   id                        Int       @id @default(autoincrement()) // Clave primaria autoincremental  email
   createdAt                 DateTime  @default(now()) // TIMESTAMP con valor por defecto
@@ -895,48 +939,7 @@ model Egresos {
   pdf10                  String?   @db.VarChar(255)
   word1                  String?   @db.VarChar(255)
 }
-model Temas {
-  id         Int      @id @default(autoincrement())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  fechaHora  DateTime?
-  observacion String?
-  email      String?
-  patente    String?
-  marca      String?
-  modelo     String?
-  anio       String?  // Cambiado de Int a String
-  color      String?
-  tipoPintura String?
-  paisOrigen String?
-  tipoVehic  String?
-  motor      String?
-  chasis     String?
-  combustion String?
-  vin        String?
-  imagen              String?   @db.VarChar(255) // VARCHAR(255)
-  imagenDer           String?   @db.VarChar(255)
-  imagenIz            String?   @db.VarChar(255)
-  imagenDact          String?   @db.VarChar(255)
-  imagenSen1          String?   @db.VarChar(255)
-  imagenSen2          String?   @db.VarChar(255)
-  imagenSen3          String?   @db.VarChar(255)
-  imagenSen4          String?   @db.VarChar(255)
-  imagenSen5          String?   @db.VarChar(255)
-  imagenSen6          String?   @db.VarChar(255)
-  pdf1                String?   @db.VarChar(255)
-  pdf2                String?   @db.VarChar(255)
-  pdf3                String?   @db.VarChar(255)
-  pdf4                String?   @db.VarChar(255)
-  pdf5                String?   @db.VarChar(255)
-  pdf6                String?   @db.VarChar(255)
-  pdf7                String?   @db.VarChar(255)
-  pdf8                String?   @db.VarChar(255)
-  pdf9                String?   @db.VarChar(255)
-  pdf10               String?   @db.VarChar(255)
-  word1               String?   @db.VarChar(255)
-  internosinvolucrado String?   @db.Text
-}
+
 model Traslados {
   id                  Int       @id @default(autoincrement()) // Clave primaria autoincremental
   createdAt           DateTime  @default(now()) // TIMESTAMP con valor por defecto

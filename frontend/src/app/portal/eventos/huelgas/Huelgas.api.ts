@@ -1,3 +1,4 @@
+//frontend\src\app\portal\eventos\huelgas\Huelgas.api.ts
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 function getCsrfTokenFromCookies() {
