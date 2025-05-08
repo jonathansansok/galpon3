@@ -281,7 +281,7 @@ export const generateWord = async (
                 font: "Arial",
               }),
               new TextRun({
-                text: `Tema informativo: ${ingreso.temaInf || "No"}`,
+                text: `Móvil: ${ingreso.temaInf || "No"}`,
                 break: 1,
                 bold: true,
                 size: 24,

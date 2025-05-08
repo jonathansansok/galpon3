@@ -1,144 +1,186 @@
-//backend\src\ingresos\dto\create-ingreso.dto.ts
 import {
   IsString,
   IsOptional,
   IsEmail,
   IsDate,
   IsObject,
+  IsNumberString,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateIngresoDto {
   @IsEmail()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   email?: string;
+
   @IsEmail()
   @IsOptional()
   @Transform(({ value }) => value?.trim())
   emailCliente?: string;
+
   @IsString()
   @IsOptional()
   @Transform(({ value }) => value?.trim())
   telefono?: string;
-  @IsString()
+
+  @IsNumberString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
-  imagen?: string;
+  numeroCuit?: string; // Debe ser una cadena numérica sin guiones
+
+  @IsNumberString()
+  @IsOptional()
+  dias?: string; // Debe ser una cadena numérica
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
-  imagenDer?: string;
+  iva?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
-  imagenIz?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  imagenDact?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  imagenSen1?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  imagenSen2?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  imagenSen3?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  imagenSen4?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  imagenSen5?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  imagenSen6?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  pdf1?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  pdf2?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  pdf3?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  pdf4?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  pdf5?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  pdf6?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  pdf7?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  pdf8?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  pdf9?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  pdf10?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  word1?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  imagenes?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
   condicion?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  pyme?: string; // Debe ser "true" o "false" como cadena
+
+  @IsNumberString()
+  @IsOptional()
+  porcB?: string; // Debe ser una cadena numérica
+
+  @IsNumberString()
+  @IsOptional()
+  porcRetIB?: string; // Debe ser una cadena numérica
+
+  @IsString()
+  @IsOptional()
+  provincia?: string;
+
+  @IsString()
+  @IsOptional()
+  nombres?: string;
+
+  @IsString()
+  @IsOptional()
+  apellido?: string;
+
+  @IsNumberString()
+  @IsOptional()
+  cp?: string; // Debe ser una cadena numérica
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  imagen?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  imagenDer?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  imagenIz?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  imagenDact?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  imagenSen1?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  imagenSen2?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  imagenSen3?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  imagenSen4?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  imagenSen5?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  imagenSen6?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  pdf1?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  pdf2?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  pdf3?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  pdf4?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  pdf5?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  pdf6?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  pdf7?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  pdf8?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  pdf9?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  pdf10?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  word1?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
+  imagenes?: string;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
   unidadDeIngreso?: string;
 
   @IsOptional()
@@ -148,27 +190,17 @@ export class CreateIngresoDto {
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
-  apellido?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
-  nombres?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   alias?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   tipoDoc?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   numeroDni?: string;
 
   @IsOptional()
@@ -178,47 +210,42 @@ export class CreateIngresoDto {
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   edad_ing?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   nacionalidad?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
-  provincia?: string;
-
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   domicilios?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   numeroCausa?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   procedencia?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   orgCrim?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   cualorg?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   profesion?: string;
 
   @IsOptional()
@@ -226,51 +253,52 @@ export class CreateIngresoDto {
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   esAlerta?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   reingreso?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   establecimiento?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   modulo_ur?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   pabellon?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   celda?: string;
+
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   titInfoPublic?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   resumen?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   observacion?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   link?: string;
 
   @IsOptional()
@@ -284,7 +312,7 @@ export class CreateIngresoDto {
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   ubicacionMap?: string;
 
   @IsOptional()
@@ -292,7 +320,7 @@ export class CreateIngresoDto {
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   electrodomesticosDetalles?: string;
 
   @IsOptional()
@@ -300,47 +328,47 @@ export class CreateIngresoDto {
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   lpu?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   sitProc?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   lpuProv?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   subGrupo?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   sexo?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   sexualidad?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   temaInf?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   estadoCivil?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value.trim())
+  @Transform(({ value }) => value?.trim())
   internosinvolucrado?: string;
 
   @IsOptional()
@@ -359,7 +387,7 @@ export class CreateIngresoDto {
   };
 
   @IsString()
-  @IsOptional() // Hacer que el campo sea opcional
-  @Transform(({ value }) => value?.trim()) // Asegurarse de que no falle si el valor es undefined
+  @IsOptional()
+  @Transform(({ value }) => value?.trim())
   identificadorUnico?: string;
 }

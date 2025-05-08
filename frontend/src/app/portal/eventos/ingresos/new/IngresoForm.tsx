@@ -1,5 +1,6 @@
 //frontend\src\app\portal\eventos\ingresos\new\IngresoForm.tsx
 "use client";
+import MovilesAnexados from "@/components/ui/MovilesAnexados"; // Importa el nuevo componente
 import SelectIVA from "@/components/ui/SelectIVA";
 import DiasInput from "@/components/ui/DiasInput";
 import InputMau from "@/components/ui/InputMau";
@@ -17,7 +18,9 @@ import WordModal from "@/components/ui/MultimediaModals/WordModal";
 import Textarea from "@/components/ui/Textarea";
 import { useForm, SubmitHandler } from "react-hook-form";
 import WatermarkBackground from "@/components/WatermarkBackground";
-import { createIngreso, updateIngreso } from "../ingresos.api";
+import { anexarMoviles, createIngreso, updateIngreso } from "../ingresos.api";
+import { getTemas } from "../../temas/Temas.api"; // Obtener lista de móviles
+
 import { useParams, useRouter } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
 import { useState, useEffect } from "react";
@@ -28,7 +31,7 @@ import SelectProvincia from "@/components/ui/SelectProvincia";
 import { showAlert, showCancelAlert } from "../../../../utils/alertUtils";
 import generatePDF from "../../../../utils/pdf2";
 import { useUserStore } from "@/lib/store";
-import Modal from "@/components/ui/Modal";
+import MovilesModal from "@/components/ui/MovilesModal"; // Importa el nuevo componente
 interface Domicilio {
   domicilio: string;
   establecimiento?: string;
@@ -108,7 +111,6 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
     },
   });
 
- 
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -128,7 +130,52 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
+  const [isMovilesModalOpen, setIsMovilesModalOpen] = useState(false);
+  const [moviles, setMoviles] = useState<any[]>([]);
+  const [selectedMoviles, setSelectedMoviles] = useState<number[]>([]);
 
+  useEffect(() => {
+    const fetchMoviles = async () => {
+      try {
+        const data = await getTemas(); // Obtener lista de todos los móviles
+        setMoviles(data);
+
+        // Si estamos en modo edición, obtener los móviles asociados al ingreso
+        if (params?.id) {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/ingresos/${params.id}/moviles`
+          );
+          if (!response.ok) {
+            throw new Error("Error al obtener los móviles asociados");
+          }
+          const asociados = await response.json();
+          setSelectedMoviles(asociados.map((movil: any) => movil.id)); // Establecer los IDs de los móviles asociados
+        }
+      } catch (error) {
+        console.error("Error al obtener móviles:", error);
+      }
+    };
+
+    fetchMoviles();
+  }, [params?.id]);
+
+  const handleAnexarMoviles = async () => {
+    try {
+      // Actualiza los móviles seleccionados en el backend
+      await anexarMoviles(ingreso.id, selectedMoviles);
+
+      // Actualiza el estado del frontend para reflejar los cambios
+      setSelectedMoviles([...selectedMoviles]);
+
+      Alert.success({ title: "Éxito", text: "Móviles anexados correctamente" });
+      setIsMovilesModalOpen(false);
+    } catch (error) {
+      Alert.error({
+        title: "Error",
+        text: "No se pudieron anexar los móviles",
+      });
+    }
+  };
   const [observacion, setobservacion] = useState<string>(
     ingreso?.observacion || ""
   );
@@ -362,9 +409,9 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
     try {
       let response;
 
-    // Inicialización de las variables necesarias
-    const domiciliosString =
-      domicilios?.map((d) => d.domicilio).join(", ") || "";
+      // Inicialización de las variables necesarias
+      const domiciliosString =
+        domicilios?.map((d) => d.domicilio).join(", ") || "";
 
       const payload: any = {
         numeroCuit: data.numeroCuit,
@@ -436,6 +483,7 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
         processFile(word1, "word1", "docx"),
       ]);
 
+      console.log("Payload enviado al backend:", payload);
       if (params?.id) {
         response = await updateIngreso(params.id, formData);
       } else {
@@ -446,10 +494,9 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
         ? "Actualización de Cliente"
         : "Creación de Cliente";
 
-        const alertData = {
-          ...response.data, // Utiliza los datos devueltos por el backend
-        };
-    
+      const alertData = {
+        ...response.data, // Utiliza los datos devueltos por el backend
+      };
 
       if (response.success) {
         await showAlert(response.success, mensajeTitulo, alertData);
@@ -487,7 +534,7 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
     <form
       id="formulario"
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6"
+      className="space-y-6 max-w-7xl mx-auto"
       style={{
         backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
         backgroundSize: "cover",
@@ -495,7 +542,27 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
       }}
     >
       <WatermarkBackground setBackgroundImage={setBackgroundImage} />
+      <MovilesAnexados
+  moviles={moviles}
+  selectedMoviles={selectedMoviles}
+  setSelectedMoviles={setSelectedMoviles} // Pasar la función como prop
+/>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 auto-rows-auto items-start">
+        <Button
+          type="button"
+          onClick={() => setIsMovilesModalOpen(true)}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+        >
+          Anexar móviles
+        </Button>
+        <MovilesModal
+          isOpen={isMovilesModalOpen}
+          onClose={() => setIsMovilesModalOpen(false)}
+          moviles={moviles}
+          selectedMoviles={selectedMoviles}
+          setSelectedMoviles={setSelectedMoviles}
+          handleAnexarMoviles={handleAnexarMoviles}
+        />
         <Button
           type="button"
           onClick={() => setIsPhotosOpen(true)}
@@ -575,14 +642,6 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
           word1={word1}
           setWord1={setWord1}
         />
-        <Button
-          type="button"
-          onClick={() => setIsPdfOpen(true)}
-          className="bg-cyan-600 hover:bg-cyan-800 text-white px-4 py-2 rounded-lg"
-        >
-          Autos
-        </Button>
-
         <InputField
           register={register}
           name="apellido"

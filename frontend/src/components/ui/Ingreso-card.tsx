@@ -110,7 +110,7 @@ export function IngresoCard({ ingreso, matches }: any) {
         <p><strong>Título de Información Pública:</strong> <Highlight text={ingreso.titInfoPublic} matches={matches} /></p>
         <p><strong>Resumen:</strong> <Highlight text={ingreso.resumen} matches={matches} /></p>
         <p><strong>Observación:</strong> <Highlight text={ingreso.observacion} matches={matches} /></p>
-        <p><strong>Tema informativo:</strong> <Highlight text={ingreso.temaInf} matches={matches} /></p>
+        <p><strong>Móvil:</strong> <Highlight text={ingreso.temaInf} matches={matches} /></p>
         <p><strong>Link:</strong> <Highlight text={ingreso.link} matches={matches} /></p>
       </CardContent>
       

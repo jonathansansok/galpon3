@@ -54,7 +54,7 @@ const eventosHumanizados: { [key: string]: string } = {
   elementos: "Elementos",
   atentados: "Atentados a la seguridad",
   egresos: "Egresos extramuro",
-  temas: "Tema informativo",
+  temas: "Móvil",
   traslados: "Traslados"
 };
 

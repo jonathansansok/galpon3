@@ -193,7 +193,7 @@ export default function IngresosPage() {
   ];
   return (
     <div className="flex justify-start items-start flex-col w-full px-4 py-6">
-      <h1 className="text-4xl font-bold mb-4">Internos</h1>
+      <h1 className="text-4xl font-bold mb-4">Clientes</h1>
 
       {/* Botón para crear un nuevo ingreso */}
       <Link
@@ -208,7 +208,7 @@ export default function IngresosPage() {
         className={buttonVariants({ variant: "outline" })}
         style={{ marginBottom: "20px" }}
       >
-        Cargar historial
+        Ver todos los clientes
       </button>
 
       {/* Botón para exportar los ingresos a Excel */}

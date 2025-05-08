@@ -90,13 +90,13 @@ export default function TemasPage() {
 
   return (
     <div className="flex justify-start items-start flex-col w-full px-4 py-6">
-      <h1 className="text-4xl font-bold mb-4">Evento: Tema informativo</h1>
+      <h1 className="text-4xl font-bold mb-4">Móviles</h1>
       <Link
         href="/portal/eventos/temas/new"
         className={buttonVariants()}
         style={{ marginBottom: "20px" }}
       >
-        Agregar Tema informativo
+        Agregar Móviles
       </Link>
 
       <button

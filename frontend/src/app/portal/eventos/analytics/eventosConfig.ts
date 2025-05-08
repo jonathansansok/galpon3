@@ -17,6 +17,6 @@ export const eventosHumanizados: { [key: string]: string } = {
     elementos: "Secuestro Elems.",
     atentados: "Atentados a la seg.",
     egresos: "Egresos ext.",
-    temas: "Tema informativo",
+    temas: "Móvil",
   };
   

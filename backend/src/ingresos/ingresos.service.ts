@@ -8,6 +8,7 @@ import {
   InternalServerErrorException,
   HttpException,
   HttpStatus,
+  BadRequestException, // Agregar esta línea
 } from '@nestjs/common';
 import { CreateIngresoDto } from './dto/create-ingreso.dto';
 import { UpdateIngresoDto } from './dto/update-ingreso.dto';
@@ -29,22 +30,117 @@ export class IngresosService {
   }
   async create(createIngresoDto: CreateIngresoDto) {
     try {
+      console.log(
+        '[SERVICE] Datos recibidos para validación:',
+        createIngresoDto,
+      );
+
+      // Validaciones específicas
+      const errors: { field: string; message: string }[] = [];
+
+      if (
+        !createIngresoDto.numeroCuit ||
+        isNaN(Number(createIngresoDto.numeroCuit))
+      ) {
+        errors.push({
+          field: 'numeroCuit',
+          message: 'El campo "numeroCuit" debe ser un número válido.',
+        });
+      }
+
+      if (!createIngresoDto.dias || isNaN(Number(createIngresoDto.dias))) {
+        errors.push({
+          field: 'dias',
+          message: 'El campo "dias" debe ser un número válido.',
+        });
+      }
+
+      if (
+        !createIngresoDto.apellido ||
+        createIngresoDto.apellido.trim() === ''
+      ) {
+        errors.push({
+          field: 'apellido',
+          message: 'El campo "apellido" es obligatorio.',
+        });
+      }
+
+      if (!createIngresoDto.nombres || createIngresoDto.nombres.trim() === '') {
+        errors.push({
+          field: 'nombres',
+          message: 'El campo "nombres" es obligatorio.',
+        });
+      }
+
+      if (
+        !createIngresoDto.numeroDni ||
+        isNaN(Number(createIngresoDto.numeroDni))
+      ) {
+        errors.push({
+          field: 'numeroDni',
+          message: 'El campo "numeroDni" debe ser un número válido.',
+        });
+      }
+
+      if (
+        !createIngresoDto.telefono ||
+        createIngresoDto.telefono.trim() === ''
+      ) {
+        errors.push({
+          field: 'telefono',
+          message: 'El campo "telefono" es obligatorio.',
+        });
+      }
+
+      if (
+        !createIngresoDto.emailCliente ||
+        !this.isValidEmail(createIngresoDto.emailCliente)
+      ) {
+        errors.push({
+          field: 'emailCliente',
+          message:
+            'El campo "emailCliente" debe ser un correo electrónico válido.',
+        });
+      }
+
+      // Si hay errores, lanzar excepción
+      if (errors.length > 0) {
+        console.error('[SERVICE] Errores de validación:', errors);
+        throw new BadRequestException({
+          message: 'Errores de validación',
+          errors,
+        });
+      }
+
+      console.log(
+        '[SERVICE] Datos validados correctamente. Enviando a la base de datos:',
+        createIngresoDto,
+      );
+
+      // Crear el ingreso en la base de datos
       return await this.prismaService.ingresos.create({
         data: createIngresoDto,
       });
     } catch (error) {
+      console.error('[SERVICE] Error al crear ingreso:', error);
+
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw new ConflictException(
-            `Ingreso with email ${createIngresoDto.email} already exists`,
+            `Ingreso con email ${createIngresoDto.email} ya existe`,
           );
         }
       }
 
       throw new InternalServerErrorException(
-        'Error en la creación del ingreso',
+        error.message || 'Error en la creación del ingreso',
       );
     }
+  }
+
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 
   findAll() {
@@ -340,5 +436,105 @@ export class IngresosService {
       where: { id: ingresoId },
       data: { historialEgresos: updatedHistorial },
     });
+  }
+  async anexarMoviles(clienteId: number, movilesIds: number[]) {
+    try {
+      // Verificar si el cliente existe
+      const cliente = await this.prismaService.ingresos.findUnique({
+        where: { id: clienteId },
+      });
+
+      if (!cliente) {
+        throw new NotFoundException(
+          `Cliente con ID ${clienteId} no encontrado`,
+        );
+      }
+
+      // Actualizar los móviles con el clienteId
+      const updatedMoviles = await this.prismaService.temas.updateMany({
+        where: { id: { in: movilesIds } },
+        data: { clienteId },
+      });
+
+      return {
+        success: true,
+        updatedCount: updatedMoviles.count,
+      };
+    } catch (error) {
+      console.error('Error al anexar móviles:', error);
+      throw new HttpException(
+        error.message || 'Error al anexar móviles',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  async getMovilesAsociados(ingresoId: number) {
+    return this.prismaService.temas.findMany({
+      where: { clienteId: ingresoId },
+    });
+  }
+  async removeAnexo(ingresoId: number, movilId: number) {
+    try {
+      // Verificar si el móvil está asociado al ingreso
+      const movil = await this.prismaService.temas.findUnique({
+        where: { id: movilId },
+      });
+
+      if (!movil || movil.clienteId !== ingresoId) {
+        throw new NotFoundException(
+          `El móvil con ID ${movilId} no está asociado al ingreso con ID ${ingresoId}`,
+        );
+      }
+
+      // Desasociar el móvil
+      await this.prismaService.temas.update({
+        where: { id: movilId },
+        data: { clienteId: null },
+      });
+
+      return { message: 'Móvil desasociado correctamente' };
+    } catch (error) {
+      console.error('Error al desasociar móvil:', error);
+      throw new HttpException(
+        error.message || 'Error al desasociar móvil',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  async updateMoviles(ingresoId: number, movilesIds: number[]) {
+    try {
+      // Verificar si el ingreso existe
+      const ingreso = await this.prismaService.ingresos.findUnique({
+        where: { id: ingresoId },
+      });
+
+      if (!ingreso) {
+        throw new NotFoundException(
+          `Ingreso con ID ${ingresoId} no encontrado`,
+        );
+      }
+
+      // Actualizar los móviles asociados al ingreso
+      await this.prismaService.temas.updateMany({
+        where: { clienteId: ingresoId },
+        data: { clienteId: null }, // Desasociar los móviles actuales
+      });
+
+      await this.prismaService.temas.updateMany({
+        where: { id: { in: movilesIds } },
+        data: { clienteId: ingresoId }, // Asociar los nuevos móviles
+      });
+
+      return {
+        success: true,
+        message: 'Móviles actualizados correctamente',
+      };
+    } catch (error) {
+      console.error('Error al actualizar móviles:', error);
+      throw new HttpException(
+        error.message || 'Error al actualizar móviles',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

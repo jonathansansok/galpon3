@@ -2,6 +2,22 @@
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 // frontend/src/app/portal/eventos/temas/Temas.api.ts
+export async function getClienteAsociado(temaId: string) {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/temas/${parseInt(temaId, 10)}/cliente`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      throw new Error("Error al obtener el cliente asociado");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error(`Error al obtener cliente asociado al tema con id ${temaId}:`, error);
+    throw error;
+  }
+}
 export async function createTema(formData: FormData) {
   try {
     console.log("[CSRF] Verificando cookies disponibles en el navegador:", document.cookie);

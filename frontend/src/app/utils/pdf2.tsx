@@ -285,7 +285,7 @@ const generatePDF = async (
       ["Profesión", ingreso.profesion],
       ["Título de Información Pública", ingreso.titInfoPublic],
       ["Observaciones", ingreso.observacion],
-      ["Tema informativo", ingreso.temaInf],
+      ["Móvil", ingreso.temaInf],
       ["Resumen", ingreso.resumen],
       ["Link", ingreso.link],
     ],

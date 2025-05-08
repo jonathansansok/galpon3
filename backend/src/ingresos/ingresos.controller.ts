@@ -54,6 +54,38 @@ export class IngresosController {
   @Post()
   @UseInterceptors(FilesInterceptor('files', 20))
   @ApiOperation({ summary: 'Create an ingreso' })
+  @Patch(':id/moviles')
+  @ApiOperation({ summary: 'Actualizar móviles asociados a un ingreso' })
+  async updateMoviles(
+    @Param('id', ParseIntPipe) ingresoId: number,
+    @Body('movilesIds') movilesIds: number[],
+    @Req() req: Request,
+  ) {
+    try {
+      // Validar el token CSRF
+      console.log(
+        '[PATCH] Token CSRF recibido en el encabezado:',
+        req.headers['csrf-token'],
+      );
+      validateRequest(req);
+      console.log('Token CSRF válido');
+
+      const result = await this.ingresosService.updateMoviles(
+        ingresoId,
+        movilesIds,
+      );
+      return {
+        message: 'Móviles actualizados correctamente',
+        data: result,
+      };
+    } catch (error) {
+      console.error('Error al actualizar móviles:', error.message);
+      throw new HttpException(
+        error.message || 'Error al procesar la solicitud',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
   async create(
     @UploadedFiles() files: Express.Multer.File[],
     @Body() createIngresoDto: CreateIngresoDto,
@@ -79,7 +111,7 @@ export class IngresosController {
         files.forEach((file) => {
           if (file.size > 4 * 1024 * 1024) {
             throw new HttpException(
-              `File ${file.originalname} exceeds the size limit of 4MB`,
+              `El archivo ${file.originalname} excede el límite de tamaño de 4MB`,
               HttpStatus.BAD_REQUEST,
             );
           }
@@ -109,23 +141,98 @@ export class IngresosController {
         console.warn('[POST] No se recibieron archivos.');
       }
 
+      // Validar los datos del DTO
+      console.log('[POST] Datos recibidos en el DTO:', createIngresoDto);
+      const errors: string[] = [];
+
+      // Validaciones específicas
+      if (
+        !createIngresoDto.numeroCuit ||
+        isNaN(Number(createIngresoDto.numeroCuit))
+      ) {
+        errors.push('El campo "numeroCuit" debe ser un número válido.');
+      }
+
+      if (!createIngresoDto.dias || isNaN(Number(createIngresoDto.dias))) {
+        errors.push('El campo "dias" debe ser un número válido.');
+      }
+
+      if (
+        !createIngresoDto.apellido ||
+        createIngresoDto.apellido.trim() === ''
+      ) {
+        errors.push('El campo "apellido" es obligatorio.');
+      }
+
+      if (!createIngresoDto.nombres || createIngresoDto.nombres.trim() === '') {
+        errors.push('El campo "nombres" es obligatorio.');
+      }
+
+      if (
+        !createIngresoDto.numeroDni ||
+        isNaN(Number(createIngresoDto.numeroDni))
+      ) {
+        errors.push('El campo "numeroDni" debe ser un número válido.');
+      }
+
+      if (
+        !createIngresoDto.telefono ||
+        createIngresoDto.telefono.trim() === ''
+      ) {
+        errors.push('El campo "telefono" es obligatorio.');
+      }
+
+      if (
+        !createIngresoDto.emailCliente ||
+        !this.isValidEmail(createIngresoDto.emailCliente)
+      ) {
+        errors.push(
+          'El campo "emailCliente" debe ser un correo electrónico válido.',
+        );
+      }
+
+      // Si hay errores, lanzar excepción
+      if (errors.length > 0) {
+        console.error('[POST] Errores de validación:', errors);
+        throw new BadRequestException({
+          message: 'Errores de validación',
+          errors,
+        });
+      }
+
+      // Crear el ingreso en la base de datos
       const result = await this.ingresosService.create(createIngresoDto);
+      console.log('[POST] Resultado de la creación:', result);
+
       return {
         message: 'Ingreso creado exitosamente',
         data: result,
       };
     } catch (error) {
       console.error('Error al crear ingreso:', error.message);
+
+      // Manejo de errores específicos
       if (error instanceof HttpException) {
         throw error;
       }
+
+      // Manejo de errores genéricos
       throw new HttpException(
-        'Error al procesar la solicitud',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        error.message || 'Error al procesar la solicitud',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
 
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+  @Get(':id/moviles')
+  @ApiOperation({ summary: 'Obtener móviles asociados a un ingreso' })
+  async getMovilesAsociados(@Param('id', ParseIntPipe) id: number) {
+    return this.ingresosService.getMovilesAsociados(id);
+  }
   @Get()
   @ApiResponse({ status: 200, description: 'Return all ingresos' })
   findAll() {
@@ -278,5 +385,66 @@ export class IngresosController {
   @Get(':evento/:lpu')
   findEventosByLpu(@Param('evento') evento: string, @Param('lpu') lpu: string) {
     return this.ingresosService.findEventosByLpu(evento, lpu);
+  }
+  @Post('anexar-moviles')
+  @ApiOperation({ summary: 'Anexar móviles a un ingreso' })
+  async anexarMoviles(
+    @Body('clienteId', ParseIntPipe) clienteId: number,
+    @Body('movilesIds') movilesIds: number[],
+    @Req() req: Request,
+  ) {
+    try {
+      // Validar el token CSRF
+      console.log(
+        '[POST] Token CSRF recibido en el encabezado:',
+        req.headers['csrf-token'],
+      );
+      validateRequest(req);
+      console.log('Token CSRF válido');
+
+      const result = await this.ingresosService.anexarMoviles(
+        clienteId,
+        movilesIds,
+      );
+      return {
+        message: 'Móviles anexados correctamente',
+        data: result,
+      };
+    } catch (error) {
+      console.error('Error al anexar móviles:', error.message);
+      throw new HttpException(
+        error.message || 'Error al procesar la solicitud',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  @Delete(':id/moviles/:movilId')
+  @ApiOperation({ summary: 'Quitar un móvil asociado a un ingreso' })
+  async removeAnexo(
+    @Param('id', ParseIntPipe) ingresoId: number,
+    @Param('movilId', ParseIntPipe) movilId: number,
+    @Req() req: Request,
+  ) {
+    try {
+      // Validar el token CSRF
+      console.log(
+        '[DELETE] Token CSRF recibido en el encabezado:',
+        req.headers['csrf-token'],
+      );
+      validateRequest(req);
+      console.log('Token CSRF válido');
+
+      const result = await this.ingresosService.removeAnexo(ingresoId, movilId);
+      return {
+        message: 'Móvil desasociado correctamente',
+        data: result,
+      };
+    } catch (error) {
+      console.error('Error al desasociar móvil:', error.message);
+      throw new HttpException(
+        error.message || 'Error al procesar la solicitud',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

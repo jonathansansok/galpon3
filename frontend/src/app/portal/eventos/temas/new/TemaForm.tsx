@@ -3,22 +3,17 @@
 import { InputField } from "@/components/ui/InputField";
 import { InputAnio } from "@/components/ui/InputAnio";
 import { Button } from "@/components/ui/button";
-import {
-  validateRequiredFields,
-  validateEmptyFields,
-} from "../../../../utils/validationUtils";
-import { excludedFields } from "../../../../utils/excludedFields";
 import Textarea from "@/components/ui/Textarea";
 import { useForm, SubmitHandler } from "react-hook-form";
 import WatermarkBackground from "@/components/WatermarkBackground";
-import { createTema, updateTema } from "../Temas.api";
+import { createTema, updateTema, getClienteAsociado } from "../Temas.api";
 import { useParams, useRouter } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
 import { useState, useEffect } from "react";
 import FechaHoraEvento from "@/components/ui/FechaHoraEvento";
 import { useUserStore } from "@/lib/store"; // Importar el store de Zustand
 import { ShowTemas, showCancelAlert } from "../../../../utils/alertUtils"; // Importa las funciones
-
+import ClienteAsociado from "@/components/ui/ClienteAsociado"; 
 import PhotosEvModal from "@/components/ui/MultimediaModals/PhotosEvModal";
 import PdfModal from "@/components/ui/MultimediaModals/PdfModal";
 import WordModal from "@/components/ui/MultimediaModals/WordModal";
@@ -44,7 +39,7 @@ export function TemaForm({ tema }: { tema: any }) {
       defaultValues: {
         observacion: tema?.observacion || "",
         fechaHora: tema?.fechaHora || "",
-       
+
         email: tema?.email || "",
         internosinvolucrado: JSON.stringify(tema?.internosinvolucrado || []),
         imagen: tema?.imagen || "",
@@ -90,7 +85,7 @@ export function TemaForm({ tema }: { tema: any }) {
   const [observacion, setObservacion] = useState<string>(
     tema?.observacion || ""
   );
-  
+
   const [imagen, setImagen] = useState<string | null>(
     tema?.imagen
       ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.imagen}`
@@ -247,7 +242,22 @@ export function TemaForm({ tema }: { tema: any }) {
 
   const user = useUserStore((state) => state.user);
   const setUser = useUserStore((state) => state.setUser);
+  const [clienteAsociado, setClienteAsociado] = useState<any>(null);
 
+  useEffect(() => {
+    const fetchClienteAsociado = async () => {
+      try {
+        if (params?.id) {
+          const cliente = await getClienteAsociado(params.id);
+          setClienteAsociado(cliente); // Establecer los datos del cliente asociado
+        }
+      } catch (error) {
+        console.error("Error al obtener el cliente asociado:", error);
+      }
+    };
+  
+    fetchClienteAsociado();
+  }, [params?.id]);
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -278,7 +288,6 @@ export function TemaForm({ tema }: { tema: any }) {
   const requiredFields = ["", ""];
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     console.log("[DEBUG] Valor de anio antes de parsear:", anio);
-
 
     const confirmation = await Alert.confirm({
       title: "¿Estás seguro?",
@@ -370,8 +379,8 @@ export function TemaForm({ tema }: { tema: any }) {
         }
 
         const mensajeTitulo = params?.id
-          ? "Actualización de Tema informativo"
-          : "Creación de Tema informativo";
+          ? "Actualización de Móvil"
+          : "Creación de Móvil";
 
         console.log("[DEBUG] response completo:", response);
         console.log("[DEBUG] response.success:", response.success);
@@ -423,7 +432,10 @@ export function TemaForm({ tema }: { tema: any }) {
       }}
     >
       <WatermarkBackground setBackgroundImage={setBackgroundImage} />
+      <ClienteAsociado cliente={clienteAsociado} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 auto-rows-auto items-start">
+         {/* Usa el componente ClienteAsociado */}
+       
         <Button
           type="button"
           onClick={() => setIsPhotosOpen(true)}
@@ -503,80 +515,74 @@ export function TemaForm({ tema }: { tema: any }) {
           word1={word1}
           setWord1={setWord1}
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <InputField
-            register={register}
-            name="patente"
-            label="Patente"
-            placeholder=""
-          />
-          <InputField
-            register={register}
-            name="marca"
-            label="Marca"
-            placeholder=""
-          />
-          <InputField
-            register={register}
-            name="modelo"
-            label="Modelo"
-            placeholder=""
-          />
-          <InputAnio
-            value={anio} // `anio` debe ser una cadena
-            onChange={(e) => setAnio(e.target.value)} // Actualiza el estado como cadena
-            label="Año"
-            placeholder="Ingrese el año"
-          />
-          <InputField
-            register={register}
-            name="color"
-            label="Color"
-            placeholder=""
-          />
-          <InputField
-            register={register}
-            name="tipoPintura"
-            label="Tipo de Pintura"
-            placeholder=""
-          />
-          <InputField
-            register={register}
-            name="paisOrigen"
-            label="País de Origen"
-            placeholder=""
-          />
-          <InputField
-            register={register}
-            name="tipoVehic"
-            label="Tipo de Vehículo"
-            placeholder=""
-          />
-          <InputField
-            register={register}
-            name="motor"
-            label="Motor"
-            placeholder=""
-          />
-          <InputField
-            register={register}
-            name="chasis"
-            label="Chasis"
-            placeholder=""
-          />
-          <InputField
-            register={register}
-            name="combustion"
-            label="Combustión"
-            placeholder=""
-          />
-          <InputField
-            register={register}
-            name="vin"
-            label="VIN"
-            placeholder=""
-          />
-        </div>
+
+        <InputField
+          register={register}
+          name="patente"
+          label="Patente"
+          placeholder=""
+        />
+        <InputField
+          register={register}
+          name="marca"
+          label="Marca"
+          placeholder=""
+        />
+        <InputField
+          register={register}
+          name="modelo"
+          label="Modelo"
+          placeholder=""
+        />
+        <InputAnio
+          value={anio} // `anio` debe ser una cadena
+          onChange={(e) => setAnio(e.target.value)} // Actualiza el estado como cadena
+          label="Año"
+          placeholder="Ingrese el año"
+        />
+        <InputField
+          register={register}
+          name="color"
+          label="Color"
+          placeholder=""
+        />
+        <InputField
+          register={register}
+          name="tipoPintura"
+          label="Tipo de Pintura"
+          placeholder=""
+        />
+        <InputField
+          register={register}
+          name="paisOrigen"
+          label="País de Origen"
+          placeholder=""
+        />
+        <InputField
+          register={register}
+          name="tipoVehic"
+          label="Tipo de Vehículo"
+          placeholder=""
+        />
+        <InputField
+          register={register}
+          name="motor"
+          label="Motor"
+          placeholder=""
+        />
+        <InputField
+          register={register}
+          name="chasis"
+          label="Chasis"
+          placeholder=""
+        />
+        <InputField
+          register={register}
+          name="combustion"
+          label="Combustión"
+          placeholder=""
+        />
+        <InputField register={register} name="vin" label="VIN" placeholder="" />
 
         <FechaHoraEvento
           value={fechaHora}
@@ -586,7 +592,6 @@ export function TemaForm({ tema }: { tema: any }) {
           }}
         />
 
-       
         <Textarea
           id="observacion"
           value={observacion}
@@ -611,8 +616,8 @@ export function TemaForm({ tema }: { tema: any }) {
                 ? "Actualizando..."
                 : "Posteando..."
               : params.id
-              ? "Actualizar Tema informativo"
-              : "Crear Tema informativo"}
+              ? "Actualizar Móvil"
+              : "Crear Móvil"}
           </Button>
         </div>
       </div>

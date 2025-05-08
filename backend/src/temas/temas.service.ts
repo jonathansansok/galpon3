@@ -13,7 +13,18 @@ import { Prisma } from '@prisma/client';
 @Injectable()
 export class TemasService {
   constructor(private prismaService: PrismaService) {}
+  async getClienteAsociado(temaId: number) {
+    const tema = await this.prismaService.temas.findUnique({
+      where: { id: temaId },
+      include: { cliente: true }, // Incluye los datos del cliente asociado
+    });
 
+    if (!tema || !tema.cliente) {
+      throw new NotFoundException('Cliente asociado no encontrado');
+    }
+
+    return tema.cliente;
+  }
   async create(createTemasDto: CreateTemaDto) {
     try {
       console.log('[DEBUG] DTO recibido en el servicio:', createTemasDto);

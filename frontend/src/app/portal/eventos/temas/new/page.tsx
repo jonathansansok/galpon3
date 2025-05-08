@@ -20,7 +20,7 @@ async function TemasNewPage({ params }: Props) {
       <Card>
         <CardHeader>
           <CardTitle>
-            {params.id ? "Editar Tema informativo" : "Agregar Tema informativo"}
+            {params.id ? "Editar Móvil" : "Agregar Móvil"}
           </CardTitle>
         </CardHeader>
         <CardContent>

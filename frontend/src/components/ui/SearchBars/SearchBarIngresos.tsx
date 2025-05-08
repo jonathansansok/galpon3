@@ -100,7 +100,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
         onChange={handleInputChange(setTelefono)} // Agregado
         name="telefono" // Agregado
         label="Buscar por Teléfono" // Agregado
-        placeholder="Ingrese el teléfono" // Agregado
+        placeholder="" // Agregado
       />
       <InputFieldSimple
         value={emailCliente} // Agregado

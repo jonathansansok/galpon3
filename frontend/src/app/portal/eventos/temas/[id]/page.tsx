@@ -87,7 +87,7 @@ const TemaDetailPage: React.FC<Props> = ({ params }) => {
     Actualizado el: ${formatDateTime(tema.updatedAt)}
   `;
 
-  const title = "Detalle del Tema informativo";
+  const title = "Detalle del Móvil";
 
   return (
     <div className="flex justify-center items-center flex-col w-full px-4 py-6 mb-10">
