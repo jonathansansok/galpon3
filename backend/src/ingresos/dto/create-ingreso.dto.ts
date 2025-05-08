@@ -8,8 +8,15 @@ import {
   IsNumberString,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
-
 export class CreateIngresoDto {
+  constructor(partial: Partial<CreateIngresoDto>) {
+    Object.assign(this, partial);
+    console.log('[DTO] Valores transformados:', this);
+    Object.entries(this).forEach(([key, value]) => {
+      console.log(`  ${key}:`, value, `(${typeof value})`);
+    });
+  }
+
   @IsEmail()
   @IsOptional()
   @Transform(({ value }) => value?.trim() || null) // Convertir cadenas vacías a null
@@ -45,11 +52,6 @@ export class CreateIngresoDto {
   @Transform(({ value }) => value?.trim() || null) // Convertir cadenas vacías a null
   condicion?: string;
 
-  @IsString()
-  @IsOptional()
-  @Transform(({ value }) => value?.trim() || null) // Convertir cadenas vacías a null
-  pyme?: string;
-
   @IsNumberString()
   @IsOptional()
   @Transform(({ value }) => (value?.trim() === '' ? null : value?.trim())) // Convertir cadenas vacías a null
@@ -79,7 +81,6 @@ export class CreateIngresoDto {
   @IsOptional()
   @Transform(({ value }) => (value?.trim() === '' ? null : value?.trim())) // Convertir cadenas vacías a null
   cp?: string;
-
   @IsString()
   @IsOptional()
   @Transform(({ value }) => value?.trim())

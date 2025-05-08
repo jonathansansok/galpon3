@@ -194,7 +194,6 @@ model Ingresos {
   numeroCuit                String?   @db.VarChar(20) // Número de CUIT
   dias                      String?   @db.VarChar(10) // Días
   iva                       String?   @db.VarChar(50) // Condición frente al IVA
-  pyme String? @db.VarChar(5) // Indica si es PyME
   porcB                     String?   @db.VarChar(10) // Porcentaje B
   porcRetIB                 String?   @db.VarChar(10) // Porcentaje Retención IB
   imagen                    String?   @db.VarChar(255) // VARCHAR(255)

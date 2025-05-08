@@ -50,10 +50,6 @@ export class IngresosController {
       dto[key] = file.filename.replace(extname(file.filename), extension);
     }
   }
-
-  @Post()
-  @UseInterceptors(FilesInterceptor('files', 20))
-  @ApiOperation({ summary: 'Create an ingreso' })
   @Patch(':id/moviles')
   @ApiOperation({ summary: 'Actualizar móviles asociados a un ingreso' })
   async updateMoviles(
@@ -86,6 +82,9 @@ export class IngresosController {
       );
     }
   }
+  @Post()
+  @UseInterceptors(FilesInterceptor('files', 20))
+  @ApiOperation({ summary: 'Create an ingreso' })
   async create(
     @UploadedFiles() files: Express.Multer.File[],
     @Body() createIngresoDto: CreateIngresoDto,
@@ -101,10 +100,18 @@ export class IngresosController {
         '[POST] Token CSRF en las cookies:',
         req.cookies['csrf-token'],
       );
-
+      // Log de los datos recibidos en el DTO
+      console.log('[PATCH] Datos recibidos en el DTO:');
+      Object.entries(createIngresoDto).forEach(([key, value]) => {
+        console.log(`  ${key}:`, value, `(${typeof value})`);
+      });
       validateRequest(req);
       console.log('[POST] Token CSRF válido.');
-
+      // Log de los datos recibidos en el DTO
+      console.log('[PATCH] Datos recibidos en el DTO:');
+      Object.entries(createIngresoDto).forEach(([key, value]) => {
+        console.log(`  ${key}:`, value, `(${typeof value})`);
+      });
       // Validar y procesar los archivos
       if (files && Array.isArray(files)) {
         console.log(
@@ -285,6 +292,11 @@ export class IngresosController {
         '[PATCH] Token CSRF en las cookies:',
         req.cookies['csrf-token'],
       );
+      // Log de los datos recibidos en el DTO
+      console.log('[PATCH] Datos recibidos en el DTO:');
+      Object.entries(updateIngresoDto).forEach(([key, value]) => {
+        console.log(`  ${key}:`, value, `(${typeof value})`);
+      });
 
       validateRequest(req);
       console.log('Token CSRF válido');

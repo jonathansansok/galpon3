@@ -129,6 +129,11 @@ export class IngresosService {
         createIngresoDto,
       );
 
+      console.log(
+        '[SERVICE] Datos validados correctamente. Enviando a la base de datos:',
+        createIngresoDto,
+      );
+
       // Crear el ingreso en la base de datos
       const result = await this.prismaService.ingresos.create({
         data: createIngresoDto,
