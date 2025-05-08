@@ -50,7 +50,11 @@ export class TemasService {
 
   async findAll() {
     try {
-      const result = await this.prismaService.temas.findMany();
+      const result = await this.prismaService.temas.findMany({
+        include: {
+          presupuestos: true, // Incluir los presupuestos asociados a cada tema/móvil
+        },
+      });
       return result;
     } catch (error) {
       console.error('[ERROR] Error al buscar los registros de temas:', error);
@@ -65,6 +69,9 @@ export class TemasService {
       const TemasFound = await this.prismaService.temas.findUnique({
         where: {
           id: id,
+        },
+        include: {
+          presupuestos: true, // Incluir los presupuestos asociados
         },
       });
 

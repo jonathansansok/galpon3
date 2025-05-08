@@ -24,6 +24,7 @@ import { AtentadosModule } from './atentados/atentados.module';
 import { EgresosModule } from './egresos/egresos.module';
 import { TemasModule } from './temas/temas.module';
 import { TrasladosModule } from './traslados/traslados.module';
+import { PresupuestosModule } from './presupuestos/presupuestos.module';
 import { CsrfModule } from './csrf/csrf.module';
 import { CsrfMiddleware } from './csrf/csrf.middleware'; // Importar el middleware de CSRF
 
@@ -52,6 +53,7 @@ import { CsrfMiddleware } from './csrf/csrf.middleware'; // Importar el middlewa
     AtentadosModule,
     EgresosModule,
     TemasModule,
+    PresupuestosModule,
     TrasladosModule,
   ],
   controllers: [], // Registrar el controlador

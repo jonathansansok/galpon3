@@ -133,6 +133,9 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'src', 'traslados', 'uploads'), {
     prefix: '/traslados/uploads/',
   });
+  app.useStaticAssets(join(__dirname, '..', 'src', 'presupuestos', 'uploads'), {
+    prefix: '/traslados/uploads/',
+  });
 
   const port = process.env.BACKEND_PORT || 3900;
 

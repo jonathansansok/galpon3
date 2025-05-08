@@ -160,13 +160,30 @@ export class IngresosService {
   }
 
   findAll() {
-    return this.prismaService.ingresos.findMany();
+    return this.prismaService.ingresos.findMany({
+      include: {
+        moviles: {
+          // Incluir los móviles asociados a cada ingreso
+          include: {
+            presupuestos: true, // Incluir los presupuestos asociados a cada móvil
+          },
+        },
+      },
+    });
   }
   async findOne(id: number) {
     console.log(`Buscando ingreso con id: ${id}`);
     const ingresoFound = await this.prismaService.ingresos.findUnique({
       where: {
         id: id,
+      },
+      include: {
+        moviles: {
+          // Incluir los móviles asociados al ingreso
+          include: {
+            presupuestos: true, // Incluir los presupuestos asociados a cada móvil
+          },
+        },
       },
     });
 
@@ -175,7 +192,7 @@ export class IngresosService {
       throw new NotFoundException(`Ingreso with id ${id} not found`);
     }
 
-    console.log(`Ingreso encontrado:`, ingresoFound);
+    console.log(`Ingreso encontrado con móviles y presupuestos:`, ingresoFound);
     return ingresoFound;
   }
 
