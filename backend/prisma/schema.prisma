@@ -267,7 +267,7 @@ model Ingresos {
   estadoCivil               String?   @db.VarChar(30) // VARCHAR(30) opcional
   internosinvolucrado       String?   @db.LongText
   imagenesHistorial         Json? // Historial de imágenes
-  moviles    Temas[]  
+  //moviles    Temas[]  
 }
 model Temas {
   id         Int      @id @default(autoincrement())
@@ -310,8 +310,8 @@ model Temas {
   pdf10               String?   @db.VarChar(255)
   word1               String?   @db.VarChar(255)
   internosinvolucrado String?   @db.Text
-  clienteId  Int?
-  cliente    Ingresos? @relation(fields: [clienteId], references: [id])
+  //clienteId  Int?
+  //cliente    Ingresos? @relation(fields: [clienteId], references: [id])
 }
 model Preingresos {
   id                        Int       @id @default(autoincrement()) // Clave primaria autoincremental  email

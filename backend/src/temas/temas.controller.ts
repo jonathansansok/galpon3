@@ -242,9 +242,4 @@ export class TemasController {
       );
     }
   }
-  @Get(':id/cliente')
-  @ApiOperation({ summary: 'Obtener cliente asociado a un móvil' })
-  async getClienteAsociado(@Param('id', ParseIntPipe) id: number) {
-    return this.temasService.getClienteAsociado(id);
-  }
 }

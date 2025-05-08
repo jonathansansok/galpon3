@@ -67,17 +67,18 @@ export class IngresosController {
         '[PATCH] Token CSRF recibido en el encabezado:',
         req.headers['csrf-token'],
       );
+
       validateRequest(req);
       console.log('Token CSRF válido');
 
-      const result = await this.ingresosService.updateMoviles(
+      /*  const result = await this.ingresosService.updateMoviles(
         ingresoId,
         movilesIds,
-      );
-      return {
+      ); */
+      /*  return {
         message: 'Móviles actualizados correctamente',
         data: result,
-      };
+      }; */
     } catch (error) {
       console.error('Error al actualizar móviles:', error.message);
       throw new HttpException(
@@ -150,8 +151,11 @@ export class IngresosController {
         console.warn('[POST] No se recibieron archivos.');
       }
 
-      // Log de datos recibidos en el DTO
-      console.log('[POST] Datos recibidos en el DTO:', createIngresoDto);
+      // 3. Log después de procesar archivos
+      console.log(
+        '[CONTROLLER] DTO después de procesar archivos:',
+        createIngresoDto,
+      );
 
       // Validaciones específicas
       const errors: string[] = [];
@@ -232,11 +236,7 @@ export class IngresosController {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
-  @Get(':id/moviles')
-  @ApiOperation({ summary: 'Obtener móviles asociados a un ingreso' })
-  async getMovilesAsociados(@Param('id', ParseIntPipe) id: number) {
-    return this.ingresosService.getMovilesAsociados(id);
-  }
+
   @Get()
   @ApiResponse({ status: 200, description: 'Return all ingresos' })
   findAll() {
@@ -389,66 +389,5 @@ export class IngresosController {
   @Get(':evento/:lpu')
   findEventosByLpu(@Param('evento') evento: string, @Param('lpu') lpu: string) {
     return this.ingresosService.findEventosByLpu(evento, lpu);
-  }
-  @Post('anexar-moviles')
-  @ApiOperation({ summary: 'Anexar móviles a un ingreso' })
-  async anexarMoviles(
-    @Body('clienteId', ParseIntPipe) clienteId: number,
-    @Body('movilesIds') movilesIds: number[],
-    @Req() req: Request,
-  ) {
-    try {
-      // Validar el token CSRF
-      console.log(
-        '[POST] Token CSRF recibido en el encabezado:',
-        req.headers['csrf-token'],
-      );
-      validateRequest(req);
-      console.log('Token CSRF válido');
-
-      const result = await this.ingresosService.anexarMoviles(
-        clienteId,
-        movilesIds,
-      );
-      return {
-        message: 'Móviles anexados correctamente',
-        data: result,
-      };
-    } catch (error) {
-      console.error('Error al anexar móviles:', error.message);
-      throw new HttpException(
-        error.message || 'Error al procesar la solicitud',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-  @Delete(':id/moviles/:movilId')
-  @ApiOperation({ summary: 'Quitar un móvil asociado a un ingreso' })
-  async removeAnexo(
-    @Param('id', ParseIntPipe) ingresoId: number,
-    @Param('movilId', ParseIntPipe) movilId: number,
-    @Req() req: Request,
-  ) {
-    try {
-      // Validar el token CSRF
-      console.log(
-        '[DELETE] Token CSRF recibido en el encabezado:',
-        req.headers['csrf-token'],
-      );
-      validateRequest(req);
-      console.log('Token CSRF válido');
-
-      const result = await this.ingresosService.removeAnexo(ingresoId, movilId);
-      return {
-        message: 'Móvil desasociado correctamente',
-        data: result,
-      };
-    } catch (error) {
-      console.error('Error al desasociar móvil:', error.message);
-      throw new HttpException(
-        error.message || 'Error al procesar la solicitud',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
   }
 }

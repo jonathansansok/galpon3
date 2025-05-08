@@ -453,7 +453,7 @@ export class IngresosService {
       data: { historialEgresos: updatedHistorial },
     });
   }
-  async anexarMoviles(clienteId: number, movilesIds: number[]) {
+  /*   async anexarMoviles(clienteId: number, movilesIds: number[]) {
     try {
       // Verificar si el cliente existe
       const cliente = await this.prismaService.ingresos.findUnique({
@@ -483,13 +483,13 @@ export class IngresosService {
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-  }
-  async getMovilesAsociados(ingresoId: number) {
+  } */
+  /* async getMovilesAsociados(ingresoId: number) {
     return this.prismaService.temas.findMany({
       where: { clienteId: ingresoId },
     });
-  }
-  async removeAnexo(ingresoId: number, movilId: number) {
+  } */
+  /* async removeAnexo(ingresoId: number, movilId: number) {
     try {
       // Verificar si el móvil está asociado al ingreso
       const movil = await this.prismaService.temas.findUnique({
@@ -516,8 +516,8 @@ export class IngresosService {
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-  }
-  async updateMoviles(ingresoId: number, movilesIds: number[]) {
+  } */
+  /* async updateMoviles(ingresoId: number, movilesIds: number[]) {
     try {
       // Verificar si el ingreso existe
       const ingreso = await this.prismaService.ingresos.findUnique({
@@ -552,5 +552,5 @@ export class IngresosService {
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-  }
+  } */
 }
