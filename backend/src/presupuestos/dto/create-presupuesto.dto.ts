@@ -1,3 +1,4 @@
+//backend\src\presupuestos\dto\create-presupuesto.dto.ts
 import {
   IsNumber,
   IsString,
@@ -34,4 +35,89 @@ export class CreatePresupuestoDto {
   @IsString()
   @IsOptional()
   observaciones?: string;
+
+  // Campos de archivos multimedia
+  @IsString()
+  @IsOptional()
+  imagen?: string;
+
+  @IsString()
+  @IsOptional()
+  imagenDer?: string;
+
+  @IsString()
+  @IsOptional()
+  imagenIz?: string;
+
+  @IsString()
+  @IsOptional()
+  imagenDact?: string;
+
+  @IsString()
+  @IsOptional()
+  imagenSen1?: string;
+
+  @IsString()
+  @IsOptional()
+  imagenSen2?: string;
+
+  @IsString()
+  @IsOptional()
+  imagenSen3?: string;
+
+  @IsString()
+  @IsOptional()
+  imagenSen4?: string;
+
+  @IsString()
+  @IsOptional()
+  imagenSen5?: string;
+
+  @IsString()
+  @IsOptional()
+  imagenSen6?: string;
+
+  @IsString()
+  @IsOptional()
+  pdf1?: string;
+
+  @IsString()
+  @IsOptional()
+  pdf2?: string;
+
+  @IsString()
+  @IsOptional()
+  pdf3?: string;
+
+  @IsString()
+  @IsOptional()
+  pdf4?: string;
+
+  @IsString()
+  @IsOptional()
+  pdf5?: string;
+
+  @IsString()
+  @IsOptional()
+  pdf6?: string;
+
+  @IsString()
+  @IsOptional()
+  pdf7?: string;
+
+  @IsString()
+  @IsOptional()
+  pdf8?: string;
+
+  @IsString()
+  @IsOptional()
+  pdf9?: string;
+
+  @IsString()
+  @IsOptional()
+  pdf10?: string;
+
+  @IsString()
+  @IsOptional()
+  word1?: string;
 }

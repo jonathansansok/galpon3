@@ -134,7 +134,7 @@ async function bootstrap() {
     prefix: '/traslados/uploads/',
   });
   app.useStaticAssets(join(__dirname, '..', 'src', 'presupuestos', 'uploads'), {
-    prefix: '/traslados/uploads/',
+    prefix: '/presupuestos/uploads/',
   });
 
   const port = process.env.BACKEND_PORT || 3900;
