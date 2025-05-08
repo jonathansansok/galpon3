@@ -403,67 +403,56 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
       showCancelAlert();
       return;
     }
-
+    
     setIsSubmitting(true); // Bloquear el botón al iniciar el envío
-
+    
     try {
       let response;
-
+    
       // Inicialización de las variables necesarias
       const domiciliosString =
         domicilios?.map((d) => d.domicilio).join(", ") || "";
-
-      const payload: any = {
-        numeroCuit: data.numeroCuit,
-        dias: data.dias,
-        iva: data.iva,
-        condicion: data.condicion,
-        pyme: data.pyme === "true", // Convertir a boolean
-        porcB: data.porcB,
-        porcRetIB: data.porcRetIB,
-        provincia: data.provincia,
-        resumen: data.resumen,
-        numeroDni: data.numeroDni,
-        telefono: data.telefono,
-        emailCliente: data.emailCliente,
-        apellido: data.apellido,
-        cp: data.cp,
-        nombres: data.nombres,
-        domicilios: domiciliosString,
-        observacion: data.observacion,
-        email: user?.email,
-        esAlerta: esAlerta,
-
-        internosinvolucrado: JSON.stringify(selectedInternos || []),
-      };
-      const numericFields = ["numeroCuit", "dias", "numeroDni", "porcB", "porcRetIB", "cp"];
-      numericFields.forEach((field) => {
-        if (payload[field] && isNaN(Number(payload[field]))) {
-          console.error(`[ERROR] El campo "${field}" no es una cadena numérica válida:`, payload[field]);
-        }
-      });
-      const sanitizeNumericFields = (payload: any, fields: string[]) => {
-        fields.forEach((field) => {
-          if (payload[field]) {
-            const numericValue = Number(payload[field]);
-            if (isNaN(numericValue)) {
-              console.error(`[ERROR] El campo "${field}" no es válido:`, payload[field]);
-              payload[field] = ""; // O elimina el campo si no es válido
+    
+        const sanitizeNumericFields = (payload: any, fields: string[]) => {
+          fields.forEach((field) => {
+            if (payload[field]) {
+              payload[field] = payload[field].toString().trim(); // Convertir a cadena y eliminar espacios
             } else {
-              payload[field] = numericValue.toString(); // Asegúrate de que sea una cadena numérica
+              payload[field] = ""; // Enviar como cadena vacía si no tiene valor
             }
-          }
+          });
+        };
+        
+        const payload: any = {
+          numeroCuit: data.numeroCuit,
+          dias: data.dias,
+          iva: data.iva || "", // Manejar campo vacío
+          condicion: data.condicion || "", // Manejar campo vacío
+          porcB: data.porcB,
+          porcRetIB: data.porcRetIB,
+          provincia: data.provincia || "", // Manejar campo vacío
+          resumen: data.resumen || "", // Manejar campo vacío
+          numeroDni: data.numeroDni || "", // Manejar campo vacío
+          telefono: data.telefono || "", // Manejar campo vacío
+          emailCliente: data.emailCliente || "", // Manejar campo vacío
+          apellido: data.apellido || "", // Manejar campo vacío
+          cp: data.cp,
+          nombres: data.nombres || "", // Manejar campo vacío
+          domicilios: domiciliosString || "", // Manejar campo vacío
+          observacion: data.observacion || "", // Manejar campo vacío
+          email: user?.email || "", // Manejar campo vacío
+          esAlerta: esAlerta || "", // Manejar campo vacío
+          internosinvolucrado: JSON.stringify(selectedInternos || []), // Convertir a JSON
+        };
+        
+        // Sanitizar campos numéricos
+        sanitizeNumericFields(payload, ["numeroCuit", "dias", "porcB", "porcRetIB", "cp", "numeroDni"]);
+        
+        // Log detallado del payload para depuración
+        console.log("[DEBUG] Payload enviado al backend:");
+        Object.entries(payload).forEach(([key, value]) => {
+          console.log(`  ${key}:`, value, `(${typeof value})`);
         });
-      };
-      
-      sanitizeNumericFields(payload, ["numeroCuit", "dias", "numeroDni", "porcB", "porcRetIB", "cp"]);
-
-  // Log detallado del payload
-  console.log("[DEBUG] Payload enviado al backend:");
-  Object.entries(payload).forEach(([key, value]) => {
-    console.log(`  ${key}:`, value, `(${typeof value})`);
-  });
-
       const formData = new FormData();
       for (const key in payload) {
         formData.append(key, payload[key]);

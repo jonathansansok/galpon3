@@ -50,10 +50,6 @@ export class IngresosController {
       dto[key] = file.filename.replace(extname(file.filename), extension);
     }
   }
-
-  @Post()
-  @UseInterceptors(FilesInterceptor('files', 20))
-  @ApiOperation({ summary: 'Create an ingreso' })
   @Patch(':id/moviles')
   @ApiOperation({ summary: 'Actualizar móviles asociados a un ingreso' })
   async updateMoviles(
@@ -86,6 +82,9 @@ export class IngresosController {
       );
     }
   }
+  @Post()
+  @UseInterceptors(FilesInterceptor('files', 20))
+  @ApiOperation({ summary: 'Create an ingreso' })
   async create(
     @UploadedFiles() files: Express.Multer.File[],
     @Body() createIngresoDto: CreateIngresoDto,
