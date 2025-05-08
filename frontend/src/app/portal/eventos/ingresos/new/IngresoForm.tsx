@@ -436,6 +436,19 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
 
         internosinvolucrado: JSON.stringify(selectedInternos || []),
       };
+  // Validar campos numéricos antes de enviar
+  const numericFields = ["numeroCuit", "dias", "numeroDni", "porcB", "porcRetIB", "cp"];
+  numericFields.forEach((field) => {
+    if (payload[field] && isNaN(Number(payload[field]))) {
+      console.error(`[ERROR] El campo "${field}" no es una cadena numérica válida:`, payload[field]);
+    }
+  });
+
+  // Log detallado del payload
+  console.log("[DEBUG] Payload enviado al backend:");
+  Object.entries(payload).forEach(([key, value]) => {
+    console.log(`  ${key}:`, value, `(${typeof value})`);
+  });
 
       const formData = new FormData();
       for (const key in payload) {
@@ -483,7 +496,11 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
         processFile(word1, "word1", "docx"),
       ]);
 
-      console.log("Payload enviado al backend:", payload);
+      console.log("[DEBUG] Payload enviado al backend:");
+      Object.entries(payload).forEach(([key, value]) => {
+        console.log(`  ${key}:`, value, `(${typeof value})`);
+      });
+      
       if (params?.id) {
         response = await updateIngreso(params.id, formData);
       } else {
@@ -543,10 +560,10 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
     >
       <WatermarkBackground setBackgroundImage={setBackgroundImage} />
       <MovilesAnexados
-  moviles={moviles}
-  selectedMoviles={selectedMoviles}
-  setSelectedMoviles={setSelectedMoviles} // Pasar la función como prop
-/>
+        moviles={moviles}
+        selectedMoviles={selectedMoviles}
+        setSelectedMoviles={setSelectedMoviles} // Pasar la función como prop
+      />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 auto-rows-auto items-start">
         <Button
           type="button"

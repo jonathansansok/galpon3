@@ -103,11 +103,14 @@ export class IngresosController {
       );
 
       validateRequest(req);
-      console.log('Token CSRF válido');
+      console.log('[POST] Token CSRF válido.');
 
       // Validar y procesar los archivos
       if (files && Array.isArray(files)) {
-        console.log('[POST] Archivos recibidos:', files);
+        console.log(
+          '[POST] Archivos recibidos:',
+          files.map((file) => file.originalname),
+        );
         files.forEach((file) => {
           if (file.size > 4 * 1024 * 1024) {
             throw new HttpException(
@@ -115,6 +118,8 @@ export class IngresosController {
               HttpStatus.BAD_REQUEST,
             );
           }
+
+          // Procesar imágenes
           this.processFile(file, createIngresoDto, 'imagen-', 'imagen');
           this.processFile(file, createIngresoDto, 'imagenDer-', 'imagenDer');
           this.processFile(file, createIngresoDto, 'imagenIz-', 'imagenIz');
@@ -125,6 +130,8 @@ export class IngresosController {
           this.processFile(file, createIngresoDto, 'imagenSen4-', 'imagenSen4');
           this.processFile(file, createIngresoDto, 'imagenSen5-', 'imagenSen5');
           this.processFile(file, createIngresoDto, 'imagenSen6-', 'imagenSen6');
+
+          // Procesar PDFs
           this.processFile(file, createIngresoDto, 'pdf1-', 'pdf1', '.pdf');
           this.processFile(file, createIngresoDto, 'pdf2-', 'pdf2', '.pdf');
           this.processFile(file, createIngresoDto, 'pdf3-', 'pdf3', '.pdf');
@@ -135,53 +142,49 @@ export class IngresosController {
           this.processFile(file, createIngresoDto, 'pdf8-', 'pdf8', '.pdf');
           this.processFile(file, createIngresoDto, 'pdf9-', 'pdf9', '.pdf');
           this.processFile(file, createIngresoDto, 'pdf10-', 'pdf10', '.pdf');
+
+          // Procesar archivos Word
           this.processFile(file, createIngresoDto, 'word1-', 'word1', '.docx');
         });
       } else {
         console.warn('[POST] No se recibieron archivos.');
       }
 
-      // Validar los datos del DTO
+      // Log de datos recibidos en el DTO
       console.log('[POST] Datos recibidos en el DTO:', createIngresoDto);
-      const errors: string[] = [];
 
       // Validaciones específicas
+      const errors: string[] = [];
       if (
         !createIngresoDto.numeroCuit ||
         isNaN(Number(createIngresoDto.numeroCuit))
       ) {
         errors.push('El campo "numeroCuit" debe ser un número válido.');
       }
-
       if (!createIngresoDto.dias || isNaN(Number(createIngresoDto.dias))) {
         errors.push('El campo "dias" debe ser un número válido.');
       }
-
       if (
         !createIngresoDto.apellido ||
         createIngresoDto.apellido.trim() === ''
       ) {
         errors.push('El campo "apellido" es obligatorio.');
       }
-
       if (!createIngresoDto.nombres || createIngresoDto.nombres.trim() === '') {
         errors.push('El campo "nombres" es obligatorio.');
       }
-
       if (
         !createIngresoDto.numeroDni ||
         isNaN(Number(createIngresoDto.numeroDni))
       ) {
         errors.push('El campo "numeroDni" debe ser un número válido.');
       }
-
       if (
         !createIngresoDto.telefono ||
         createIngresoDto.telefono.trim() === ''
       ) {
         errors.push('El campo "telefono" es obligatorio.');
       }
-
       if (
         !createIngresoDto.emailCliente ||
         !this.isValidEmail(createIngresoDto.emailCliente)
@@ -193,7 +196,7 @@ export class IngresosController {
 
       // Si hay errores, lanzar excepción
       if (errors.length > 0) {
-        console.error('[POST] Errores de validación:', errors);
+        console.error('[POST] Errores de validación detectados:', errors);
         throw new BadRequestException({
           message: 'Errores de validación',
           errors,
@@ -201,6 +204,7 @@ export class IngresosController {
       }
 
       // Crear el ingreso en la base de datos
+      console.log('[POST] Enviando datos al servicio para crear ingreso.');
       const result = await this.ingresosService.create(createIngresoDto);
       console.log('[POST] Resultado de la creación:', result);
 
@@ -209,7 +213,7 @@ export class IngresosController {
         data: result,
       };
     } catch (error) {
-      console.error('Error al crear ingreso:', error.message);
+      console.error('[POST] Error al crear ingreso:', error.message);
 
       // Manejo de errores específicos
       if (error instanceof HttpException) {

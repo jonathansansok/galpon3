@@ -1,3 +1,4 @@
+//backend\src\ingresos\dto\create-ingreso.dto.ts
 import {
   IsString,
   IsOptional,
@@ -26,47 +27,58 @@ export class CreateIngresoDto {
 
   @IsNumberString()
   @IsOptional()
-  numeroCuit?: string; // Debe ser una cadena numérica sin guiones
+  @Transform(({ value }) => (value === '' ? null : value)) // Convertir cadenas vacías a null
+  numeroCuit?: string;
 
   @IsNumberString()
   @IsOptional()
-  dias?: string; // Debe ser una cadena numérica
+  @Transform(({ value }) => (value === '' ? null : value)) // Convertir cadenas vacías a null
+  dias?: string;
 
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => value?.trim())
   iva?: string;
 
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => value?.trim())
   condicion?: string;
 
   @IsString()
   @IsOptional()
-  pyme?: string; // Debe ser "true" o "false" como cadena
+  @Transform(({ value }) => value?.trim())
+  pyme?: string;
 
   @IsNumberString()
   @IsOptional()
-  porcB?: string; // Debe ser una cadena numérica
+  @Transform(({ value }) => (value === '' ? null : value)) // Convertir cadenas vacías a null
+  porcB?: string;
 
   @IsNumberString()
   @IsOptional()
-  porcRetIB?: string; // Debe ser una cadena numérica
+  @Transform(({ value }) => (value === '' ? null : value)) // Convertir cadenas vacías a null
+  porcRetIB?: string;
 
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => value?.trim())
   provincia?: string;
 
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => value?.trim())
   nombres?: string;
 
   @IsString()
   @IsOptional()
+  @Transform(({ value }) => value?.trim())
   apellido?: string;
 
   @IsNumberString()
   @IsOptional()
-  cp?: string; // Debe ser una cadena numérica
+  @Transform(({ value }) => (value === '' ? null : value)) // Convertir cadenas vacías a null
+  cp?: string;
 
   @IsString()
   @IsOptional()

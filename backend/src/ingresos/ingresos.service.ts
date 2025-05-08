@@ -36,7 +36,7 @@ export class IngresosService {
       );
 
       // Validaciones específicas
-      const errors: { field: string; message: string }[] = [];
+      const errors: { field: string; message: string; value?: any }[] = [];
 
       if (
         !createIngresoDto.numeroCuit ||
@@ -45,6 +45,7 @@ export class IngresosService {
         errors.push({
           field: 'numeroCuit',
           message: 'El campo "numeroCuit" debe ser un número válido.',
+          value: createIngresoDto.numeroCuit,
         });
       }
 
@@ -52,6 +53,7 @@ export class IngresosService {
         errors.push({
           field: 'dias',
           message: 'El campo "dias" debe ser un número válido.',
+          value: createIngresoDto.dias,
         });
       }
 
@@ -62,6 +64,7 @@ export class IngresosService {
         errors.push({
           field: 'apellido',
           message: 'El campo "apellido" es obligatorio.',
+          value: createIngresoDto.apellido,
         });
       }
 
@@ -69,6 +72,7 @@ export class IngresosService {
         errors.push({
           field: 'nombres',
           message: 'El campo "nombres" es obligatorio.',
+          value: createIngresoDto.nombres,
         });
       }
 
@@ -79,6 +83,7 @@ export class IngresosService {
         errors.push({
           field: 'numeroDni',
           message: 'El campo "numeroDni" debe ser un número válido.',
+          value: createIngresoDto.numeroDni,
         });
       }
 
@@ -89,6 +94,7 @@ export class IngresosService {
         errors.push({
           field: 'telefono',
           message: 'El campo "telefono" es obligatorio.',
+          value: createIngresoDto.telefono,
         });
       }
 
@@ -100,12 +106,18 @@ export class IngresosService {
           field: 'emailCliente',
           message:
             'El campo "emailCliente" debe ser un correo electrónico válido.',
+          value: createIngresoDto.emailCliente,
         });
       }
 
       // Si hay errores, lanzar excepción
       if (errors.length > 0) {
-        console.error('[SERVICE] Errores de validación:', errors);
+        console.error('[SERVICE] Errores de validación detectados:');
+        errors.forEach((error) => {
+          console.error(
+            `  [ERROR] Campo: ${error.field}, Valor: ${error.value}, Mensaje: ${error.message}`,
+          );
+        });
         throw new BadRequestException({
           message: 'Errores de validación',
           errors,
@@ -118,14 +130,18 @@ export class IngresosService {
       );
 
       // Crear el ingreso en la base de datos
-      return await this.prismaService.ingresos.create({
+      const result = await this.prismaService.ingresos.create({
         data: createIngresoDto,
       });
+
+      console.log('[SERVICE] Ingreso creado exitosamente:', result);
+      return result;
     } catch (error) {
       console.error('[SERVICE] Error al crear ingreso:', error);
 
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
+          console.error('[SERVICE] Conflicto de datos únicos:', error.meta);
           throw new ConflictException(
             `Ingreso con email ${createIngresoDto.email} ya existe`,
           );
