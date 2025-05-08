@@ -12,72 +12,72 @@ import { Transform } from 'class-transformer';
 export class CreateIngresoDto {
   @IsEmail()
   @IsOptional()
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }) => value?.trim() || null) // Convertir cadenas vacías a null
   email?: string;
 
   @IsEmail()
   @IsOptional()
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }) => value?.trim() || null) // Convertir cadenas vacías a null
   emailCliente?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }) => value?.trim() || null) // Convertir cadenas vacías a null
   telefono?: string;
 
   @IsNumberString()
   @IsOptional()
-  @Transform(({ value }) => (value === '' ? null : value)) // Convertir cadenas vacías a null
+  @Transform(({ value }) => (value?.trim() === '' ? null : value?.trim())) // Convertir cadenas vacías a null
   numeroCuit?: string;
 
   @IsNumberString()
   @IsOptional()
-  @Transform(({ value }) => (value === '' ? null : value)) // Convertir cadenas vacías a null
+  @Transform(({ value }) => (value?.trim() === '' ? null : value?.trim())) // Convertir cadenas vacías a null
   dias?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }) => value?.trim() || null) // Convertir cadenas vacías a null
   iva?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }) => value?.trim() || null) // Convertir cadenas vacías a null
   condicion?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }) => value?.trim() || null) // Convertir cadenas vacías a null
   pyme?: string;
 
   @IsNumberString()
   @IsOptional()
-  @Transform(({ value }) => (value === '' ? null : value)) // Convertir cadenas vacías a null
+  @Transform(({ value }) => (value?.trim() === '' ? null : value?.trim())) // Convertir cadenas vacías a null
   porcB?: string;
 
   @IsNumberString()
   @IsOptional()
-  @Transform(({ value }) => (value === '' ? null : value)) // Convertir cadenas vacías a null
+  @Transform(({ value }) => (value?.trim() === '' ? null : value?.trim())) // Convertir cadenas vacías a null
   porcRetIB?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }) => value?.trim() || null) // Convertir cadenas vacías a null
   provincia?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }) => value?.trim() || null) // Convertir cadenas vacías a null
   nombres?: string;
 
   @IsString()
   @IsOptional()
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }) => value?.trim() || null) // Convertir cadenas vacías a null
   apellido?: string;
 
   @IsNumberString()
   @IsOptional()
-  @Transform(({ value }) => (value === '' ? null : value)) // Convertir cadenas vacías a null
+  @Transform(({ value }) => (value?.trim() === '' ? null : value?.trim())) // Convertir cadenas vacías a null
   cp?: string;
 
   @IsString()

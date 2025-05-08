@@ -436,13 +436,27 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
 
         internosinvolucrado: JSON.stringify(selectedInternos || []),
       };
-  // Validar campos numéricos antes de enviar
-  const numericFields = ["numeroCuit", "dias", "numeroDni", "porcB", "porcRetIB", "cp"];
-  numericFields.forEach((field) => {
-    if (payload[field] && isNaN(Number(payload[field]))) {
-      console.error(`[ERROR] El campo "${field}" no es una cadena numérica válida:`, payload[field]);
-    }
-  });
+      const numericFields = ["numeroCuit", "dias", "numeroDni", "porcB", "porcRetIB", "cp"];
+      numericFields.forEach((field) => {
+        if (payload[field] && isNaN(Number(payload[field]))) {
+          console.error(`[ERROR] El campo "${field}" no es una cadena numérica válida:`, payload[field]);
+        }
+      });
+      const sanitizeNumericFields = (payload: any, fields: string[]) => {
+        fields.forEach((field) => {
+          if (payload[field]) {
+            const numericValue = Number(payload[field]);
+            if (isNaN(numericValue)) {
+              console.error(`[ERROR] El campo "${field}" no es válido:`, payload[field]);
+              payload[field] = ""; // O elimina el campo si no es válido
+            } else {
+              payload[field] = numericValue.toString(); // Asegúrate de que sea una cadena numérica
+            }
+          }
+        });
+      };
+      
+      sanitizeNumericFields(payload, ["numeroCuit", "dias", "numeroDni", "porcB", "porcRetIB", "cp"]);
 
   // Log detallado del payload
   console.log("[DEBUG] Payload enviado al backend:");
