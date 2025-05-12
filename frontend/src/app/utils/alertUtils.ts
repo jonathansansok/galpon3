@@ -1016,6 +1016,40 @@ export const ShowTemas = async (
     });
   }
 };
+export const ShowPresupuestos = async (
+  success: boolean,
+  mensajeTitulo: string,
+  data: any
+) => {
+  if (success) {
+    const text = `
+*${mensajeTitulo}*
+
+*Fecha de Creación*: ${data?.createdAt ? formatDateTime(data.createdAt) : "No especificado"}
+*Fecha de Actualización*: ${data?.updatedAt ? formatDateTime(data.updatedAt) : "No especificado"}
+*Monto*: ${data?.monto ? `$${parseFloat(data.monto).toFixed(2)}` : "No especificado"}
+*Estado*: ${data?.estado || "No especificado"}
+*Observaciones*: ${data?.observaciones || "No especificado"}
+
+*Archivos Multimedia*:
+- Imagen: ${data?.imagen ? `[Ver Imagen](${process.env.NEXT_PUBLIC_BACKEND_URL}/presupuestos/uploads/${data.imagen})` : "No especificado"}
+- PDF1: ${data?.pdf1 ? `[Ver PDF1](${process.env.NEXT_PUBLIC_BACKEND_URL}/presupuestos/uploads/${data.pdf1})` : "No especificado"}
+- Word: ${data?.word1 ? `[Ver Word](${process.env.NEXT_PUBLIC_BACKEND_URL}/presupuestos/uploads/${data.word1})` : "No especificado"}
+`;
+
+    await Alert.success({
+      title: mensajeTitulo,
+      text,
+      icon: "success",
+      confirmButtonText: "ACEPTAR",
+    });
+  } else {
+    Alert.error({
+      title: "ERROR",
+      text: "HUBO UN PROBLEMA AL PROCESAR LA SOLICITUD.",
+    });
+  }
+};
 
 export const showCancelAlert = () => {
   Alert.info({

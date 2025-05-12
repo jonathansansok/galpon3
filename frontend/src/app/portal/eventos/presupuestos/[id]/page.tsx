@@ -1,7 +1,6 @@
-//frontend\src\app\portal\eventos\temas\[id]\page.tsx
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getTema, deleteTema } from "../Temas.api";
+import { getPresupuesto, deletePresupuesto } from "../Presupuestos.api";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -20,27 +19,27 @@ interface Props {
   };
 }
 
-const TemaDetailPage: React.FC<Props> = ({ params }) => {
+const PresupuestoDetailPage: React.FC<Props> = ({ params }) => {
   const { id } = params;
-  const [tema, setTema] = useState<any>(null);
+  const [presupuesto, setPresupuesto] = useState<any>(null);
   const router = useRouter();
   const user = useUserStore((state) => state.user);
   const privilege = useUserStore((state) => state.privilege);
 
   useEffect(() => {
-    const fetchTema = async () => {
-      const data = await getTema(id);
-      setTema(data);
+    const fetchPresupuesto = async () => {
+      const data = await getPresupuesto(id);
+      setPresupuesto(data);
     };
 
-    fetchTema();
+    fetchPresupuesto();
   }, [id]);
 
-  const handleRemoveTema = async (id: string) => {
-    if (user?.email !== tema?.email && privilege !== "A1") {
+  const handleRemovePresupuesto = async (id: string) => {
+    if (user?.email !== presupuesto?.email && privilege !== "A1") {
       Alert.error({
         title: "Acceso denegado",
-        text: "No tienes permiso para eliminar este tema.",
+        text: "No tienes permiso para eliminar este presupuesto.",
         icon: "error",
       });
       return;
@@ -48,47 +47,36 @@ const TemaDetailPage: React.FC<Props> = ({ params }) => {
 
     const confirmation = await Alert.confirm({
       title: "¿Estás seguro?",
-      text: "¿Deseas eliminar este tema?",
+      text: "¿Deseas eliminar este presupuesto?",
       icon: "warning",
     });
 
     if (confirmation.isConfirmed) {
-      await deleteTema(id);
-      router.push("/portal/eventos/temas");
+      await deletePresupuesto(id);
+      router.push("/portal/eventos/presupuestos");
     }
   };
 
-  if (!tema) {
+  if (!presupuesto) {
     return <div className="flex justify-center items-center h-screen">Cargando...</div>;
   }
 
   const pdfUrl = (pdfKey: string) =>
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema[pdfKey]}`;
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/presupuestos/uploads/${presupuesto[pdfKey]}`;
   const imageUrl = (imageKey: string) =>
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema[imageKey]}`;
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/presupuestos/uploads/${presupuesto[imageKey]}`;
   const wordUrl = (wordKey: string) =>
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema[wordKey]}`;
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/presupuestos/uploads/${presupuesto[wordKey]}`;
 
   const cardContent = `
-    Fecha y Hora: ${formatDateTime(tema.fechaHora)}
-    Patente: ${tema.patente || "No especificado"}
-    Marca: ${tema.marca || "No especificado"}
-    Modelo: ${tema.modelo || "No especificado"}
-    Año: ${tema.anio || "No especificado"}
-    Color: ${tema.color || "No especificado"}
-    Tipo de Pintura: ${tema.tipoPintura || "No especificado"}
-    País de Origen: ${tema.paisOrigen || "No especificado"}
-    Tipo de Vehículo: ${tema.tipoVehic || "No especificado"}
-    Motor: ${tema.motor || "No especificado"}
-    Chasis: ${tema.chasis || "No especificado"}
-    Combustión: ${tema.combustion || "No especificado"}
-    VIN: ${tema.vin || "No especificado"}
-    Observación: ${tema.observacion || "No especificado"}
-    Creado el: ${formatDateTime(tema.createdAt)}
-    Actualizado el: ${formatDateTime(tema.updatedAt)}
+    Monto: ${presupuesto.monto || "No especificado"}
+    Estado: ${presupuesto.estado || "No especificado"}
+    Observaciones: ${presupuesto.observaciones || "No especificado"}
+    Creado el: ${formatDateTime(presupuesto.createdAt)}
+    Actualizado el: ${formatDateTime(presupuesto.updatedAt)}
   `;
 
-  const title = "Detalle del Móvil";
+  const title = "Detalle del Presupuesto";
 
   return (
     <div className="flex justify-center items-center flex-col w-full px-4 py-6 mb-10">
@@ -96,37 +84,30 @@ const TemaDetailPage: React.FC<Props> = ({ params }) => {
         <CardHeader className="bg-blue-500 text-white rounded-t-lg">
           <CardTitle className="flex justify-between items-center">
             <span>{title}</span>
-            <Link className={buttonVariants()} href="/portal/eventos/temas">
+            <Link className={buttonVariants()} href="/portal/eventos/presupuestos">
               Volver
             </Link>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <div className="space-y-4 p-5 shadow-xl shadow-slate-400">
-            <p><strong>Fecha y Hora:</strong> {formatDateTime(tema.fechaHora)}</p>
-            <p><strong>Patente:</strong> {tema.patente || "No especificado"}</p>
-            <p><strong>Marca:</strong> {tema.marca || "No especificado"}</p>
-            <p><strong>Modelo:</strong> {tema.modelo || "No especificado"}</p>
-            <p><strong>Año:</strong> {tema.anio || "No especificado"}</p>
-            <p><strong>Color:</strong> {tema.color || "No especificado"}</p>
-            <p><strong>Tipo de Pintura:</strong> {tema.tipoPintura || "No especificado"}</p>
-            <p><strong>País de Origen:</strong> {tema.paisOrigen || "No especificado"}</p>
-            <p><strong>Tipo de Vehículo:</strong> {tema.tipoVehic || "No especificado"}</p>
-            <p><strong>Motor:</strong> {tema.motor || "No especificado"}</p>
-            <p><strong>Chasis:</strong> {tema.chasis || "No especificado"}</p>
-            <p><strong>Combustión:</strong> {tema.combustion || "No especificado"}</p>
-            <p><strong>VIN:</strong> {tema.vin || "No especificado"}</p>
-            <p><strong>Observación:</strong> {tema.observacion || "No especificado"}</p>
-            <p><strong>Creado el:</strong> {formatDateTime(tema.createdAt)}</p>
-            <p><strong>Actualizado el:</strong> {formatDateTime(tema.updatedAt)}</p>
+            <p><strong>Monto:</strong> {presupuesto.monto || "No especificado"}</p>
+            <p><strong>Estado:</strong> {presupuesto.estado || "No especificado"}</p>
+            <p><strong>Observaciones:</strong> {presupuesto.observaciones || "No especificado"}</p>
+            <p><strong>Creado el:</strong> {formatDateTime(presupuesto.createdAt)}</p>
+            <p><strong>Actualizado el:</strong> {formatDateTime(presupuesto.updatedAt)}</p>
           </div>
 
-          <DownloadWordButton title={title} content={cardContent} fileName={`Detalle_Tema`} />
+          <DownloadWordButton
+            title={title}
+            content={cardContent}
+            fileName={`Detalle_Presupuesto`}
+          />
 
           <div className="mt-6 space-y-4">
             {/* PDFs */}
             {Array.from({ length: 10 }, (_, index) => `pdf${index + 1}`).map((key, index) =>
-              tema[key] ? (
+              presupuesto[key] ? (
                 <PdfRenderer
                   key={key}
                   pdfKey={key}
@@ -149,7 +130,7 @@ const TemaDetailPage: React.FC<Props> = ({ params }) => {
               "imagenSen5",
               "imagenSen6",
             ].map((key) =>
-              tema[key] ? (
+              presupuesto[key] ? (
                 <ImageRenderer
                   key={key}
                   imageKey={key}
@@ -161,7 +142,7 @@ const TemaDetailPage: React.FC<Props> = ({ params }) => {
 
             {/* Archivos Word */}
             {["word1"].map((key) =>
-              tema[key] ? (
+              presupuesto[key] ? (
                 <WordRenderer
                   key={key}
                   wordKey={key}
@@ -173,10 +154,10 @@ const TemaDetailPage: React.FC<Props> = ({ params }) => {
           </div>
 
           <div className="flex justify-end">
-            {(user?.email === tema.email || privilege === "A1") && (
+            {(user?.email === presupuesto.email || privilege === "A1") && (
               <button
                 className="bg-red-500 text-white py-2 px-4 rounded"
-                onClick={() => handleRemoveTema(id)}
+                onClick={() => handleRemovePresupuesto(id)}
               >
                 Eliminar
               </button>
@@ -188,4 +169,4 @@ const TemaDetailPage: React.FC<Props> = ({ params }) => {
   );
 };
 
-export default TemaDetailPage;
+export default PresupuestoDetailPage;
