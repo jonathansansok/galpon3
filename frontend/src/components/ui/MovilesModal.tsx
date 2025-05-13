@@ -22,13 +22,23 @@ const MovilesModal: React.FC<MovilesModalProps> = ({
 }) => {
   const toggleSelection = (id: number) => {
     setSelectedMoviles((prev) =>
-      prev.includes(id) ? prev.filter((movilId) => movilId !== id) : [...prev, id]
+      prev.includes(id)
+        ? prev.filter((movilId) => movilId !== id)
+        : [...prev, id]
     );
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <h2 className="text-xl font-bold mb-4">Seleccionar móviles</h2>
+      <a
+        href="/portal/eventos/temas/new"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-block bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
+      >
+        Crear Móvil
+      </a>
       <div className="space-y-4">
         {moviles.map((movil) => (
           <label
@@ -40,19 +50,19 @@ const MovilesModal: React.FC<MovilesModalProps> = ({
             onClick={() => toggleSelection(movil.id)}
           >
             <div className="flex items-center">
-            <input
-  type="checkbox"
-  value={movil.id}
-  checked={selectedMoviles.includes(movil.id)}
-  onChange={(e) => {
-    const id = parseInt(e.target.value, 10);
-    setSelectedMoviles((prev) =>
-      e.target.checked
-        ? [...prev, id]
-        : prev.filter((movilId) => movilId !== id)
-    );
-  }}
-/>
+              <input
+                type="checkbox"
+                value={movil.id}
+                checked={selectedMoviles.includes(movil.id)}
+                onChange={(e) => {
+                  const id = parseInt(e.target.value, 10);
+                  setSelectedMoviles((prev) =>
+                    e.target.checked
+                      ? [...prev, id]
+                      : prev.filter((movilId) => movilId !== id)
+                  );
+                }}
+              />
               <span className="ml-2 font-semibold">
                 {movil.patente} - {movil.marca} - {movil.modelo}
               </span>

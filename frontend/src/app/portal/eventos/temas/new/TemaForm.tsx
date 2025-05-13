@@ -1,5 +1,7 @@
 //frontend\src\app\portal\eventos\temas\new\TemaForm.tsx
 "use client";
+import { usePresupuestoStore } from "@/lib/store"; // Importar el store de Zustand
+
 import { InputField } from "@/components/ui/InputField";
 import { InputAnio } from "@/components/ui/InputAnio";
 import { Button } from "@/components/ui/button";
@@ -13,7 +15,7 @@ import { useState, useEffect } from "react";
 import FechaHoraEvento from "@/components/ui/FechaHoraEvento";
 import { useUserStore } from "@/lib/store"; // Importar el store de Zustand
 import { ShowTemas, showCancelAlert } from "../../../../utils/alertUtils"; // Importa las funciones
-import ClienteAsociado from "@/components/ui/ClienteAsociado"; 
+import ClienteAsociado from "@/components/ui/ClienteAsociado";
 import PhotosEvModal from "@/components/ui/MultimediaModals/PhotosEvModal";
 import PdfModal from "@/components/ui/MultimediaModals/PdfModal";
 import WordModal from "@/components/ui/MultimediaModals/WordModal";
@@ -81,6 +83,20 @@ export function TemaForm({ tema }: { tema: any }) {
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Zustand: Obtener y configurar el estado global
+  const setIdMovil = usePresupuestoStore((state) => state.setIdMovil);
+
+  // Guardar automáticamente el ID del móvil en Zustand
+  useEffect(() => {
+    if (params?.id) {
+      setIdMovil(Number(params.id)); // Guardar el ID del móvil en Zustand
+      console.log(
+        `ID del móvil (${params.id}) guardado automáticamente en Zustand.`
+      );
+    }
+  }, [params?.id, setIdMovil]);
+
   const [fechaHora, setFechaHora] = useState<string>(tema?.fechaHora || "");
   const [observacion, setObservacion] = useState<string>(
     tema?.observacion || ""
@@ -255,7 +271,7 @@ export function TemaForm({ tema }: { tema: any }) {
         console.error("Error al obtener el cliente asociado:", error);
       }
     };
-  
+
     fetchClienteAsociado();
   }, [params?.id]);
   useEffect(() => {
@@ -434,8 +450,22 @@ export function TemaForm({ tema }: { tema: any }) {
       <WatermarkBackground setBackgroundImage={setBackgroundImage} />
       <ClienteAsociado cliente={clienteAsociado} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 auto-rows-auto items-start">
-         {/* Usa el componente ClienteAsociado */}
-       
+      <Button
+    type="button"
+    onClick={() => {
+      if (params?.id) {
+        setIdMovil(Number(params.id)); // Guardar el ID del móvil en Zustand
+        console.log(`ID del móvil (${params.id}) guardado en Zustand.`);
+        window.open("/portal/eventos/presupuestos/new", "_blank"); // Abrir en nueva pestaña
+      } else {
+        console.error("No se encontró el ID del móvil.");
+      }
+    }}
+    className="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
+  >
+    Agregar Presupuesto
+  </Button>
+
         <Button
           type="button"
           onClick={() => setIsPhotosOpen(true)}

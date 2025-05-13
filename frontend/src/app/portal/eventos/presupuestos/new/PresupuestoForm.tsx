@@ -1,5 +1,6 @@
 //frontend\src\app\portal\eventos\presupuestos\new\PresupuestoForm.tsx
 "use client";
+import { usePresupuestoStore } from "@/lib/store"; // Importar el store de Zustand
 import { InputField } from "@/components/ui/InputField";
 import { useUserStore } from "@/lib/store"; // Importar el store de Zustand
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import WatermarkBackground from "@/components/WatermarkBackground";
 import { createPresupuesto, updatePresupuesto } from "../Presupuestos.api";
 import { useParams, useRouter } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PhotosEvModal from "@/components/ui/MultimediaModals/PhotosEvModal";
 import PdfModal from "@/components/ui/MultimediaModals/PdfModal";
 import WordModal from "@/components/ui/MultimediaModals/WordModal";
@@ -55,6 +56,14 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
   const params = useParams<{ id: string }>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Recuperar valores desde Zustand
+  const idMovil = usePresupuestoStore((state) => state.idMovil);
+  const patente = usePresupuestoStore((state) => state.patente);
+
+  useEffect(() => {
+    console.log(`ID del móvil recuperado: ${idMovil}`);
+    console.log(`Patente recuperada: ${patente}`);
+  }, [idMovil, patente]);
   const [imagen, setImagen] = useState<string | null>(
     presupuesto?.imagen
       ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/presupuestos/uploads/${presupuesto.imagen}`
@@ -193,6 +202,7 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
 
     try {
       const payload: any = {
+        idMovil, // Incluye el ID del móvil desde Zustand
         monto: data.monto,
         estado: data.estado,
         observaciones: data.observaciones,
@@ -302,6 +312,8 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
     >
       <WatermarkBackground setBackgroundImage={() => {}} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 auto-rows-auto items-start">
+        {/* Botón para agregar presupuesto */}
+ 
         <Button
           type="button"
           onClick={() => setImagen(null)}
@@ -382,6 +394,22 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
           word1={word1}
           setWord1={setWord1}
         />
+
+             {/* Mostrar ID del móvil */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            ID del Móvil
+          </label>
+          <p className="mt-1 text-gray-900">{idMovil || "No disponible"}</p>
+        </div>
+
+        {/* Mostrar patente */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Patente
+          </label>
+          <p className="mt-1 text-gray-900">{patente || "No disponible"}</p>
+        </div>
 
         <InputField
           register={register}

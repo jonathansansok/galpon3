@@ -162,12 +162,7 @@ export class IngresosService {
   findAll() {
     return this.prismaService.ingresos.findMany({
       include: {
-        moviles: {
-          // Incluir los móviles asociados a cada ingreso
-          include: {
-            presupuestos: true, // Incluir los presupuestos asociados a cada móvil
-          },
-        },
+        moviles: {},
       },
     });
   }
@@ -178,12 +173,7 @@ export class IngresosService {
         id: id,
       },
       include: {
-        moviles: {
-          // Incluir los móviles asociados al ingreso
-          include: {
-            presupuestos: true, // Incluir los presupuestos asociados a cada móvil
-          },
-        },
+        moviles: {},
       },
     });
 

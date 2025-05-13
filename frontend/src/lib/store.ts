@@ -2,6 +2,19 @@
 import { create } from "zustand";
 import { Auth0User } from "@/lib/types";
 
+interface PresupuestoState {
+  idMovil: number | null;
+  patente: string | null;
+  setIdMovil: (id: number) => void;
+  setPatente: (patente: string) => void;
+}
+
+export const usePresupuestoStore = create<PresupuestoState>((set) => ({
+  idMovil: null,
+  patente: null,
+  setIdMovil: (id) => set({ idMovil: id }),
+  setPatente: (patente) => set({ patente }),
+}));
 interface Location {
   lat: number;
   lng: number;

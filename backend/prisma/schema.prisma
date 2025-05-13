@@ -268,7 +268,6 @@ model Ingresos {
   internosinvolucrado       String?        @db.LongText
   imagenesHistorial         Json? // Historial de imágenes
   moviles                   Temas[]
-  presupuestos              Presupuestos[] // Relación con Presupuestos
 }
 
 model Temas {
@@ -314,7 +313,6 @@ model Temas {
   internosinvolucrado String?        @db.Text
   clienteId           Int?
   cliente             Ingresos?      @relation(fields: [clienteId], references: [id])
-  presupuestos        Presupuestos[] // Relación con Presupuestos
 }
 
 model Presupuestos {
@@ -328,9 +326,6 @@ model Presupuestos {
   monto         Float
   estado        String   @default("Pendiente")
   observaciones String?
-  movil         Temas    @relation(fields: [movilId], references: [id])
-  cliente       Ingresos @relation(fields: [clienteId], references: [id])
-
    // Campos de archivos multimedia
   imagen        String?  @db.VarChar(255)
   imagenDer     String?  @db.VarChar(255)
