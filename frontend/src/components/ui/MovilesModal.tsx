@@ -1,7 +1,8 @@
-//frontend\src\components\ui\MovilesModal.tsx
 import React from "react";
 import Modal from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
+import { toast } from "react-toastify"; // Importar Toastify
+import "react-toastify/dist/ReactToastify.css"; // Importar estilos de Toastify
 
 interface MovilesModalProps {
   isOpen: boolean;
@@ -26,6 +27,18 @@ const MovilesModal: React.FC<MovilesModalProps> = ({
         ? prev.filter((movilId) => movilId !== id)
         : [...prev, id]
     );
+
+    // Mostrar Toastify
+    toast.info("Recuerde clickear en guardar para confirmar cambios", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    });
   };
 
   return (
@@ -35,69 +48,47 @@ const MovilesModal: React.FC<MovilesModalProps> = ({
         href="/portal/eventos/temas/new"
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-block bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
+        className="inline-block bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 mb-4"
       >
         Crear Móvil
       </a>
-      <div className="space-y-4">
-        {moviles.map((movil) => (
-          <label
-            key={movil.id}
-            htmlFor={`movil-${movil.id}`}
-            className={`flex flex-col border p-4 rounded-lg shadow-sm cursor-pointer ${
-              selectedMoviles.includes(movil.id) ? "bg-blue-100" : "bg-white"
-            }`}
-            onClick={() => toggleSelection(movil.id)}
-          >
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                value={movil.id}
-                checked={selectedMoviles.includes(movil.id)}
-                onChange={(e) => {
-                  const id = parseInt(e.target.value, 10);
-                  setSelectedMoviles((prev) =>
-                    e.target.checked
-                      ? [...prev, id]
-                      : prev.filter((movilId) => movilId !== id)
-                  );
-                }}
-              />
-              <span className="ml-2 font-semibold">
-                {movil.patente} - {movil.marca} - {movil.modelo}
-              </span>
-            </div>
-            <div className="mt-2 text-sm text-gray-600">
-              <p>
-                <strong>Año:</strong> {movil.anio || "N/A"}
-              </p>
-              <p>
-                <strong>Color:</strong> {movil.color || "N/A"}
-              </p>
-              <p>
-                <strong>Tipo de Pintura:</strong> {movil.tipoPintura || "N/A"}
-              </p>
-              <p>
-                <strong>País de Origen:</strong> {movil.paisOrigen || "N/A"}
-              </p>
-              <p>
-                <strong>Tipo de Vehículo:</strong> {movil.tipoVehic || "N/A"}
-              </p>
-              <p>
-                <strong>Motor:</strong> {movil.motor || "N/A"}
-              </p>
-              <p>
-                <strong>Chasis:</strong> {movil.chasis || "N/A"}
-              </p>
-              <p>
-                <strong>Combustión:</strong> {movil.combustion || "N/A"}
-              </p>
-              <p>
-                <strong>VIN:</strong> {movil.vin || "N/A"}
-              </p>
-            </div>
-          </label>
-        ))}
+      <div className="overflow-x-auto">
+        <table className="min-w-full border-collapse border border-gray-300">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border border-gray-300 px-4 py-2 text-left">Creado el</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Actualizado el</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Patente</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Marca</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Modelo</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Año</th>
+            </tr>
+          </thead>
+          <tbody>
+            {moviles.map((movil) => (
+              <tr
+                key={movil.id}
+                onClick={() => toggleSelection(movil.id)} // Seleccionar fila al hacer clic
+                className={`cursor-pointer ${
+                  selectedMoviles.includes(movil.id)
+                    ? "bg-green-100" // Fondo verde claro si está seleccionado
+                    : "bg-white"
+                } hover:bg-green-50`} // Fondo verde claro al pasar el cursor
+              >
+                <td className="border border-gray-300 px-4 py-2">
+                  {new Date(movil.createdAt).toLocaleString()}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {new Date(movil.updatedAt).toLocaleString()}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">{movil.patente || "N/A"}</td>
+                <td className="border border-gray-300 px-4 py-2">{movil.marca || "N/A"}</td>
+                <td className="border border-gray-300 px-4 py-2">{movil.modelo || "N/A"}</td>
+                <td className="border border-gray-300 px-4 py-2">{movil.anio || "N/A"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
       <Button
         type="button"

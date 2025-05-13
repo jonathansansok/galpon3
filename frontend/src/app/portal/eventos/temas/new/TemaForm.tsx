@@ -110,11 +110,9 @@ export function TemaForm({ tema }: { tema: any }) {
 
   useEffect(() => {
     if (params?.id) {
-      setIdMovil(Number(params.id)); // Guardar el ID del móvil en Zustand
-      setPatente(tema?.patente || ""); // Guardar la patente en Zustand
-      console.log(
-        `ID del móvil (${params.id}) y patente (${tema?.patente}) guardados automáticamente en Zustand.`
-      );
+      console.log("[DEBUG] Valor de tema?.patente:", tema?.patente);
+      setIdMovil(Number(params.id));
+      setPatente(tema?.patente || "");
     }
   }, [params?.id, setIdMovil, setPatente, tema?.patente]);
 
@@ -459,7 +457,8 @@ export function TemaForm({ tema }: { tema: any }) {
         await ShowTemas(
           response.success,
           mensajeTitulo,
-          response.data ?? response.error
+          response.data ?? response.error,
+          clienteAsociado // Pasar los datos del cliente asociado
         );
 
         if (response.success) {
@@ -476,7 +475,8 @@ export function TemaForm({ tema }: { tema: any }) {
         ShowTemas(
           false,
           "Error inesperado",
-          error instanceof Error ? error.message : "Error desconocido"
+          error instanceof Error ? error.message : "Error desconocido",
+          clienteAsociado || {} // Pasar un objeto vacío si no hay cliente
         );
       } finally {
         setIsSubmitting(false);

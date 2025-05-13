@@ -26,7 +26,10 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
   const clienteData = usePresupuestoStore((state) => state.clienteData);
 
   useEffect(() => {
-    console.log("[DEBUG] Datos del cliente obtenidos desde Zustand:", clienteData);
+    console.log(
+      "[DEBUG] Datos del cliente obtenidos desde Zustand:",
+      clienteData
+    );
   }, [clienteData]);
   const params = useParams<{ id: string }>(); // Declarar params antes de usarlo
   const idMovil = usePresupuestoStore((state) => state.idMovil); // Declarar idMovil antes de usarlo
@@ -36,9 +39,12 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
   const movilId = params?.id
     ? presupuesto?.movilId || idMovil || ""
     : idMovil || "";
+
   const patenteValue = params?.id
     ? presupuesto?.patente || patente || ""
     : patente || "";
+  console.log("[DEBUG] Valor de patente desde Zustand:", patente);
+  console.log("[DEBUG] Valor calculado de patenteValue:", patenteValue);
 
   const { handleSubmit, setValue, register, watch } = useForm<FormValues>({
     defaultValues: {
@@ -70,7 +76,7 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
       word1: presupuesto?.word1 || "",
     },
   });
-
+  console.log("[DEBUG] Valor de data.patente antes de enviar:", patenteValue);
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagen, setImagen] = useState<string | null>(
@@ -335,7 +341,8 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
               <strong>Nombre:</strong> {clienteData.nombre || "No disponible"}
             </p>
             <p>
-              <strong>Apellido:</strong> {clienteData.apellido || "No disponible"}
+              <strong>Apellido:</strong>{" "}
+              {clienteData.apellido || "No disponible"}
             </p>
             <p>
               <strong>Email:</strong> {clienteData.email || "No disponible"}
@@ -380,7 +387,7 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
           </label>
           <input
             type="text"
-            value={presupuesto?.patente || ""}
+            value={patenteValue}
             readOnly
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-gray-100 cursor-not-allowed"
           />

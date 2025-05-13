@@ -167,7 +167,7 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
       // Actualiza el estado del frontend para reflejar los cambios
       setSelectedMoviles([...selectedMoviles]);
 
-      Alert.success({ title: "Éxito", text: "Móviles anexados correctamente" });
+      Alert.success({ title: "Recordatorio", text: "Recuerde clickear en ACTUALIZAR para confirmar los cambios" });
       setIsMovilesModalOpen(false);
     } catch (error) {
       Alert.error({

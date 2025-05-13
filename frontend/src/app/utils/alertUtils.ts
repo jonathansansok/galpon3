@@ -981,7 +981,8 @@ ${personalInvolucrado}
 export const ShowTemas = async (
   success: boolean,
   mensajeTitulo: string,
-  data: any
+  data: any,
+  cliente: any = {} // Valor predeterminado
 ) => {
   if (success) {
     const text = `
@@ -1001,6 +1002,16 @@ export const ShowTemas = async (
 *Combustión*: ${data.combustion || "No especificado"}
 *VIN*: ${data.vin || "No especificado"}
 *Observaciones*: ${data.observacion || "No especificado"}
+
+*Datos del Cliente Asociado*:
+*Nombre*: ${cliente?.nombres || "No disponible"}
+*Apellido*: ${cliente?.apellido || "No disponible"}
+*Email*: ${cliente?.email || "No disponible"}
+*Teléfono*: ${cliente?.telefono || "No disponible"}
+*CUIT*: ${cliente?.numeroCuit || "No disponible"}
+*Localidad*: ${cliente?.provincia || "No disponible"}
+*Dirección*: ${cliente?.domicilios || "No disponible"}
+
 `;
 
     await Alert.success({
@@ -1025,16 +1036,25 @@ export const ShowPresupuestos = async (
     const text = `
 *${mensajeTitulo}*
 
-*Fecha de Creación*: ${data?.createdAt ? formatDateTime(data.createdAt) : "No especificado"}
-*Fecha de Actualización*: ${data?.updatedAt ? formatDateTime(data.updatedAt) : "No especificado"}
-*Monto*: ${data?.monto ? `$${parseFloat(data.monto).toFixed(2)}` : "No especificado"}
-*Estado*: ${data?.estado || "No especificado"}
-*Observaciones*: ${data?.observaciones || "No especificado"}
+*Presupuesto:*
+- *Monto*: ${data.monto || "No especificado"}
+- *Estado*: ${data.estado || "No especificado"}
+- *Observaciones*: ${data.observaciones || "No especificado"}
 
-*Archivos Multimedia*:
-- Imagen: ${data?.imagen ? `[Ver Imagen](${process.env.NEXT_PUBLIC_BACKEND_URL}/presupuestos/uploads/${data.imagen})` : "No especificado"}
-- PDF1: ${data?.pdf1 ? `[Ver PDF1](${process.env.NEXT_PUBLIC_BACKEND_URL}/presupuestos/uploads/${data.pdf1})` : "No especificado"}
-- Word: ${data?.word1 ? `[Ver Word](${process.env.NEXT_PUBLIC_BACKEND_URL}/presupuestos/uploads/${data.word1})` : "No especificado"}
+*Móvil Asociado:*
+- *ID del Móvil*: ${data.movilId || "No especificado"}
+- *Patente*: ${data.patente || "No especificado"}
+- *Marca*: ${data.marca || "No especificado"}
+- *Modelo*: ${data.modelo || "No especificado"}
+- *Año*: ${data.anio || "No especificado"}
+- *Color*: ${data.color || "No especificado"}
+- *Tipo de Pintura*: ${data.tipoPintura || "No especificado"}
+- *País de Origen*: ${data.paisOrigen || "No especificado"}
+- *Tipo de Vehículo*: ${data.tipoVehic || "No especificado"}
+- *Motor*: ${data.motor || "No especificado"}
+- *Chasis*: ${data.chasis || "No especificado"}
+- *Combustión*: ${data.combustion || "No especificado"}
+- *VIN*: ${data.vin || "No especificado"}
 `;
 
     await Alert.success({
@@ -1050,7 +1070,6 @@ export const ShowPresupuestos = async (
     });
   }
 };
-
 export const showCancelAlert = () => {
   Alert.info({
     title: "Cancelado",
