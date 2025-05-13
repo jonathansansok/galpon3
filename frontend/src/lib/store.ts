@@ -1,7 +1,19 @@
 //frontend\src\lib\store.ts
 import { create } from "zustand";
 import { Auth0User } from "@/lib/types";
+interface PresupuestoState {
+  movilData: any | null;
+  clienteData: any | null;
+  setMovilData: (data: any) => void;
+  setClienteData: (data: any) => void;
+}
 
+export const usePresupuestoStore = create<PresupuestoState>((set) => ({
+  movilData: null,
+  clienteData: null,
+  setMovilData: (data) => set({ movilData: data }),
+  setClienteData: (data) => set({ clienteData: data }),
+}));
 interface Location {
   lat: number;
   lng: number;

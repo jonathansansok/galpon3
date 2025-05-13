@@ -1,5 +1,4 @@
 // src/manifestaciones2/manifestaciones2.service.ts
-// src/manifestaciones2/manifestaciones2.service.ts
 import {
   Injectable,
   NotFoundException,

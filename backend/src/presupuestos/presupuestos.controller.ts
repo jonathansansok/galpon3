@@ -49,7 +49,6 @@ export class PresupuestosController {
   }
   @Post()
   @UseInterceptors(FilesInterceptor('files', 20))
-  @ApiOperation({ summary: 'Crear un presupuesto con archivos multimedia' })
   async create(
     @UploadedFiles() files: Express.Multer.File[],
     @Body() createPresupuestoDto: CreatePresupuestoDto,
@@ -60,6 +59,17 @@ export class PresupuestosController {
       console.log('[POST] Token CSRF recibido:', req.headers['csrf-token']);
       validateRequest(req);
       console.log('[POST] Token CSRF válido');
+
+      // Validar y convertir `monto`
+      if (typeof createPresupuestoDto.monto === 'string') {
+        createPresupuestoDto.monto = parseFloat(createPresupuestoDto.monto);
+        if (isNaN(createPresupuestoDto.monto)) {
+          throw new HttpException(
+            'El monto debe ser un número válido.',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+      }
 
       // Procesar archivos multimedia
       if (files && Array.isArray(files)) {
@@ -149,7 +159,13 @@ export class PresupuestosController {
         console.warn('[POST] No se recibieron archivos.');
       }
 
-      return this.presupuestosService.create(createPresupuestoDto);
+      // Llamar al servicio con el DTO completo
+      const result =
+        await this.presupuestosService.create(createPresupuestoDto);
+      return {
+        message: 'Presupuesto creado exitosamente',
+        data: result,
+      };
     } catch (error) {
       console.error('[POST] Error al crear presupuesto:', error.message);
       throw new HttpException(

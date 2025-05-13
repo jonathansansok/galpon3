@@ -268,7 +268,38 @@ model Ingresos {
   internosinvolucrado       String?        @db.LongText
   imagenesHistorial         Json? // Historial de imágenes
   moviles                   Temas[]
-  presupuestos              Presupuestos[] // Relación con Presupuestos
+
+}
+model Presupuestos {
+  id            Int      @id @default(autoincrement())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  monto         Float
+  estado        String   @default("Pendiente")
+  observaciones String?
+
+  // Campos multimedia
+  imagen        String?  @db.VarChar(255)
+  imagenDer     String?  @db.VarChar(255)
+  imagenIz      String?  @db.VarChar(255)
+  imagenDact    String?  @db.VarChar(255)
+  imagenSen1    String?  @db.VarChar(255)
+  imagenSen2    String?  @db.VarChar(255)
+  imagenSen3    String?  @db.VarChar(255)
+  imagenSen4    String?  @db.VarChar(255)
+  imagenSen5    String?  @db.VarChar(255)
+  imagenSen6    String?  @db.VarChar(255)
+  pdf1          String?  @db.VarChar(255)
+  pdf2          String?  @db.VarChar(255)
+  pdf3          String?  @db.VarChar(255)
+  pdf4          String?  @db.VarChar(255)
+  pdf5          String?  @db.VarChar(255)
+  pdf6          String?  @db.VarChar(255)
+  pdf7          String?  @db.VarChar(255)
+  pdf8          String?  @db.VarChar(255)
+  pdf9          String?  @db.VarChar(255)
+  pdf10         String?  @db.VarChar(255)
+  word1         String?  @db.VarChar(255)
 }
 
 model Temas {
@@ -314,46 +345,10 @@ model Temas {
   internosinvolucrado String?        @db.Text
   clienteId           Int?
   cliente             Ingresos?      @relation(fields: [clienteId], references: [id])
-  presupuestos        Presupuestos[] // Relación con Presupuestos
+
 }
 
-model Presupuestos {
-  id            Int      @id @default(autoincrement())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  movilId       Int
-  clienteId     Int
-  datosMovil    Json
-  datosCliente  Json
-  monto         Float
-  estado        String   @default("Pendiente")
-  observaciones String?
-  movil         Temas    @relation(fields: [movilId], references: [id])
-  cliente       Ingresos @relation(fields: [clienteId], references: [id])
 
-   // Campos de archivos multimedia
-  imagen        String?  @db.VarChar(255)
-  imagenDer     String?  @db.VarChar(255)
-  imagenIz      String?  @db.VarChar(255)
-  imagenDact    String?  @db.VarChar(255)
-  imagenSen1    String?  @db.VarChar(255)
-  imagenSen2    String?  @db.VarChar(255)
-  imagenSen3    String?  @db.VarChar(255)
-  imagenSen4    String?  @db.VarChar(255)
-  imagenSen5    String?  @db.VarChar(255)
-  imagenSen6    String?  @db.VarChar(255)
-  pdf1          String?  @db.VarChar(255)
-  pdf2          String?  @db.VarChar(255)
-  pdf3          String?  @db.VarChar(255)
-  pdf4          String?  @db.VarChar(255)
-  pdf5          String?  @db.VarChar(255)
-  pdf6          String?  @db.VarChar(255)
-  pdf7          String?  @db.VarChar(255)
-  pdf8          String?  @db.VarChar(255)
-  pdf9          String?  @db.VarChar(255)
-  pdf10         String?  @db.VarChar(255)
-  word1         String?  @db.VarChar(255)
-}
 
 model Preingresos {
   id                        Int       @id @default(autoincrement()) // Clave primaria autoincremental  email

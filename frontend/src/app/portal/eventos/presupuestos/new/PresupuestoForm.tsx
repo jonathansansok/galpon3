@@ -1,15 +1,20 @@
 //frontend\src\app\portal\eventos\presupuestos\new\PresupuestoForm.tsx
 "use client";
+import { usePresupuestoStore } from "@/lib/store";
 import { InputField } from "@/components/ui/InputField";
 import { useUserStore } from "@/lib/store"; // Importar el store de Zustand
 import { Button } from "@/components/ui/button";
 import Textarea from "@/components/ui/Textarea";
 import { useForm, SubmitHandler } from "react-hook-form";
 import WatermarkBackground from "@/components/WatermarkBackground";
-import { createPresupuesto, updatePresupuesto } from "../Presupuestos.api";
+import {
+  createPresupuesto,
+  updatePresupuesto,
+
+} from "../Presupuestos.api";
 import { useParams, useRouter } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PhotosEvModal from "@/components/ui/MultimediaModals/PhotosEvModal";
 import PdfModal from "@/components/ui/MultimediaModals/PdfModal";
 import WordModal from "@/components/ui/MultimediaModals/WordModal";
@@ -20,8 +25,69 @@ import {
 interface FormValues {
   [key: string]: string;
 }
-
+export interface InputFieldProps {
+  register: any; // O el tipo específico de `react-hook-form`
+  name: string;
+  label: string;
+  placeholder?: string;
+  value?: string; // Agregar esta propiedad si no está definida
+  readOnly?: boolean;
+}
 export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
+  const movilData = usePresupuestoStore((state) => state.movilData);
+  const clienteData = usePresupuestoStore((state) => state.clienteData);
+  const setMovilData = usePresupuestoStore((state) => state.setMovilData);
+  const setClienteData = usePresupuestoStore((state) => state.setClienteData);
+
+  useEffect(() => {
+    console.log("[DEBUG] Datos del móvil recibidos desde Zustand:", movilData);
+    console.log(
+      "[DEBUG] Datos del cliente recibidos desde Zustand:",
+      clienteData
+    );
+
+    if (!movilData || !clienteData) {
+      console.error("Datos del móvil o cliente no disponibles.");
+      return;
+    }
+    // Validar que los datos sean completos
+    const requiredMovilFields = [
+      "patente",
+      "marca",
+      "modelo",
+      "anio",
+      "color",
+      "tipoPintura",
+      "paisOrigen",
+      "tipoVehic",
+      "motor",
+      "chasis",
+      "combustion",
+      "vin",
+    ];
+    const requiredClienteFields = [
+      "nombres",
+      "apellido",
+      "numeroCuit",
+      "numeroDni",
+      "telefono",
+      "emailCliente",
+      "provincia",
+      "domicilios",
+    ];
+
+    const isMovilDataComplete = requiredMovilFields.every(
+      (field) => movilData[field]
+    );
+    const isClienteDataComplete = requiredClienteFields.every(
+      (field) => clienteData[field]
+    );
+
+    if (!isMovilDataComplete || !isClienteDataComplete) {
+      console.error("Datos incompletos del móvil o cliente.");
+      alert("Por favor, complete todos los datos del móvil y del cliente.");
+    }
+  }, [movilData, clienteData]);
   const { handleSubmit, setValue, register, watch } = useForm<FormValues>({
     defaultValues: {
       monto: presupuesto?.monto || "",
@@ -49,6 +115,7 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
       pdf10: presupuesto?.pdf10 || "",
       word1: presupuesto?.word1 || "",
     },
+    mode: "onBlur", // Validar al perder el foco
   });
 
   const router = useRouter();
@@ -178,117 +245,114 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
 
   const user = useUserStore((state) => state.user);
   const setUser = useUserStore((state) => state.setUser);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch("/api/auth/me");
+        const data = await response.json();
+        if (data.email) {
+          setUser({ name: data.name, email: data.email });
+        } else {
+          router.push("/api/auth/login");
+        }
+      } catch (error) {
+        console.error("Error al cargar el usuario:", error);
+        router.push("/api/auth/login");
+      }
+    };
+
+    if (!user) {
+      fetchUser();
+    }
+  }, [user, setUser, router]);
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     const confirmation = await Alert.confirm({
       title: "¿Estás seguro?",
       text: "¿Deseas enviar el formulario?",
       icon: "warning",
     });
-
+  
     if (!confirmation.isConfirmed) {
       return;
     }
-
+  
     setIsSubmitting(true);
-
+  
     try {
-      const payload: any = {
-        monto: data.monto,
-        estado: data.estado,
-        observaciones: data.observaciones,
-      };
-      console.log("[DEBUG] Payload enviado al backend:", payload);
-      const formData = new FormData();
-      for (const key in payload) {
-        formData.append(key, payload[key]);
-      }
-
-      // Procesar imágenes y archivos
-      const processFile = async (
-        file: string | null,
-        key: string,
-        extension: string
-      ) => {
-        if (file && file.startsWith("data:")) {
-          const uniqueFileName = `${key}-${Date.now()}-${Math.floor(
-            Math.random() * 1000000
-          )}.${extension}`;
-          const response = await fetch(file);
-          const blob = await response.blob();
-          formData.append("files", blob, uniqueFileName);
-          formData.append(key, uniqueFileName);
-        }
-      };
-
-      await Promise.all([
-        processFile(imagen, "imagen", "png"),
-        processFile(imagenDer, "imagenDer", "png"),
-        processFile(imagenIz, "imagenIz", "png"),
-        processFile(imagenDact, "imagenDact", "png"),
-        processFile(imagenSen1, "imagenSen1", "png"),
-        processFile(imagenSen2, "imagenSen2", "png"),
-        processFile(imagenSen3, "imagenSen3", "png"),
-        processFile(imagenSen4, "imagenSen4", "png"),
-        processFile(imagenSen5, "imagenSen5", "png"),
-        processFile(imagenSen6, "imagenSen6", "png"),
-        processFile(pdf1, "pdf1", "pdf"),
-        processFile(pdf2, "pdf2", "pdf"),
-        processFile(pdf3, "pdf3", "pdf"),
-        processFile(pdf4, "pdf4", "pdf"),
-        processFile(pdf5, "pdf5", "pdf"),
-        processFile(pdf6, "pdf6", "pdf"),
-        processFile(pdf7, "pdf7", "pdf"),
-        processFile(pdf8, "pdf8", "pdf"),
-        processFile(pdf9, "pdf9", "pdf"),
-        processFile(pdf10, "pdf10", "pdf"),
-        processFile(word1, "word1", "docx"),
-      ]);
-
-      try {
-        let response;
-
-        if (params?.id) {
-          response = await updatePresupuesto(params.id, formData);
-        } else {
-          response = await createPresupuesto(formData);
-        }
-
-        const mensajeTitulo = params?.id
-          ? "Actualización de Móvil"
-          : "Creación de Móvil";
-
-        console.log("[DEBUG] response completo:", response);
-        console.log("[DEBUG] response.success:", response.success);
-        console.log("[DEBUG] response.data:", response.data);
-        console.log("[DEBUG] response.error:", response.error);
-
-        await ShowPresupuestos(
-          response.success,
-          mensajeTitulo,
-          response.data ?? response.error
-        );
-
-        if (response.success) {
-          router.push("/portal/eventos/presupuestos");
-        } else {
-          console.error(
-            "[ERROR] Error al crear o actualizar tema:",
-            response.error
-          );
-          ShowPresupuestos(false, "Error", response.error);
-        }
-      } catch (error) {
-        console.error("[EXCEPTION] Error inesperado:", error);
-        ShowPresupuestos(
-          false,
-          "Error inesperado",
-          error instanceof Error ? error.message : "Error desconocido"
-        );
-      } finally {
+      const monto = parseFloat(data.monto);
+  
+      if (isNaN(monto) || monto <= 0) {
+        alert("El monto debe ser un número mayor a 0.");
         setIsSubmitting(false);
+        return;
       }
+  
+      const payload = {
+        monto, // Incluye el monto
+        estado: data.estado || "Pendiente",
+        observaciones: data.observaciones || "",
+      };
+  
+      console.log("[DEBUG] Payload al backend:", payload);
+  
+      const formData = new FormData();
+      Object.keys(payload).forEach((key) => {
+        const value = payload[key as keyof typeof payload];
+        if (value !== null && value !== undefined) {
+          formData.append(key, String(value));
+        }
+      });
+  
+      // Agregar archivos multimedia al FormData
+      if (imagen) formData.append("imagen", imagen);
+      if (imagenDer) formData.append("imagenDer", imagenDer);
+      if (imagenIz) formData.append("imagenIz", imagenIz);
+      if (imagenDact) formData.append("imagenDact", imagenDact);
+      if (imagenSen1) formData.append("imagenSen1", imagenSen1);
+      if (imagenSen2) formData.append("imagenSen2", imagenSen2);
+      if (imagenSen3) formData.append("imagenSen3", imagenSen3);
+      if (imagenSen4) formData.append("imagenSen4", imagenSen4);
+      if (imagenSen5) formData.append("imagenSen5", imagenSen5);
+      if (imagenSen6) formData.append("imagenSen6", imagenSen6);
+      if (pdf1) formData.append("pdf1", pdf1);
+      if (pdf2) formData.append("pdf2", pdf2);
+      if (pdf3) formData.append("pdf3", pdf3);
+      if (pdf4) formData.append("pdf4", pdf4);
+      if (pdf5) formData.append("pdf5", pdf5);
+      if (pdf6) formData.append("pdf6", pdf6);
+      if (pdf7) formData.append("pdf7", pdf7);
+      if (pdf8) formData.append("pdf8", pdf8);
+      if (pdf9) formData.append("pdf9", pdf9);
+      if (pdf10) formData.append("pdf10", pdf10);
+      if (word1) formData.append("word1", word1);
+  
+      let response;
+      if (params?.id) {
+        response = await updatePresupuesto(params.id, formData);
+      } else {
+        response = await createPresupuesto(formData);
+      }
+  
+      console.log("[DEBUG] response completo:", response);
+  
+      if (response.success) {
+        router.push("/portal/eventos/presupuestos");
+      } else {
+        console.error(
+          "[ERROR] Error al crear o actualizar presupuesto:",
+          response.error
+        );
+        ShowPresupuestos(false, "Error", response.error);
+      }
+    } catch (error) {
+      console.error("[EXCEPTION] Error inesperado:", error);
+      ShowPresupuestos(
+        false,
+        "Error inesperado",
+        error instanceof Error ? error.message : "Error desconocido"
+      );
     } finally {
-      setIsSubmitting(false); // Desbloquear el botón
+      setIsSubmitting(false);
     }
   };
   const goToPresupuestos = () => {
@@ -302,6 +366,72 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
     >
       <WatermarkBackground setBackgroundImage={() => {}} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 auto-rows-auto items-start">
+        {movilData && (
+          <>
+            <div>
+              <label htmlFor="patente">Patente</label>
+              <input
+                id="patente"
+                name="patente"
+                placeholder="Patente del móvil"
+                defaultValue={movilData.patente || ""}
+                readOnly
+                className="border rounded px-2 py-1 w-full"
+              />
+            </div>
+            <div>
+              <label htmlFor="marca">Marca</label>
+              <input
+                id="marca"
+                name="marca"
+                placeholder="Marca del móvil"
+                defaultValue={movilData.marca || ""}
+                readOnly
+                className="border rounded px-2 py-1 w-full"
+              />
+            </div>
+            <div>
+              <label htmlFor="modelo">Modelo</label>
+              <input
+                id="modelo"
+                name="modelo"
+                placeholder="Modelo del móvil"
+                defaultValue={movilData.modelo || ""}
+                readOnly
+                className="border rounded px-2 py-1 w-full"
+              />
+            </div>
+          </>
+        )}
+
+        {/* Mostrar datos del cliente */}
+        {clienteData && (
+          <>
+            <div>
+              <label htmlFor="nombres">Nombres</label>
+              <input
+                id="nombres"
+                name="nombres"
+                placeholder="Nombres del cliente"
+                defaultValue={clienteData.nombres || ""}
+                readOnly
+                className="border rounded px-2 py-1 w-full"
+              />
+            </div>
+            <div>
+              <label htmlFor="apellido">Apellido</label>
+              <input
+                id="apellido"
+                name="apellido"
+                placeholder="Apellido del cliente"
+                defaultValue={clienteData.apellido || ""}
+                readOnly
+                className="border rounded px-2 py-1 w-full"
+              />
+            </div>
+          </>
+        )}
+
         <Button
           type="button"
           onClick={() => setImagen(null)}
@@ -382,19 +512,20 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
           word1={word1}
           setWord1={setWord1}
         />
-
-        <InputField
-          register={register}
-          name="monto"
-          label="Monto"
-          placeholder="Ingrese el monto"
-        />
+<InputField
+  register={register}
+  name="monto"
+  label="Monto"
+  placeholder="Ingrese el monto"
+  type="number" // Asegura que solo se acepten números
+/>
         <InputField
           register={register}
           name="estado"
           label="Estado"
           placeholder="Pendiente, Aprobado, etc."
         />
+
         <Textarea
           id="observaciones"
           value={watch("observaciones")}

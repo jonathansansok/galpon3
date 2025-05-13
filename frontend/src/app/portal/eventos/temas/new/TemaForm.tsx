@@ -13,11 +13,11 @@ import { useState, useEffect } from "react";
 import FechaHoraEvento from "@/components/ui/FechaHoraEvento";
 import { useUserStore } from "@/lib/store"; // Importar el store de Zustand
 import { ShowTemas, showCancelAlert } from "../../../../utils/alertUtils"; // Importa las funciones
-import ClienteAsociado from "@/components/ui/ClienteAsociado"; 
+import ClienteAsociado from "@/components/ui/ClienteAsociado";
 import PhotosEvModal from "@/components/ui/MultimediaModals/PhotosEvModal";
 import PdfModal from "@/components/ui/MultimediaModals/PdfModal";
 import WordModal from "@/components/ui/MultimediaModals/WordModal";
-
+import { usePresupuestoStore } from "@/lib/store";
 interface FormValues {
   [key: string]: string;
 }
@@ -34,6 +34,89 @@ interface Interno {
 }
 
 export function TemaForm({ tema }: { tema: any }) {
+  const setMovilData = usePresupuestoStore((state) => state.setMovilData);
+  const setClienteData = usePresupuestoStore((state) => state.setClienteData);
+
+  const handleCreatePresupuesto = () => {
+    if (!tema?.id || !tema?.clienteId) {
+      console.error("ID del móvil o cliente no válido.");
+      return;
+    }
+  
+    if (!clienteAsociado) {
+      console.error("Datos del cliente no disponibles.");
+      alert(
+        "No se pudieron obtener los datos del cliente. Por favor, inténtelo de nuevo."
+      );
+      return;
+    }
+  
+    // Validar que los datos del cliente estén completos
+    const requiredClienteFields = [
+      "nombres",
+      "apellido",
+      "numeroCuit",
+      "numeroDni",
+      "telefono",
+      "emailCliente",
+      "provincia",
+      "domicilios",
+    ];
+  
+    const isClienteDataComplete = requiredClienteFields.every(
+      (field) => clienteAsociado[field] && clienteAsociado[field].trim() !== ""
+    );
+  
+    if (!isClienteDataComplete) {
+      console.error(
+        "[ERROR] Datos incompletos del cliente asociado:",
+        clienteAsociado
+      );
+      alert(
+        "Los datos del cliente asociado están incompletos. Por favor, verifique la información."
+      );
+      return;
+    }
+  
+    // Guardar los datos en el estado global
+    const movilData = {
+      id: tema.id,
+      patente: tema.patente,
+      marca: tema.marca,
+      modelo: tema.modelo,
+      anio: tema.anio,
+      color: tema.color,
+      tipoPintura: tema.tipoPintura,
+      paisOrigen: tema.paisOrigen,
+      tipoVehic: tema.tipoVehic,
+      motor: tema.motor,
+      chasis: tema.chasis,
+      combustion: tema.combustion,
+      vin: tema.vin,
+    };
+  
+    const clienteData = {
+      id: tema.clienteId,
+      nombres: clienteAsociado.nombres || "",
+      apellido: clienteAsociado.apellido || "",
+      numeroCuit: clienteAsociado.numeroCuit || "",
+      numeroDni: clienteAsociado.numeroDni || "",
+      telefono: clienteAsociado.telefono || "",
+      emailCliente: clienteAsociado.emailCliente || "",
+      provincia: clienteAsociado.provincia || "",
+      domicilios: clienteAsociado.domicilios || "",
+    };
+  
+    console.log("[DEBUG] Datos del móvil enviados a Zustand:", movilData);
+    console.log("[DEBUG] Datos del cliente enviados a Zustand:", clienteData);
+  
+    setMovilData(movilData);
+    setClienteData(clienteData);
+  
+    // Redirigir sin parámetros en la URL
+    router.push(`/portal/eventos/presupuestos/new`);
+  };
+
   const { handleSubmit, setValue, register, reset, watch } =
     useForm<FormValues>({
       defaultValues: {
@@ -243,21 +326,53 @@ export function TemaForm({ tema }: { tema: any }) {
   const user = useUserStore((state) => state.user);
   const setUser = useUserStore((state) => state.setUser);
   const [clienteAsociado, setClienteAsociado] = useState<any>(null);
-
   useEffect(() => {
     const fetchClienteAsociado = async () => {
       try {
         if (params?.id) {
           const cliente = await getClienteAsociado(params.id);
+          console.log("[DEBUG] Cliente asociado obtenido:", cliente);
+  
+          // Validar que los datos del cliente estén completos
+          const requiredClienteFields = [
+            "nombres",
+            "apellido",
+            "numeroCuit",
+            "numeroDni",
+            "telefono",
+            "emailCliente",
+            "provincia",
+            "domicilios",
+          ];
+  
+          const isClienteDataComplete = requiredClienteFields.every(
+            (field) => cliente[field] && cliente[field].trim() !== ""
+          );
+  
+          if (!isClienteDataComplete) {
+            console.error(
+              "[ERROR] Datos incompletos del cliente asociado:",
+              cliente
+            );
+            alert(
+              "Los datos del cliente asociado están incompletos. Por favor, verifique la información."
+            );
+            return;
+          }
+  
           setClienteAsociado(cliente); // Establecer los datos del cliente asociado
         }
       } catch (error) {
         console.error("Error al obtener el cliente asociado:", error);
+        alert(
+          "Ocurrió un error al obtener los datos del cliente asociado. Por favor, inténtelo de nuevo."
+        );
       }
     };
   
     fetchClienteAsociado();
   }, [params?.id]);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -434,8 +549,15 @@ export function TemaForm({ tema }: { tema: any }) {
       <WatermarkBackground setBackgroundImage={setBackgroundImage} />
       <ClienteAsociado cliente={clienteAsociado} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 auto-rows-auto items-start">
-         {/* Usa el componente ClienteAsociado */}
-       
+        {/* Usa el componente ClienteAsociado */}
+        {/* Botón para redirigir a la creación de presupuestos */}
+        <Button
+          type="button"
+          onClick={handleCreatePresupuesto}
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+        >
+          Crear Presupuesto
+        </Button>
         <Button
           type="button"
           onClick={() => setIsPhotosOpen(true)}
