@@ -1,8 +1,7 @@
-//frontend\src\app\portal\eventos\marcas\page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
-import { getAutos, createAuto, updateAuto, deleteAuto } from "./Autos.api";
+import { getMarcas, createMarca, updateMarca, deleteMarca } from "./Marcas.api";
 import MarcaCrud from "./MarcaCrud";
 
 export default function MarcasPage() {
@@ -11,7 +10,7 @@ export default function MarcasPage() {
   const fetchMarcas = async () => {
     try {
       console.log("Fetching marcas...");
-      const data = await getAutos();
+      const data = await getMarcas();
       console.log("Marcas fetched:", data);
       setMarcas(data);
     } catch (error) {
@@ -22,7 +21,7 @@ export default function MarcasPage() {
   const handleCreate = async (newMarca: { value: string; label: string }) => {
     try {
       console.log("Creating new marca:", newMarca);
-      await createAuto(newMarca);
+      await createMarca(newMarca);
       console.log("Marca creada con éxito");
       fetchMarcas(); // Recargar las marcas después de crear
     } catch (error) {
@@ -33,7 +32,7 @@ export default function MarcasPage() {
   const handleUpdate = async (id: string, updatedMarca: { value: string; label: string }) => {
     try {
       console.log("Updating marca:", { id, updatedMarca });
-      await updateAuto(id, updatedMarca);
+      await updateMarca(id, updatedMarca);
       console.log("Marca actualizada con éxito");
       fetchMarcas(); // Recargar las marcas después de actualizar
     } catch (error) {
@@ -44,7 +43,7 @@ export default function MarcasPage() {
   const handleDelete = async (id: string) => {
     try {
       console.log("Deleting marca with id:", id);
-      await deleteAuto(id);
+      await deleteMarca(id);
       console.log("Marca eliminada con éxito");
       fetchMarcas(); // Recargar las marcas después de eliminar
     } catch (error) {

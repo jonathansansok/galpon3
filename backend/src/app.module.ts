@@ -17,7 +17,7 @@ import { ReqnosModule } from './reqnos/reqnos.module';
 import { ReqpositivosModule } from './reqpositivos/reqpositivos.module';
 import { RiesgosModule } from './riesgos/riesgos.module';
 import { ExtramurosModule } from './extramuros/extramuros.module';
-import { AutosModule } from './autos/autos.module';
+import { MarcasModule } from './marcas/marcas.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from './config/config.module';
 import { AtentadosModule } from './atentados/atentados.module';
@@ -48,7 +48,7 @@ import { CsrfMiddleware } from './csrf/csrf.middleware'; // Importar el middlewa
     ReqpositivosModule,
     RiesgosModule,
     ExtramurosModule,
-    AutosModule,
+    MarcasModule,
     UsersModule,
     AtentadosModule,
     EgresosModule,

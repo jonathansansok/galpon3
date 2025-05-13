@@ -348,7 +348,7 @@ model Presupuestos {
   word1         String?  @db.VarChar(255)
 }
 
-model Autos {
+model Marcas {
   id                  Int      @id @default(autoincrement()) // Clave primaria autoincremental
   createdAt           DateTime @default(now()) // Timestamp con valor por defecto
   updatedAt           DateTime @updatedAt // Timestamp actualizado automáticamente
@@ -357,7 +357,12 @@ model Autos {
   internosinvolucrado String?  @db.Text // Campo de texto largo opcional
   email               String?  @db.VarChar(100) // Correo electrónico (VARCHAR(100)) opcional
 }
-
+model Modelo {
+  id        Int       @id @default(autoincrement())
+  label     String    @db.VarChar(500) // Nombre visible del modelo
+  value     String    @db.VarChar(500) // Identificador interno del modelo
+  marcaId   Int       // Relación con la marca
+}
 model Preingresos {
   id                        Int       @id @default(autoincrement()) // Clave primaria autoincremental  email
   createdAt                 DateTime  @default(now()) // TIMESTAMP con valor por defecto

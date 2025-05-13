@@ -1,8 +1,8 @@
-//backend\src\autos\dto\create-auto.dto.ts
+//backend\src\marcas\dto\create-marcas.dto.ts
 import { IsString, IsOptional, IsEmail } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class CreateAutoDto {
+export class CreateMarcaDto {
   @IsString()
   value: string;
 
