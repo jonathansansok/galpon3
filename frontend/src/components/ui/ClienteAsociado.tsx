@@ -1,3 +1,4 @@
+//frontend\src\components\ui\ClienteAsociado.tsx
 import React, { useState } from "react";
 import Link from "next/link";
 import { formatDateTime } from "@/app/utils/pdfUtils"; // Importar la función de formato

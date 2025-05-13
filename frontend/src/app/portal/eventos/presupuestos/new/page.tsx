@@ -22,7 +22,7 @@ async function PresupuestosNewPage({ params }: Props) {
       <Card>
         <CardHeader>
           <CardTitle>
-            {id ? "Editar Presupuesto" : "Agregar Presupuesto"}
+            {id ? "Editar Presupuesto-Trabajo" : "Agregar Presupuesto-Trabajo"}
           </CardTitle>
         </CardHeader>
         <CardContent>

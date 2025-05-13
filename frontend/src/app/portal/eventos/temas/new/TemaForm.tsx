@@ -87,7 +87,7 @@ export function TemaForm({ tema }: { tema: any }) {
   // Zustand: Obtener y configurar el estado global
   const setIdMovil = usePresupuestoStore((state) => state.setIdMovil);
   const setPatente = usePresupuestoStore((state) => state.setPatente); // Agregar esta línea
-  
+
   useEffect(() => {
     if (params?.id) {
       setIdMovil(Number(params.id)); // Guardar el ID del móvil en Zustand
@@ -261,12 +261,44 @@ export function TemaForm({ tema }: { tema: any }) {
   const setUser = useUserStore((state) => state.setUser);
   const [clienteAsociado, setClienteAsociado] = useState<any>(null);
 
+  const setClienteData = usePresupuestoStore((state) => state.setClienteData); // Obtener setClienteData de Zustand
+
   useEffect(() => {
     const fetchClienteAsociado = async () => {
       try {
         if (params?.id) {
+          console.log("[DEBUG] ID del tema:", params.id); // Verificar el ID del tema
+
           const cliente = await getClienteAsociado(params.id);
-          setClienteAsociado(cliente); // Establecer los datos del cliente asociado
+          console.log(
+            "[DEBUG] Datos del cliente obtenidos del backend:",
+            cliente
+          ); // Verificar los datos obtenidos
+
+          setClienteAsociado(cliente); // Establecer los datos del cliente asociado en el estado local
+
+          const clienteData = {
+            nombre: cliente.nombres || "No disponible",
+            apellido: cliente.apellido || "No disponible",
+            email: cliente.emailCliente || "No disponible",
+            telefono: cliente.telefono || "No disponible",
+            cuit: cliente.numeroCuit || "No disponible",
+            localidad: cliente.provincia || "No disponible",
+            direccion: cliente.direccion || "No disponible",
+            fechaCreacion: cliente.createdAt || "No disponible",
+          };
+
+          console.log(
+            "[DEBUG] Datos del cliente preparados para Zustand:",
+            clienteData
+          ); // Verificar los datos preparados
+
+          setClienteData(clienteData); // Guardar los datos del cliente en Zustand
+
+          console.log(
+            "[DEBUG] Datos del cliente guardados en Zustand:",
+            clienteData
+          ); // Confirmar que se guardaron en Zustand
         }
       } catch (error) {
         console.error("Error al obtener el cliente asociado:", error);
@@ -274,7 +306,7 @@ export function TemaForm({ tema }: { tema: any }) {
     };
 
     fetchClienteAsociado();
-  }, [params?.id]);
+  }, [params?.id, setClienteData]);
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -451,21 +483,21 @@ export function TemaForm({ tema }: { tema: any }) {
       <WatermarkBackground setBackgroundImage={setBackgroundImage} />
       <ClienteAsociado cliente={clienteAsociado} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 auto-rows-auto items-start">
-      <Button
-  type="button"
-  onClick={() => {
-    if (params?.id) {
-      setIdMovil(Number(params.id)); // Guardar el ID del móvil en Zustand
-      console.log(`ID del móvil (${params.id}) guardado en Zustand.`);
-      router.push("/portal/eventos/presupuestos/new"); // Navegar en la misma ventana
-    } else {
-      console.error("No se encontró el ID del móvil.");
-    }
-  }}
-  className="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
->
-  Agregar Presupuesto
-</Button>
+        <Button
+          type="button"
+          onClick={() => {
+            if (params?.id) {
+              setIdMovil(Number(params.id)); // Guardar el ID del móvil en Zustand
+              console.log(`ID del móvil (${params.id}) guardado en Zustand.`);
+              router.push("/portal/eventos/presupuestos/new"); // Navegar en la misma ventana
+            } else {
+              console.error("No se encontró el ID del móvil.");
+            }
+          }}
+          className="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
+        >
+          Agregar Presupuesto-Trabajo
+        </Button>
 
         <Button
           type="button"

@@ -87,7 +87,7 @@ export default function PresupuestosPage() {
         className={buttonVariants()}
         style={{ marginBottom: "20px" }}
       >
-        Agregar Presupuesto
+        Agregar Presupuesto-Trabajo
       </Link>
 
       <button

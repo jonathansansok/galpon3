@@ -6,22 +6,22 @@ interface PresupuestoState {
   idMovil: number | null;
   patente: string | null;
   movilData: any | null;
-  clienteData: any | null;
+  clienteData: any | null; // Agregar clienteData
   setIdMovil: (id: number) => void;
   setPatente: (patente: string) => void;
   setMovilData: (data: any) => void;
-  setClienteData: (data: any) => void;
+  setClienteData: (data: any) => void; // Agregar setClienteData
 }
 
 export const usePresupuestoStore = create<PresupuestoState>((set) => ({
   idMovil: null,
   patente: null,
   movilData: null,
-  clienteData: null,
+  clienteData: null, // Inicializar clienteData
   setIdMovil: (id) => set({ idMovil: id }),
   setPatente: (patente) => set({ patente }),
   setMovilData: (data) => set({ movilData: data }),
-  setClienteData: (data) => set({ clienteData: data }),
+  setClienteData: (data) => set({ clienteData: data }), // Implementar setClienteData
 }));
 interface Location {
   lat: number;

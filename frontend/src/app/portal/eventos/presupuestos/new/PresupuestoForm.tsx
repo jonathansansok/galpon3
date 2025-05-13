@@ -23,6 +23,11 @@ interface FormValues {
 }
 
 export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
+  const clienteData = usePresupuestoStore((state) => state.clienteData);
+
+  useEffect(() => {
+    console.log("[DEBUG] Datos del cliente obtenidos desde Zustand:", clienteData);
+  }, [clienteData]);
   const params = useParams<{ id: string }>(); // Declarar params antes de usarlo
   const idMovil = usePresupuestoStore((state) => state.idMovil); // Declarar idMovil antes de usarlo
   const patente = usePresupuestoStore((state) => state.patente); // Declarar patente antes de usarlo
@@ -322,6 +327,42 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
     >
       <WatermarkBackground setBackgroundImage={() => {}} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 auto-rows-auto items-start">
+        {/* Mostrar datos del cliente */}
+        {clienteData && (
+          <div className="col-span-2">
+            <h3 className="text-lg font-semibold">Datos del Cliente</h3>
+            <p>
+              <strong>Nombre:</strong> {clienteData.nombre || "No disponible"}
+            </p>
+            <p>
+              <strong>Apellido:</strong> {clienteData.apellido || "No disponible"}
+            </p>
+            <p>
+              <strong>Email:</strong> {clienteData.email || "No disponible"}
+            </p>
+            <p>
+              <strong>Teléfono:</strong>{" "}
+              {clienteData.telefono || "No disponible"}
+            </p>
+            <p>
+              <strong>CUIT:</strong> {clienteData.cuit || "No disponible"}
+            </p>
+            <p>
+              <strong>Localidad:</strong>{" "}
+              {clienteData.localidad || "No disponible"}
+            </p>
+            <p>
+              <strong>Dirección:</strong>{" "}
+              {clienteData.direccion || "No disponible"}
+            </p>
+            <p>
+              <strong>Fecha de Creación:</strong>{" "}
+              {clienteData.fechaCreacion || "No disponible"}
+            </p>
+          </div>
+        )}
+
+        {/* Otros campos del formulario */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
             ID del Móvil
@@ -333,16 +374,14 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-gray-100 cursor-not-allowed"
           />
         </div>
-        {/* Botón para agregar presupuesto */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Patente
           </label>
           <input
-            {...register("patente")}
             type="text"
-            value={presupuesto?.patente || ""} // Siempre desde el presupuesto
-            readOnly // Campo de solo lectura
+            value={presupuesto?.patente || ""}
+            readOnly
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-gray-100 cursor-not-allowed"
           />
         </div>
@@ -426,7 +465,7 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
           word1={word1}
           setWord1={setWord1}
         />
- 
+
         <InputField
           register={register}
           name="monto"
