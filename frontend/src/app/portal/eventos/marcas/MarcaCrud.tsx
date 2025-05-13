@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+//frontend\src\app\portal\eventos\marcas\MarcaCrud.tsx
+import React, { useState, useEffect, useCallback } from "react";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import MarcaTable from "./MarcaTable";
@@ -17,15 +18,22 @@ interface Modelo {
   label: string;
   value: string;
   marcaId: number;
-  marcaLabel: string;
+  marcaLabel: string; // Nombre de la marca asociada
 }
 
 interface MarcaCrudProps {
   marcas: Marca[];
   onCreate: (newMarca: { value: string; label: string }) => void;
-  onUpdate: (id: string, updatedMarca: { value: string; label: string }) => void;
+  onUpdate: (
+    id: string,
+    updatedMarca: { value: string; label: string }
+  ) => void;
   onDelete: (id: string) => void;
-  onCreateModelo: (newModelo: { label: string; value: string; marcaId: number }) => void;
+  onCreateModelo: (newModelo: {
+    label: string;
+    value: string;
+    marcaId: number;
+  }) => void;
 }
 
 const MarcaCrud: React.FC<MarcaCrudProps> = ({
@@ -36,7 +44,11 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
   onCreateModelo,
 }) => {
   const [newMarca, setNewMarca] = useState({ value: "", label: "" });
-  const [newModelo, setNewModelo] = useState({ label: "", value: "", marcaId: 0 });
+  const [newModelo, setNewModelo] = useState({
+    label: "",
+    value: "",
+    marcaId: 0,
+  });
   const [modelos, setModelos] = useState<Modelo[]>([]);
 
   const generateValueFromLabel = (label: string) => {
@@ -51,39 +63,56 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
       onCreate({ value: newMarca.value, label: newMarca.label });
       setNewMarca({ value: "", label: "" });
     } else {
-      Swal.fire("Error", "Los campos 'value' y 'label' son obligatorios.", "error");
+      Swal.fire(
+        "Error",
+        "Los campos 'value' y 'label' son obligatorios.",
+        "error"
+      );
     }
   };
 
   const handleCreateModelo = () => {
     if (newModelo.label.trim() && newModelo.value.trim() && newModelo.marcaId) {
       onCreateModelo(newModelo);
-      setNewModelo({ label: "", value: "", marcaId: 0 });
-      fetchModelos();
+      setNewModelo({ ...newModelo, label: "", value: "" }); // Solo reinicia label y value
+      fetchModelos(); // Recargar la lista de modelos
     } else {
       Swal.fire("Error", "Todos los campos son obligatorios.", "error");
     }
   };
 
-  const fetchModelos = async () => {
+  const fetchModelos = useCallback(async () => {
     try {
       const data = await getModelos();
-      setModelos(data);
+
+      // Asignar el nombre de la marca asociada a cada modelo
+      const modelosConMarca = data.map((modelo: Modelo) => {
+        const marca = marcas.find((m) => Number(m.id) === modelo.marcaId);
+        return {
+          ...modelo,
+          marcaLabel: marca ? marca.label : "Desconocida", // Si no se encuentra la marca, mostrar "Desconocida"
+        };
+      });
+
+      setModelos(modelosConMarca);
     } catch (error) {
       console.error("Error al obtener los modelos:", error);
     }
-  };
+  }, [marcas]); // Dependencias: marcas
 
   useEffect(() => {
     fetchModelos();
-  }, []);
+  }, [fetchModelos]); // Dependencias: fetchModelos
 
   return (
     <div className="space-y-6">
       {/* Crear nueva marca */}
-      <div className="space-y-4 bg-blue-50 p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-cyan-700">Crear nueva marca</h3>
+      <div className="space-y-4 p-6 rounded-lg shadow-2xl">
+        <h3 className="text-xl font-semibold text-blue-700">
+          Crear nueva marca
+        </h3>
         <div className="flex flex-col md:flex-row gap-4">
+          {/* Campo visible para "Etiqueta visible" */}
           <input
             type="text"
             placeholder="Etiqueta visible"
@@ -94,12 +123,14 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
             }}
             className="border rounded px-4 py-2 w-full md:w-1/2"
           />
+
+          {/* Campo oculto para "Valor (value)" */}
           <input
-            type="text"
-            placeholder="Valor (value)"
+            type="hidden"
             value={newMarca.value}
-            onChange={(e) => setNewMarca({ ...newMarca, value: e.target.value })}
-            className="border rounded px-4 py-2 w-full md:w-1/2"
+            onChange={(e) =>
+              setNewMarca({ ...newMarca, value: e.target.value })
+            }
           />
         </div>
         <button
@@ -108,13 +139,16 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
         >
           Crear
         </button>
-              {/* Tabla de marcas */}
-      <MarcaTable marcas={marcas} onUpdate={onUpdate} onDelete={onDelete} />
+
+        {/* Tabla de marcas */}
+        <MarcaTable marcas={marcas} onUpdate={onUpdate} onDelete={onDelete} />
       </div>
 
       {/* Crear nuevo modelo */}
-      <div className="space-y-4 bg-orange-200 p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold text-green-700">Crear nuevo modelo</h3>
+      <div className="space-y-4  p-6 rounded-lg shadow-md bg-green-200">
+        <h3 className="text-xl font-semibold text-green-700">
+          Crear nuevo modelo
+        </h3>
         <div className="flex flex-col md:flex-row gap-4">
           <SelectMarca
             name="marcaId"
@@ -130,7 +164,11 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
             value={newModelo.label}
             onChange={(e) => {
               const label = e.target.value;
-              setNewModelo({ ...newModelo, label, value: generateValueFromLabel(label) });
+              setNewModelo({
+                ...newModelo,
+                label,
+                value: generateValueFromLabel(label),
+              });
             }}
             className="border rounded px-4 py-2 w-full md:w-1/2"
           />
@@ -141,13 +179,13 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
         >
           Crear Modelo
         </button>
-              {/* Tabla de modelos */}
-      <TableModelos modelos={modelos} />
-
+        {/* Tabla de modelos */}
+        <TableModelos
+          modelos={modelos}
+          onUpdate={fetchModelos} // Recargar la lista de modelos después de actualizar
+          onDelete={fetchModelos} // Recargar la lista de modelos después de eliminar
+        />
       </div>
-
-
-
     </div>
   );
 };

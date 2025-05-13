@@ -11,11 +11,18 @@ interface Marca {
 
 interface MarcaTableProps {
   marcas: Marca[];
-  onUpdate: (id: string, updatedMarca: { value: string; label: string }) => void;
+  onUpdate: (
+    id: string,
+    updatedMarca: { value: string; label: string }
+  ) => void;
   onDelete: (id: string) => void;
 }
 
-const MarcaTable: React.FC<MarcaTableProps> = ({ marcas, onUpdate, onDelete }) => {
+const MarcaTable: React.FC<MarcaTableProps> = ({
+  marcas,
+  onUpdate,
+  onDelete,
+}) => {
   const [sortColumn, setSortColumn] = useState<keyof Marca | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
@@ -52,7 +59,11 @@ const MarcaTable: React.FC<MarcaTableProps> = ({ marcas, onUpdate, onDelete }) =
       .replace(/[^a-z0-9-]/g, ""); // Eliminar caracteres especiales
   };
 
-  const handleEdit = (id: string, currentValue: string, currentLabel: string) => {
+  const handleEdit = (
+    id: string,
+    currentValue: string,
+    currentLabel: string
+  ) => {
     Swal.fire({
       title: "Editar Marca",
       html: `
@@ -75,8 +86,10 @@ const MarcaTable: React.FC<MarcaTableProps> = ({ marcas, onUpdate, onDelete }) =
         });
       },
       preConfirm: () => {
-        const label = (document.getElementById("label") as HTMLInputElement).value;
-        const value = (document.getElementById("value") as HTMLInputElement).value;
+        const label = (document.getElementById("label") as HTMLInputElement)
+          .value;
+        const value = (document.getElementById("value") as HTMLInputElement)
+          .value;
 
         if (!label.trim() || !value.trim()) {
           Swal.showValidationMessage("Ambos campos son obligatorios.");
@@ -89,7 +102,11 @@ const MarcaTable: React.FC<MarcaTableProps> = ({ marcas, onUpdate, onDelete }) =
       if (result.isConfirmed && result.value) {
         const { label, value } = result.value;
         onUpdate(id, { label, value });
-        Swal.fire("Actualizado", "La marca ha sido actualizada con éxito.", "success");
+        Swal.fire(
+          "Actualizado",
+          "La marca ha sido actualizada con éxito.",
+          "success"
+        );
       }
     });
   };
@@ -104,17 +121,17 @@ const MarcaTable: React.FC<MarcaTableProps> = ({ marcas, onUpdate, onDelete }) =
     <div className="overflow-x-auto">
       <table className="table-auto w-full border-collapse border border-gray-300">
         <thead>
-          <tr className="bg-gray-100">
-            <th className="px-4 py-2">Acciones</th>
+          <tr className="bg-blue-300">
+            <th className="px-4 py-2 text-left">Acciones</th>
             <th
-              className="px-4 py-2 cursor-pointer"
+              className="px-4 py-2 cursor-pointer text-left"
               onClick={() => handleSort("label")}
             >
               Etiqueta visible
               <span className="ml-2">▲▼</span>
             </th>
             <th
-              className="px-4 py-2 cursor-pointer"
+              className="px-4 py-2 cursor-pointer text-left"
               onClick={() => handleSort("value")}
             >
               Valor (value)

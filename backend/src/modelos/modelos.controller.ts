@@ -1,3 +1,4 @@
+//backend\src\modelos\modelos.controller.ts
 import {
   Controller,
   Get,
@@ -30,30 +31,14 @@ export class ModelosController {
   constructor(private readonly modelosService: ModelosService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a modelo' })
+  @ApiOperation({ summary: 'Crear un modelo' })
   @ApiResponse({ status: 201, description: 'Modelo creado con éxito.' })
   @ApiResponse({ status: 400, description: 'Datos inválidos.' })
   async create(@Body() createModeloDto: CreateModeloDto, @Req() req: Request) {
     try {
-      // Validar el token CSRF
-      console.log(
-        '[POST] Token CSRF recibido en el encabezado:',
-        req.headers['csrf-token'],
-      );
-      console.log(
-        '[POST] Token CSRF en las cookies:',
-        req.cookies['csrf-token'],
-      );
-
       validateRequest(req);
       console.log('[POST] Token CSRF válido');
-
-      console.log('[POST] Datos recibidos para crear modelo:', createModeloDto);
-
-      const result = await this.modelosService.create(createModeloDto);
-      console.log('[POST] Modelo creado con éxito:', result);
-
-      return result;
+      return await this.modelosService.create(createModeloDto);
     } catch (error) {
       console.error('[POST] Error al crear el modelo:', error.message);
       throw new HttpException(
@@ -62,17 +47,13 @@ export class ModelosController {
       );
     }
   }
+
   @Get()
   @ApiOperation({ summary: 'Obtener todos los modelos' })
   @ApiResponse({ status: 200, description: 'Modelos obtenidos con éxito.' })
   async findAll() {
     try {
-      console.log('[GET] Solicitud para obtener todos los modelos');
-
-      const result = await this.modelosService.findAll();
-      console.log('[GET] Modelos obtenidos con éxito:', result);
-
-      return result;
+      return await this.modelosService.findAll();
     } catch (error) {
       console.error('[GET] Error al obtener los modelos:', error.message);
       throw new HttpException(
@@ -81,35 +62,25 @@ export class ModelosController {
       );
     }
   }
+
   @Get(':marcaId')
   @ApiOperation({ summary: 'Obtener todos los modelos de una marca' })
   @ApiResponse({ status: 200, description: 'Modelos obtenidos con éxito.' })
   @ApiResponse({ status: 404, description: 'Marca no encontrada.' })
   async findAllByMarca(@Param('marcaId', ParseIntPipe) marcaId: number) {
     try {
-      console.log(
-        '[GET] Solicitud para obtener modelos de la marca con ID:',
-        marcaId,
-      );
-
-      const result = await this.modelosService.findAllByMarca(marcaId);
-      console.log('[GET] Modelos obtenidos con éxito:', result);
-
-      return result;
+      return await this.modelosService.findAllByMarca(marcaId);
     } catch (error) {
-      console.error(
-        '[GET] Error al obtener los modelos de la marca con ID:',
-        marcaId,
-        error.message,
-      );
+      console.error('[GET] Error al obtener los modelos:', error.message);
       throw new HttpException(
         `Error al procesar la solicitud: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
+
   @Patch(':id')
-  @ApiOperation({ summary: 'Update a modelo' })
+  @ApiOperation({ summary: 'Actualizar un modelo' })
   @ApiResponse({ status: 200, description: 'Modelo actualizado con éxito.' })
   @ApiResponse({ status: 404, description: 'Modelo no encontrado.' })
   async update(
@@ -118,34 +89,11 @@ export class ModelosController {
     @Req() req: Request,
   ) {
     try {
-      // Validar el token CSRF
-      console.log(
-        '[PATCH] Token CSRF recibido en el encabezado:',
-        req.headers['csrf-token'],
-      );
-      console.log(
-        '[PATCH] Token CSRF en las cookies:',
-        req.cookies['csrf-token'],
-      );
-
       validateRequest(req);
       console.log('[PATCH] Token CSRF válido');
-
-      console.log('[PATCH] Datos recibidos para actualizar modelo:', {
-        id,
-        updateModeloDto,
-      });
-
-      const result = await this.modelosService.update(id, updateModeloDto);
-      console.log('[PATCH] Modelo actualizado con éxito:', result);
-
-      return result;
+      return await this.modelosService.update(id, updateModeloDto);
     } catch (error) {
-      console.error(
-        '[PATCH] Error al actualizar el modelo con ID:',
-        id,
-        error.message,
-      );
+      console.error('[PATCH] Error al actualizar el modelo:', error.message);
       throw new HttpException(
         `Error al procesar la solicitud: ${error.message}`,
         HttpStatus.BAD_REQUEST,
@@ -154,36 +102,16 @@ export class ModelosController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a modelo' })
+  @ApiOperation({ summary: 'Eliminar un modelo' })
   @ApiResponse({ status: 200, description: 'Modelo eliminado con éxito.' })
   @ApiResponse({ status: 404, description: 'Modelo no encontrado.' })
   async remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
     try {
-      // Validar el token CSRF
-      console.log(
-        '[DELETE] Token CSRF recibido en el encabezado:',
-        req.headers['csrf-token'],
-      );
-      console.log(
-        '[DELETE] Token CSRF en las cookies:',
-        req.cookies['csrf-token'],
-      );
-
       validateRequest(req);
       console.log('[DELETE] Token CSRF válido');
-
-      console.log('[DELETE] Solicitud para eliminar modelo con ID:', id);
-
-      const result = await this.modelosService.remove(id);
-      console.log('[DELETE] Modelo eliminado con éxito:', result);
-
-      return result;
+      return await this.modelosService.remove(id);
     } catch (error) {
-      console.error(
-        '[DELETE] Error al eliminar el modelo con ID:',
-        id,
-        error.message,
-      );
+      console.error('[DELETE] Error al eliminar el modelo:', error.message);
       throw new HttpException(
         `Error al procesar la solicitud: ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,

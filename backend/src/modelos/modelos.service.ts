@@ -25,9 +25,11 @@ export class ModelosService {
       data: createModeloDto,
     });
   }
+
   async findAll() {
     return this.prisma.modelo.findMany();
   }
+
   async findAllByMarca(marcaId: number) {
     return this.prisma.modelo.findMany({
       where: { marcaId },
@@ -35,11 +37,26 @@ export class ModelosService {
   }
 
   async update(id: number, updateModeloDto: UpdateModeloDto) {
+    // Validar que el modelo exista
     const modelo = await this.prisma.modelo.findUnique({ where: { id } });
     if (!modelo) {
       throw new NotFoundException(`Modelo con ID ${id} no encontrado`);
     }
 
+    // Validar que el marcaId proporcionado exista (si se incluye en el DTO)
+    if (updateModeloDto.marcaId) {
+      const marca = await this.prisma.marcas.findUnique({
+        where: { id: updateModeloDto.marcaId },
+      });
+
+      if (!marca) {
+        throw new NotFoundException(
+          `Marca con ID ${updateModeloDto.marcaId} no encontrada`,
+        );
+      }
+    }
+
+    // Actualizar el modelo
     return this.prisma.modelo.update({
       where: { id },
       data: updateModeloDto,

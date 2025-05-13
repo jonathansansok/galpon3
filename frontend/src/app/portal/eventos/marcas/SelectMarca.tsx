@@ -1,3 +1,4 @@
+//frontend\src\app\portal\eventos\marcas\SelectMarca.tsx
 import React, { useEffect, useState, ChangeEvent } from "react";
 import { getMarcas } from "./Marcas.api";
 import { FaSyncAlt } from "react-icons/fa"; // Ícono de actualización

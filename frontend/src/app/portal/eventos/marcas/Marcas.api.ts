@@ -1,5 +1,70 @@
 //frontend\src\app\portal\eventos\marcas\Marcas.api.ts
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+// Eliminar un modelo existente
+export async function deleteModelo(id: number) {
+  try {
+    const csrfToken = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("csrf-token="))
+      ?.split("=")[1];
+
+    if (!csrfToken) {
+      throw new Error("[CSRF] No se encontró el token CSRF en las cookies.");
+    }
+
+    const res = await fetch(`${BACKEND_URL}/api/modelos/${id}`, {
+      method: "DELETE",
+      headers: {
+        "csrf-token": csrfToken,
+      },
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData?.error || "Error desconocido al eliminar el modelo");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error(`Error al eliminar el modelo con id ${id}:`, error);
+    throw error;
+  }
+}
+// Actualizar un modelo existente
+
+export async function updateModelo(id: number, data: { label: string; value: string; marcaId: number }) {
+  try {
+    const csrfToken = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("csrf-token="))
+      ?.split("=")[1];
+
+    if (!csrfToken) {
+      throw new Error("[CSRF] No se encontró el token CSRF en las cookies.");
+    }
+
+    const res = await fetch(`${BACKEND_URL}/api/modelos/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "csrf-token": csrfToken,
+      },
+      body: JSON.stringify(data),
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData?.error || "Error desconocido al actualizar el modelo");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error(`Error al actualizar el modelo con id ${id}:`, error);
+    throw error;
+  }
+}
 // Obtener todos los modelos
 export async function getModelos() {
   try {

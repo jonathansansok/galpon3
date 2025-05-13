@@ -1,3 +1,4 @@
+//frontend\src\app\portal\eventos\marcas\page.tsx
 "use client"
 import { useState, useEffect } from "react";
 import { getMarcas, createMarca, updateMarca, deleteMarca, createModelo } from "./Marcas.api";
