@@ -1,14 +1,23 @@
-//frontend\src\app\portal\eventos\marcas\MarcaCrud.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import MarcaTable from "./MarcaTable";
 import SelectMarca from "./SelectMarca";
+import TableModelos from "./TableModelos";
+import { getModelos } from "./Marcas.api";
 
 interface Marca {
   id: string;
   value: string;
   label: string;
+}
+
+interface Modelo {
+  id: number;
+  label: string;
+  value: string;
+  marcaId: number;
+  marcaLabel: string;
 }
 
 interface MarcaCrudProps {
@@ -28,8 +37,8 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
 }) => {
   const [newMarca, setNewMarca] = useState({ value: "", label: "" });
   const [newModelo, setNewModelo] = useState({ label: "", value: "", marcaId: 0 });
+  const [modelos, setModelos] = useState<Modelo[]>([]);
 
-  // Función para generar automáticamente el value basado en el label
   const generateValueFromLabel = (label: string) => {
     return label
       .toLowerCase()
@@ -50,16 +59,30 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
     if (newModelo.label.trim() && newModelo.value.trim() && newModelo.marcaId) {
       onCreateModelo(newModelo);
       setNewModelo({ label: "", value: "", marcaId: 0 });
+      fetchModelos();
     } else {
       Swal.fire("Error", "Todos los campos son obligatorios.", "error");
     }
   };
 
+  const fetchModelos = async () => {
+    try {
+      const data = await getModelos();
+      setModelos(data);
+    } catch (error) {
+      console.error("Error al obtener los modelos:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchModelos();
+  }, []);
+
   return (
     <div className="space-y-6">
       {/* Crear nueva marca */}
-      <div className="space-y-4">
-        <h3 className="text-xl font-semibold">Crear nueva marca</h3>
+      <div className="space-y-4 bg-blue-50 p-6 rounded-lg shadow-md">
+        <h3 className="text-xl font-semibold text-cyan-700">Crear nueva marca</h3>
         <div className="flex flex-col md:flex-row gap-4">
           <input
             type="text"
@@ -85,11 +108,13 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
         >
           Crear
         </button>
+              {/* Tabla de marcas */}
+      <MarcaTable marcas={marcas} onUpdate={onUpdate} onDelete={onDelete} />
       </div>
 
       {/* Crear nuevo modelo */}
-      <div className="space-y-4">
-        <h3 className="text-xl font-semibold">Crear nuevo modelo</h3>
+      <div className="space-y-4 bg-orange-200 p-6 rounded-lg shadow-md">
+        <h3 className="text-xl font-semibold text-green-700">Crear nuevo modelo</h3>
         <div className="flex flex-col md:flex-row gap-4">
           <SelectMarca
             name="marcaId"
@@ -116,10 +141,13 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
         >
           Crear Modelo
         </button>
+              {/* Tabla de modelos */}
+      <TableModelos modelos={modelos} />
+
       </div>
 
-      {/* Tabla de marcas */}
-      <MarcaTable marcas={marcas} onUpdate={onUpdate} onDelete={onDelete} />
+
+
     </div>
   );
 };

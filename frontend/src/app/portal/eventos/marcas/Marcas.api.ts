@@ -1,6 +1,20 @@
 //frontend\src\app\portal\eventos\marcas\Marcas.api.ts
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+// Obtener todos los modelos
+export async function getModelos() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/modelos`);
+    if (!res.ok) {
+      throw new Error("Error al obtener los modelos");
+    }
+    return await res.json();
+  } catch (error) {
+    console.error("Error al obtener los modelos:", error);
+    throw error;
+  }
+}
 // Crear un nuevo modelo
+
 export async function createModelo(data: { label: string; value: string; marcaId: number }) {
   try {
     console.log("Creating modelo with data:", data);
