@@ -1,3 +1,4 @@
+//frontend\src\app\portal\eventos\marcas\Marcas.api.ts
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 // Obtener todas las marcas

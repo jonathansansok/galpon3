@@ -1,3 +1,4 @@
+//frontend\src\app\portal\eventos\marcas\MarcaTable.tsx
 import React, { useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Swal from "sweetalert2";

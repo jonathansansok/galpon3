@@ -1,3 +1,4 @@
+//frontend\src\app\portal\eventos\marcas\MarcaCrud.tsx
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";

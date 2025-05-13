@@ -347,21 +347,25 @@ model Presupuestos {
   pdf10         String?  @db.VarChar(255)
   word1         String?  @db.VarChar(255)
 }
-
 model Marcas {
-  id                  Int      @id @default(autoincrement()) // Clave primaria autoincremental
-  createdAt           DateTime @default(now()) // Timestamp con valor por defecto
-  updatedAt           DateTime @updatedAt // Timestamp actualizado automáticamente
-  value               String   @db.VarChar(500) // Valor interno del select
-  label               String   @db.VarChar(500) // Texto visible en el select
-  internosinvolucrado String?  @db.Text // Campo de texto largo opcional
-  email               String?  @db.VarChar(100) // Correo electrónico (VARCHAR(100)) opcional
+  id                  Int       @id @default(autoincrement())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  value               String    @db.VarChar(500)
+  label               String    @db.VarChar(500)
+  internosinvolucrado String?   @db.Text
+  email               String?   @db.VarChar(100)
+  modelos             Modelo[]  // Relación con los modelos
 }
+
 model Modelo {
   id        Int       @id @default(autoincrement())
-  label     String    @db.VarChar(500) // Nombre visible del modelo
-  value     String    @db.VarChar(500) // Identificador interno del modelo
+  label     String    @db.VarChar(500)
+  value     String    @db.VarChar(500)
   marcaId   Int       // Relación con la marca
+  marca     Marcas    @relation(fields: [marcaId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 model Preingresos {
   id                        Int       @id @default(autoincrement()) // Clave primaria autoincremental  email
