@@ -5,15 +5,23 @@ import { Auth0User } from "@/lib/types";
 interface PresupuestoState {
   idMovil: number | null;
   patente: string | null;
+  movilData: any | null;
+  clienteData: any | null;
   setIdMovil: (id: number) => void;
   setPatente: (patente: string) => void;
+  setMovilData: (data: any) => void;
+  setClienteData: (data: any) => void;
 }
 
 export const usePresupuestoStore = create<PresupuestoState>((set) => ({
   idMovil: null,
   patente: null,
+  movilData: null,
+  clienteData: null,
   setIdMovil: (id) => set({ idMovil: id }),
   setPatente: (patente) => set({ patente }),
+  setMovilData: (data) => set({ movilData: data }),
+  setClienteData: (data) => set({ clienteData: data }),
 }));
 interface Location {
   lat: number;

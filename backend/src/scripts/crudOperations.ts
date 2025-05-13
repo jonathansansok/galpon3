@@ -62,37 +62,13 @@ async function main() {
     console.log('Móviles creados:', moviles);
 
     // Crear múltiples presupuestos asociados a los móviles
+    // Crear múltiples presupuestos asociados a los móviles
     const presupuestos = await Promise.all(
       moviles.map((movil, i) =>
         prisma.presupuestos.create({
           data: {
-            movilId: movil.id, // Asociar al móvil creado anteriormente
-            clienteId: movil.clienteId, // Asociar al cliente del móvil
-            datosMovil: {
-              patente: movil.patente,
-              marca: movil.marca,
-              modelo: movil.modelo,
-              anio: movil.anio,
-              color: movil.color,
-              tipoPintura: movil.tipoPintura,
-              paisOrigen: movil.paisOrigen,
-              tipoVehic: movil.tipoVehic,
-              motor: movil.motor,
-              chasis: movil.chasis,
-              combustion: movil.combustion,
-              vin: movil.vin,
-            },
-            datosCliente: {
-              numeroCuit: clientes[i].numeroCuit,
-              apellido: clientes[i].apellido,
-              nombres: clientes[i].nombres,
-              numeroDni: clientes[i].numeroDni,
-              telefono: clientes[i].telefono,
-              emailCliente: clientes[i].emailCliente,
-              provincia: clientes[i].provincia,
-              domicilios: clientes[i].domicilios,
-            },
-            monto: 10000 + i * 5000,
+            movilId: movil.id.toString(), // Convertir a cadena
+            monto: (10000 + i * 5000).toString(), // Convertir a cadena
             estado: 'Pendiente',
             observaciones: `Presupuesto inicial para móvil ${movil.id}`,
           },

@@ -1,2 +1,2 @@
-//frontend\src\app\portal\eventos\temas\[id]\edit\page.tsx
+//frontend\src\app\portal\eventos\presupuestos\[id]\edit\page.tsx
 export { default } from "../../new/page";

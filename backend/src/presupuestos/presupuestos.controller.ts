@@ -1,19 +1,17 @@
-//backend\src\presupuestos\presupuestos.controller.ts
 import {
   Controller,
   Get,
   Post,
   Body,
   Patch,
-  Put,
   Param,
   Delete,
   ParseIntPipe,
   UseInterceptors,
   UploadedFiles,
-  Req,
   HttpException,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { PresupuestosService } from './presupuestos.service';
@@ -44,6 +42,12 @@ export class PresupuestosController {
     extension: string = '.png',
   ) {
     if (file.originalname.startsWith(prefix)) {
+      if (!file.filename) {
+        throw new HttpException(
+          `El archivo ${file.originalname} no tiene un nombre generado por Multer.`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
       dto[key] = file.filename.replace(extname(file.filename), extension);
     }
   }
@@ -61,7 +65,7 @@ export class PresupuestosController {
       validateRequest(req);
       console.log('[POST] Token CSRF válido');
 
-      // Procesar archivos multimedia
+      // Validar y procesar los archivos
       if (files && Array.isArray(files)) {
         console.log('[POST] Archivos recibidos:', files);
         files.forEach((file) => {
@@ -71,6 +75,7 @@ export class PresupuestosController {
               HttpStatus.BAD_REQUEST,
             );
           }
+          // Usar la función auxiliar para asignar archivos al DTO
           this.processFile(file, createPresupuestoDto, 'imagen-', 'imagen');
           this.processFile(
             file,
@@ -149,20 +154,31 @@ export class PresupuestosController {
         console.warn('[POST] No se recibieron archivos.');
       }
 
-      return this.presupuestosService.create(createPresupuestoDto);
+      // Crear el presupuesto usando el servicio
+      const result =
+        await this.presupuestosService.create(createPresupuestoDto);
+
+      // Devolver un cuerpo en la respuesta
+      return {
+        message: 'Presupuesto creado exitosamente',
+        data: result,
+      };
     } catch (error) {
       console.error('[POST] Error al crear presupuesto:', error.message);
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new HttpException(
-        error.message || 'Error al procesar la solicitud',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        'Error al procesar la solicitud',
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
+
   @Get()
   @ApiResponse({ status: 200, description: 'Obtener todos los presupuestos' })
   async findAll(@Req() req: Request) {
     try {
-      // Validar el token CSRF
       console.log('[GET] Token CSRF recibido:', req.headers['csrf-token']);
       validateRequest(req);
       console.log('[GET] Token CSRF válido');
@@ -181,7 +197,6 @@ export class PresupuestosController {
   @ApiOperation({ summary: 'Obtener un presupuesto por ID' })
   async findOne(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
     try {
-      // Validar el token CSRF
       console.log('[GET] Token CSRF recibido:', req.headers['csrf-token']);
       validateRequest(req);
       console.log('[GET] Token CSRF válido');
@@ -208,7 +223,6 @@ export class PresupuestosController {
     @Req() req: Request,
   ) {
     try {
-      // Validar el token CSRF
       console.log('[PATCH] Token CSRF recibido:', req.headers['csrf-token']);
       validateRequest(req);
       console.log('[PATCH] Token CSRF válido');
@@ -301,31 +315,16 @@ export class PresupuestosController {
         console.warn('[PATCH] No se recibieron archivos.');
       }
 
-      return this.presupuestosService.update(id, updatePresupuestoDto);
+      const result = await this.presupuestosService.update(
+        id,
+        updatePresupuestoDto,
+      );
+      return {
+        message: 'Presupuesto actualizado exitosamente',
+        data: result,
+      };
     } catch (error) {
       console.error('[PATCH] Error al actualizar presupuesto:', error.message);
-      throw new HttpException(
-        error.message || 'Error al procesar la solicitud',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-  @Put(':id')
-  @ApiOperation({ summary: 'Actualizar completamente un presupuesto' })
-  async replace(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updatePresupuestoDto: UpdatePresupuestoDto,
-    @Req() req: Request,
-  ) {
-    try {
-      // Validar el token CSRF
-      console.log('[PUT] Token CSRF recibido:', req.headers['csrf-token']);
-      validateRequest(req);
-      console.log('[PUT] Token CSRF válido');
-
-      return this.presupuestosService.update(id, updatePresupuestoDto);
-    } catch (error) {
-      console.error('[PUT] Error al reemplazar presupuesto:', error.message);
       throw new HttpException(
         error.message || 'Error al procesar la solicitud',
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
@@ -337,7 +336,6 @@ export class PresupuestosController {
   @ApiOperation({ summary: 'Eliminar un presupuesto' })
   async remove(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
     try {
-      // Validar el token CSRF
       console.log('[DELETE] Token CSRF recibido:', req.headers['csrf-token']);
       validateRequest(req);
       console.log('[DELETE] Token CSRF válido');

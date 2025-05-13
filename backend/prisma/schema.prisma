@@ -319,11 +319,9 @@ model Presupuestos {
   id            Int      @id @default(autoincrement())
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  movilId       Int
-  clienteId     Int
-  datosMovil    Json
-  datosCliente  Json
-  monto         Float
+  movilId       String?
+  patente       String?
+  monto         String?
   estado        String   @default("Pendiente")
   observaciones String?
    // Campos de archivos multimedia

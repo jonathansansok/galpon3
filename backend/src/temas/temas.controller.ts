@@ -45,6 +45,12 @@ export class TemasController {
     extension: string = '.png',
   ) {
     if (file.originalname.startsWith(prefix)) {
+      if (!file.filename) {
+        throw new HttpException(
+          `El archivo ${file.originalname} no tiene un nombre generado por Multer.`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
       dto[key] = file.filename.replace(extname(file.filename), extension);
     }
   }

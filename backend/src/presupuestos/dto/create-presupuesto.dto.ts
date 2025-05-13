@@ -1,123 +1,110 @@
 //backend\src\presupuestos\dto\create-presupuesto.dto.ts
-import {
-  IsNumber,
-  IsString,
-  IsOptional,
-  IsObject,
-  ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
+// backend/src/presupuestos/dto/create-presupuesto.dto.ts
+// backend/src/presupuestos/dto/create-presupuesto.dto.ts
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreatePresupuestoDto {
-  @IsNumber()
-  movilId: number;
-
-  @IsNumber()
-  clienteId: number;
-
-  @IsObject()
-  @ValidateNested()
-  @Type(() => Object) // Permite que datosMovil sea un objeto JSON
-  datosMovil: any;
-
-  @IsObject()
-  @ValidateNested()
-  @Type(() => Object) // Permite que datosCliente sea un objeto JSON
-  datosCliente: any;
-
-  @IsNumber()
-  monto: number;
-
-  @IsString()
   @IsOptional()
+  @IsString()
+  movilId: string; // Permitimos cadenas en esta etapa
+
+  @IsOptional()
+  @IsString()
+  monto: string; // Permitimos cadenas en esta etapa
+
+  @IsOptional()
+  @IsString()
+  patente?: string;
+
+  @IsOptional()
+  @IsString()
   estado?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   observaciones?: string;
 
-  // Campos de archivos multimedia
-  @IsString()
   @IsOptional()
+  @IsString()
   imagen?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   imagenDer?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   imagenIz?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   imagenDact?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   imagenSen1?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   imagenSen2?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   imagenSen3?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   imagenSen4?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   imagenSen5?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   imagenSen6?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   pdf1?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   pdf2?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   pdf3?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   pdf4?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   pdf5?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   pdf6?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   pdf7?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   pdf8?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   pdf9?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   pdf10?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   word1?: string;
 }

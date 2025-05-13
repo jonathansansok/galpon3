@@ -86,16 +86,17 @@ export function TemaForm({ tema }: { tema: any }) {
 
   // Zustand: Obtener y configurar el estado global
   const setIdMovil = usePresupuestoStore((state) => state.setIdMovil);
-
-  // Guardar automáticamente el ID del móvil en Zustand
+  const setPatente = usePresupuestoStore((state) => state.setPatente); // Agregar esta línea
+  
   useEffect(() => {
     if (params?.id) {
       setIdMovil(Number(params.id)); // Guardar el ID del móvil en Zustand
+      setPatente(tema?.patente || ""); // Guardar la patente en Zustand
       console.log(
-        `ID del móvil (${params.id}) guardado automáticamente en Zustand.`
+        `ID del móvil (${params.id}) y patente (${tema?.patente}) guardados automáticamente en Zustand.`
       );
     }
-  }, [params?.id, setIdMovil]);
+  }, [params?.id, setIdMovil, setPatente, tema?.patente]); // Agregar `setPatente` y `tema?.patente`
 
   const [fechaHora, setFechaHora] = useState<string>(tema?.fechaHora || "");
   const [observacion, setObservacion] = useState<string>(
@@ -451,20 +452,20 @@ export function TemaForm({ tema }: { tema: any }) {
       <ClienteAsociado cliente={clienteAsociado} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 auto-rows-auto items-start">
       <Button
-    type="button"
-    onClick={() => {
-      if (params?.id) {
-        setIdMovil(Number(params.id)); // Guardar el ID del móvil en Zustand
-        console.log(`ID del móvil (${params.id}) guardado en Zustand.`);
-        window.open("/portal/eventos/presupuestos/new", "_blank"); // Abrir en nueva pestaña
-      } else {
-        console.error("No se encontró el ID del móvil.");
-      }
-    }}
-    className="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
-  >
-    Agregar Presupuesto
-  </Button>
+  type="button"
+  onClick={() => {
+    if (params?.id) {
+      setIdMovil(Number(params.id)); // Guardar el ID del móvil en Zustand
+      console.log(`ID del móvil (${params.id}) guardado en Zustand.`);
+      router.push("/portal/eventos/presupuestos/new"); // Navegar en la misma ventana
+    } else {
+      console.error("No se encontró el ID del móvil.");
+    }
+  }}
+  className="bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
+>
+  Agregar Presupuesto
+</Button>
 
         <Button
           type="button"

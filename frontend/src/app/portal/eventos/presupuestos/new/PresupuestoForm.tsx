@@ -1,4 +1,3 @@
-//frontend\src\app\portal\eventos\presupuestos\new\PresupuestoForm.tsx
 "use client";
 import { usePresupuestoStore } from "@/lib/store"; // Importar el store de Zustand
 import { InputField } from "@/components/ui/InputField";
@@ -18,13 +17,28 @@ import {
   ShowPresupuestos,
   showCancelAlert,
 } from "../../../../utils/alertUtils"; // Importa las funciones
+
 interface FormValues {
   [key: string]: string;
 }
 
 export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
+  const params = useParams<{ id: string }>(); // Declarar params antes de usarlo
+  const idMovil = usePresupuestoStore((state) => state.idMovil); // Declarar idMovil antes de usarlo
+  const patente = usePresupuestoStore((state) => state.patente); // Declarar patente antes de usarlo
+
+  // Calcular los valores dinámicamente
+  const movilId = params?.id
+    ? presupuesto?.movilId || idMovil || ""
+    : idMovil || "";
+  const patenteValue = params?.id
+    ? presupuesto?.patente || patente || ""
+    : patente || "";
+
   const { handleSubmit, setValue, register, watch } = useForm<FormValues>({
     defaultValues: {
+      movilId, // Usar el valor calculado dinámicamente
+      patente: patenteValue, // Usar el valor calculado dinámicamente
       monto: presupuesto?.monto || "",
       estado: presupuesto?.estado || "Pendiente",
       observaciones: presupuesto?.observaciones || "",
@@ -53,17 +67,7 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
   });
 
   const router = useRouter();
-  const params = useParams<{ id: string }>();
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Recuperar valores desde Zustand
-  const idMovil = usePresupuestoStore((state) => state.idMovil);
-  const patente = usePresupuestoStore((state) => state.patente);
-
-  useEffect(() => {
-    console.log(`ID del móvil recuperado: ${idMovil}`);
-    console.log(`Patente recuperada: ${patente}`);
-  }, [idMovil, patente]);
   const [imagen, setImagen] = useState<string | null>(
     presupuesto?.imagen
       ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/presupuestos/uploads/${presupuesto.imagen}`
@@ -187,6 +191,11 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
 
   const user = useUserStore((state) => state.user);
   const setUser = useUserStore((state) => state.setUser);
+  useEffect(() => {
+    console.log(`ID del móvil recuperado: ${idMovil}`);
+    console.log(`Patente recuperada: ${patente}`);
+  }, [idMovil, patente]);
+
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     const confirmation = await Alert.confirm({
       title: "¿Estás seguro?",
@@ -202,12 +211,15 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
 
     try {
       const payload: any = {
-        idMovil, // Incluye el ID del móvil desde Zustand
+        movilId: data.movilId,
+        patente: data.patente,
         monto: data.monto,
-        estado: data.estado,
-        observaciones: data.observaciones,
+        estado: data.estado || "Pendiente",
+        observaciones: data.observaciones || "",
       };
+
       console.log("[DEBUG] Payload enviado al backend:", payload);
+
       const formData = new FormData();
       for (const key in payload) {
         formData.append(key, payload[key]);
@@ -264,13 +276,10 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
         }
 
         const mensajeTitulo = params?.id
-          ? "Actualización de Móvil"
-          : "Creación de Móvil";
+          ? "Actualización de Presupuesto"
+          : "Creación de Presupuesto";
 
         console.log("[DEBUG] response completo:", response);
-        console.log("[DEBUG] response.success:", response.success);
-        console.log("[DEBUG] response.data:", response.data);
-        console.log("[DEBUG] response.error:", response.error);
 
         await ShowPresupuestos(
           response.success,
@@ -282,7 +291,7 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
           router.push("/portal/eventos/presupuestos");
         } else {
           console.error(
-            "[ERROR] Error al crear o actualizar tema:",
+            "[ERROR] Error al crear o actualizar presupuesto:",
             response.error
           );
           ShowPresupuestos(false, "Error", response.error);
@@ -304,6 +313,7 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
   const goToPresupuestos = () => {
     router.push("/portal/eventos/presupuestos");
   };
+
   return (
     <form
       id="formulario"
@@ -312,11 +322,34 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
     >
       <WatermarkBackground setBackgroundImage={() => {}} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 auto-rows-auto items-start">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            ID del Móvil
+          </label>
+          <input
+            type="text"
+            value={idMovil || presupuesto?.movilId || ""}
+            readOnly
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-gray-100 cursor-not-allowed"
+          />
+        </div>
         {/* Botón para agregar presupuesto */}
- 
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Patente
+          </label>
+          <input
+            {...register("patente")}
+            type="text"
+            value={presupuesto?.patente || ""} // Siempre desde el presupuesto
+            readOnly // Campo de solo lectura
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-gray-100 cursor-not-allowed"
+          />
+        </div>
+
         <Button
           type="button"
-          onClick={() => setImagen(null)}
+          onClick={() => setIsPhotosOpen(true)}
           className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
         >
           Fotografías
@@ -347,14 +380,14 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
           getImageUrl={getImageUrl}
           generateFileName={generateFileName}
         />
+
         <Button
           type="button"
-          onClick={() => setPdf1(null)}
+          onClick={() => setIsPdfOpen(true)}
           className="bg-red-600 hover:bg-red-800 text-white px-4 py-2 rounded-lg"
         >
           PDFs
         </Button>
-
         <PdfModal
           isOpen={isPdfOpen}
           onClose={() => setIsPdfOpen(false)}
@@ -380,37 +413,20 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
           setPdf10={setPdf10}
           getPdfUrl={getPdfUrl}
         />
-
         <Button
           type="button"
-          onClick={() => setWord1(null)}
+          onClick={() => setIsWordOpen(true)}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
         >
           Word
         </Button>
         <WordModal
-          isOpen={!!word1}
-          onClose={() => setWord1(null)}
+          isOpen={isWordOpen}
+          onClose={() => setIsWordOpen(false)}
           word1={word1}
           setWord1={setWord1}
         />
-
-             {/* Mostrar ID del móvil */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            ID del Móvil
-          </label>
-          <p className="mt-1 text-gray-900">{idMovil || "No disponible"}</p>
-        </div>
-
-        {/* Mostrar patente */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Patente
-          </label>
-          <p className="mt-1 text-gray-900">{patente || "No disponible"}</p>
-        </div>
-
+ 
         <InputField
           register={register}
           name="monto"
