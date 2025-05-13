@@ -77,35 +77,37 @@ const MovilCard: React.FC<{
 
   return (
     <div className="p-4 border rounded-lg shadow-md bg-white w-full">
-      <div className="flex items-center space-x-4">
-        {/* Imagen del móvil */}
-        {movil.imagen ? (
-          <Image
-            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${movil.imagen}`}
-            alt={`Imagen del móvil ${movil.patente}`}
-            width={100}
-            height={100}
-            className="rounded-lg shadow-md"
-          />
-        ) : (
-          <div className="w-[100px] h-[100px] bg-gray-200 rounded-lg flex items-center justify-center shadow-md">
-            <span className="text-gray-500">Sin imagen</span>
-          </div>
-        )}
-
-        {/* Información principal del móvil */}
-        <div className="ml-4 flex-1">
-          <p className="text-lg font-semibold">
-            <strong>Patente:</strong> {movil.patente || "N/A"}
-          </p>
-          <p className="text-gray-700">
-            <strong>Marca:</strong> {movil.marca || "N/A"}
-          </p>
-          <p className="text-gray-700">
-            <strong>Modelo:</strong> {movil.modelo || "N/A"}
-          </p>
+    <div className="flex flex-wrap items-center space-y-4 sm:space-y-0 sm:space-x-4">
+      {/* Imagen del móvil */}
+      {movil.imagen ? (
+        <Image
+          src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${movil.imagen}`}
+          alt={`Imagen del móvil ${movil.patente}`}
+          width={100}
+          height={100}
+          className="rounded-lg shadow-md"
+        />
+      ) : (
+        <div className="w-[100px] h-[100px] bg-gray-200 rounded-lg flex items-center justify-center shadow-md">
+          <span className="text-gray-500">Sin imagen</span>
         </div>
-
+      )}
+  
+      {/* Información principal del móvil */}
+      <div className="ml-0 sm:ml-4 flex-1">
+        <p className="text-lg font-semibold">
+          <strong>Patente:</strong> {movil.patente || "N/A"}
+        </p>
+        <p className="text-gray-700">
+          <strong>Marca:</strong> {movil.marca || "N/A"}
+        </p>
+        <p className="text-gray-700">
+          <strong>Modelo:</strong> {movil.modelo || "N/A"}
+        </p>
+      </div>
+  
+      {/* Botones de acción */}
+      <div className="flex flex-wrap gap-2">
         {/* Botón para desplegar detalles */}
         <button
           type="button"
@@ -133,7 +135,7 @@ const MovilCard: React.FC<{
             />
           </svg>
         </button>
-
+  
         {/* Botón para editar móvil */}
         <Link
           href={`/portal/eventos/temas/${movil.id}/edit`}
@@ -143,7 +145,7 @@ const MovilCard: React.FC<{
         >
           <span>Editar móvil</span>
         </Link>
-
+  
         {/* Botón para quitar móvil */}
         <button
           type="button"
@@ -153,43 +155,44 @@ const MovilCard: React.FC<{
           Quitar
         </button>
       </div>
-
-      {/* Información adicional del móvil */}
-      {isExpanded && (
-        <div className="mt-4">
-          <p>
-            <strong>Año:</strong> {movil.anio || "N/A"}
-          </p>
-          <p>
-            <strong>Color:</strong> {movil.color || "N/A"}
-          </p>
-          <p>
-            <strong>Tipo de Pintura:</strong> {movil.tipoPintura || "N/A"}
-          </p>
-          <p>
-            <strong>País de Origen:</strong> {movil.paisOrigen || "N/A"}
-          </p>
-          <p>
-            <strong>Tipo de Vehículo:</strong> {movil.tipoVehic || "N/A"}
-          </p>
-          <p>
-            <strong>Motor:</strong> {movil.motor || "N/A"}
-          </p>
-          <p>
-            <strong>Chasis:</strong> {movil.chasis || "N/A"}
-          </p>
-          <p>
-            <strong>Combustión:</strong> {movil.combustion || "N/A"}
-          </p>
-          <p>
-            <strong>VIN:</strong> {movil.vin || "N/A"}
-          </p>
-          <p>
-            <strong>Observación:</strong> {movil.observacion || "N/A"}
-          </p>
-        </div>
-      )}
     </div>
+  
+    {/* Información adicional del móvil */}
+    {isExpanded && (
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <p>
+          <strong>Año:</strong> {movil.anio || "N/A"}
+        </p>
+        <p>
+          <strong>Color:</strong> {movil.color || "N/A"}
+        </p>
+        <p>
+          <strong>Tipo de Pintura:</strong> {movil.tipoPintura || "N/A"}
+        </p>
+        <p>
+          <strong>País de Origen:</strong> {movil.paisOrigen || "N/A"}
+        </p>
+        <p>
+          <strong>Tipo de Vehículo:</strong> {movil.tipoVehic || "N/A"}
+        </p>
+        <p>
+          <strong>Motor:</strong> {movil.motor || "N/A"}
+        </p>
+        <p>
+          <strong>Chasis:</strong> {movil.chasis || "N/A"}
+        </p>
+        <p>
+          <strong>Combustión:</strong> {movil.combustion || "N/A"}
+        </p>
+        <p>
+          <strong>VIN:</strong> {movil.vin || "N/A"}
+        </p>
+        <p>
+          <strong>Observación:</strong> {movil.observacion || "N/A"}
+        </p>
+      </div>
+    )}
+  </div>
   );
 };
 

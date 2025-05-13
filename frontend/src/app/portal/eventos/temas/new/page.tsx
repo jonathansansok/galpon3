@@ -16,7 +16,7 @@ async function TemasNewPage({ params }: Props) {
     tema = await getTema(id);
   }
   return (
-    <div className="flex justify-center items-center flex-col w-full px-4 py-6">
+<div className="flex justify-center items-center flex-col w-full px-4 py-6 max-w-screen-xl mx-auto">
       <Card>
         <CardHeader>
           <CardTitle>

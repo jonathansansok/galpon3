@@ -1,3 +1,4 @@
+//backend\src\presupuestos\presupuestos.service.ts
 import {
   Injectable,
   NotFoundException,
@@ -12,7 +13,30 @@ import { Prisma } from '@prisma/client';
 @Injectable()
 export class PresupuestosService {
   constructor(private prismaService: PrismaService) {}
+  // backend\src\presupuestos\presupuestos.service.ts
+  async findByMovilId(movilId: string) {
+    try {
+      const presupuestos = await this.prismaService.presupuestos.findMany({
+        where: { movilId },
+      });
 
+      if (!presupuestos || presupuestos.length === 0) {
+        throw new NotFoundException(
+          `No se encontraron presupuestos asociados al movilId ${movilId}`,
+        );
+      }
+
+      return presupuestos;
+    } catch (error) {
+      console.error(
+        `[ERROR] Error al buscar presupuestos asociados al movilId ${movilId}:`,
+        error,
+      );
+      throw new InternalServerErrorException(
+        'Error al buscar presupuestos asociados',
+      );
+    }
+  }
   async create(createPresupuestoDto: CreatePresupuestoDto) {
     try {
       console.log('[DEBUG] DTO recibido en el servicio:', createPresupuestoDto);

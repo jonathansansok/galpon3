@@ -1,3 +1,4 @@
+//backend\src\presupuestos\presupuestos.controller.ts
 import {
   Controller,
   Get,
@@ -21,7 +22,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { doubleCsrf } from 'csrf-csrf';
 import { extname } from 'path';
-
+import { Query } from '@nestjs/common';
 const { validateRequest } = doubleCsrf({
   getSecret: (req) => req.cookies['csrf-secret'],
   cookieName: 'csrf-token',
@@ -32,7 +33,28 @@ const { validateRequest } = doubleCsrf({
 @Controller('presupuestos')
 export class PresupuestosController {
   constructor(private readonly presupuestosService: PresupuestosService) {}
+  @Get('movil')
+  @ApiOperation({ summary: 'Obtener presupuestos asociados a un movilId' })
+  async findByMovilId(@Query('movilId') movilId: string, @Req() req: Request) {
+    try {
+      console.log(
+        `[GET] Buscando presupuestos asociados al movilId: ${movilId}`,
+      );
+      validateRequest(req); // Validar el token CSRF
+      console.log('[GET] Token CSRF válido');
 
+      return this.presupuestosService.findByMovilId(movilId);
+    } catch (error) {
+      console.error(
+        '[GET] Error al obtener presupuestos asociados:',
+        error.message,
+      );
+      throw new HttpException(
+        error.message || 'Error al procesar la solicitud',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
   // Función auxiliar para procesar archivos
   private processFile(
     file: Express.Multer.File,

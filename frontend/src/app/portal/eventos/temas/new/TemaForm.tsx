@@ -1,7 +1,8 @@
 //frontend\src\app\portal\eventos\temas\new\TemaForm.tsx
 "use client";
 import { usePresupuestoStore } from "@/lib/store"; // Importar el store de Zustand
-
+import PresupuestosAsociados from "@/components/ui/PresupuestosAsociados";
+import { getPresupuestosAsociados } from "../Temas.api";
 import { InputField } from "@/components/ui/InputField";
 import { InputAnio } from "@/components/ui/InputAnio";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,25 @@ interface Interno {
 }
 
 export function TemaForm({ tema }: { tema: any }) {
+  const [presupuestos, setPresupuestos] = useState<any[]>([]);
+  const [showPresupuestos, setShowPresupuestos] = useState(false);
+  const idMovil = usePresupuestoStore((state) => state.idMovil);
+
+  const fetchPresupuestos = async () => {
+    if (!idMovil) {
+      console.error("No se encontró el ID del móvil.");
+      return;
+    }
+
+    try {
+      const data = await getPresupuestosAsociados(idMovil.toString());
+      setPresupuestos(data);
+      console.log("[DEBUG] Presupuestos asociados:", data);
+    } catch (error) {
+      console.error("Error al obtener los presupuestos asociados:", error);
+    }
+  };
+
   const { handleSubmit, setValue, register, reset, watch } =
     useForm<FormValues>({
       defaultValues: {
@@ -96,7 +116,7 @@ export function TemaForm({ tema }: { tema: any }) {
         `ID del móvil (${params.id}) y patente (${tema?.patente}) guardados automáticamente en Zustand.`
       );
     }
-  }, [params?.id, setIdMovil, setPatente, tema?.patente]); // Agregar `setPatente` y `tema?.patente`
+  }, [params?.id, setIdMovil, setPatente, tema?.patente]);
 
   const [fechaHora, setFechaHora] = useState<string>(tema?.fechaHora || "");
   const [observacion, setObservacion] = useState<string>(
@@ -473,7 +493,7 @@ export function TemaForm({ tema }: { tema: any }) {
     <form
       id="formulario"
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6"
+      className="space-y-6 w-full"
       style={{
         backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
         backgroundSize: "cover",
@@ -498,6 +518,27 @@ export function TemaForm({ tema }: { tema: any }) {
         >
           Agregar Presupuesto-Trabajo
         </Button>
+        <Button
+          type="button"
+          onClick={() => {
+            setShowPresupuestos(!showPresupuestos);
+            if (!showPresupuestos) {
+              fetchPresupuestos();
+            }
+          }}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300"
+        >
+          {showPresupuestos
+            ? "Ocultar Presupuestos"
+            : "Ver Presupuestos Asociados"}
+        </Button>
+
+        {/* Tabla de presupuestos asociados */}
+        {showPresupuestos && (
+          <div className="col-span-full w-full">
+            <PresupuestosAsociados presupuestos={presupuestos} />
+          </div>
+        )}
 
         <Button
           type="button"

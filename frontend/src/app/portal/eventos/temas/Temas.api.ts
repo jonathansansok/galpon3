@@ -1,6 +1,23 @@
 //frontend\src\app\portal\eventos\temas\Temas.api.ts
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+// frontend\src\app\portal\eventos\temas\Temas.api.ts
+// frontend\src\app\portal\eventos\temas\Temas.api.ts
+export async function getPresupuestosAsociados(movilId: string) {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/presupuestos/movil?movilId=${movilId}`, {
+      cache: "no-store",
+    });
 
+    if (!res.ok) {
+      throw new Error("Error al obtener los presupuestos asociados");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error(`Error al obtener presupuestos asociados al movilId ${movilId}:`, error);
+    throw error;
+  }
+}
 // frontend/src/app/portal/eventos/temas/Temas.api.ts
 export async function getClienteAsociado(temaId: string) {
   try {
