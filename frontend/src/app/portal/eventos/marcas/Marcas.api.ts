@@ -1,6 +1,42 @@
 //frontend\src\app\portal\eventos\marcas\Marcas.api.ts
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+// Crear un nuevo modelo
+export async function createModelo(data: { label: string; value: string; marcaId: number }) {
+  try {
+    console.log("Creating modelo with data:", data);
+    const csrfToken = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("csrf-token="))
+      ?.split("=")[1];
 
+    if (!csrfToken) {
+      throw new Error("[CSRF] No se encontró el token CSRF en las cookies.");
+    }
+
+    const res = await fetch(`${BACKEND_URL}/api/modelos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "csrf-token": csrfToken,
+      },
+      body: JSON.stringify(data),
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("Error al crear el modelo:", errorData);
+      throw new Error(errorData?.error || "Error desconocido al crear el modelo");
+    }
+
+    const responseData = await res.json();
+    console.log("Modelo creado con éxito:", responseData);
+    return responseData;
+  } catch (error) {
+    console.error("Error al crear el modelo:", error);
+    throw error;
+  }
+}
 // Obtener todas las marcas
 export async function getMarcas() {
   try {

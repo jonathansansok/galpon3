@@ -138,10 +138,14 @@ export class MarcasService {
     try {
       console.log('[REMOVE] Solicitud para eliminar marca con ID:', id);
 
+      // Eliminar los modelos asociados a la marca
+      await this.prismaService.modelo.deleteMany({
+        where: { marcaId: id },
+      });
+
+      // Eliminar la marca
       const deletedMarca = await this.prismaService.marcas.delete({
-        where: {
-          id,
-        },
+        where: { id },
       });
 
       console.log('[REMOVE] Marca eliminada con éxito:', deletedMarca);

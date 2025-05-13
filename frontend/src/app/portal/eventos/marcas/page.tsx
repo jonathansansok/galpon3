@@ -1,8 +1,6 @@
-//frontend\src\app\portal\eventos\marcas\page.tsx
-"use client";
-
+"use client"
 import { useState, useEffect } from "react";
-import { getMarcas, createMarca, updateMarca, deleteMarca } from "./Marcas.api";
+import { getMarcas, createMarca, updateMarca, deleteMarca, createModelo } from "./Marcas.api";
 import MarcaCrud from "./MarcaCrud";
 
 export default function MarcasPage() {
@@ -27,6 +25,16 @@ export default function MarcasPage() {
       fetchMarcas(); // Recargar las marcas después de crear
     } catch (error) {
       console.error("Error al crear la marca:", error);
+    }
+  };
+
+  const handleCreateModelo = async (newModelo: { label: string; value: string; marcaId: number }) => {
+    try {
+      console.log("Creating new modelo:", newModelo);
+      await createModelo(newModelo);
+      console.log("Modelo creado con éxito");
+    } catch (error) {
+      console.error("Error al crear el modelo:", error);
     }
   };
 
@@ -58,12 +66,13 @@ export default function MarcasPage() {
 
   return (
     <div className="flex flex-col w-full px-4 py-6">
-      <h1 className="text-4xl font-bold mb-4">Gestión de Marcas</h1>
+      <h1 className="text-4xl font-bold mb-4">Gestión de Marcas y Modelos</h1>
       <MarcaCrud
         marcas={marcas}
         onCreate={handleCreate}
         onUpdate={handleUpdate}
         onDelete={handleDelete}
+        onCreateModelo={handleCreateModelo}
       />
     </div>
   );

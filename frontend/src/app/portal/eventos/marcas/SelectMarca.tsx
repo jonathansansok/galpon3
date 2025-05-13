@@ -1,5 +1,4 @@
-//frontend\src\app\portal\eventos\marcas\SelectMarca.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, ChangeEvent } from "react";
 import { getMarcas } from "./Marcas.api";
 import { FaSyncAlt } from "react-icons/fa"; // Ícono de actualización
 import Swal from "sweetalert2"; // SweetAlert para notificaciones
@@ -8,9 +7,10 @@ interface SelectFieldProps {
   name: string;
   label: string;
   register: any;
+  onChange?: (e: ChangeEvent<HTMLSelectElement>) => void; // Agregar onChange como opcional
 }
 
-const SelectMarca: React.FC<SelectFieldProps> = ({ name, label, register }) => {
+const SelectMarca: React.FC<SelectFieldProps> = ({ name, label, register, onChange }) => {
   const [options, setOptions] = useState<{ value: string; label: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false); // Estado para mostrar el estado de carga
 
@@ -27,7 +27,7 @@ const SelectMarca: React.FC<SelectFieldProps> = ({ name, label, register }) => {
     setIsLoading(true); // Mostrar estado de carga
     try {
       const marcas = await getMarcas();
-      setOptions(marcas.map((marca: any) => ({ value: marca.value, label: marca.label })));
+      setOptions(marcas.map((marca: any) => ({ value: marca.id, label: marca.label }))); // Asegúrate de usar `id` como value
       Swal.close(); // Cerrar el SweetAlert al finalizar
       Swal.fire("Actualizado", "Las marcas se han actualizado con éxito.", "success");
     } catch (error) {
@@ -52,6 +52,7 @@ const SelectMarca: React.FC<SelectFieldProps> = ({ name, label, register }) => {
         <select
           id={name}
           {...register(name)}
+          onChange={onChange} // Pasar el manejador de eventos onChange
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         >
           <option value="">Seleccione una opción</option>
