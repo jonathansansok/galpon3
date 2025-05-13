@@ -20,7 +20,7 @@ import ClienteAsociado from "@/components/ui/ClienteAsociado";
 import PhotosEvModal from "@/components/ui/MultimediaModals/PhotosEvModal";
 import PdfModal from "@/components/ui/MultimediaModals/PdfModal";
 import WordModal from "@/components/ui/MultimediaModals/WordModal";
-
+import SelectMarca from "@/app/portal/eventos/marcas/SelectMarca";
 interface FormValues {
   [key: string]: string;
 }
@@ -376,7 +376,7 @@ export function TemaForm({ tema }: { tema: any }) {
         internosinvolucrado: JSON.stringify(selectedInternos),
         email: user?.email,
         patente: data.patente,
-        marca: data.marca,
+        marca: data.marca, 
         modelo: data.modelo,
         anio: anio, // `anio` ya es una cadena
         color: data.color,
@@ -626,12 +626,11 @@ export function TemaForm({ tema }: { tema: any }) {
           label="Patente"
           placeholder=""
         />
-        <InputField
-          register={register}
-          name="marca"
-          label="Marca"
-          placeholder=""
-        />
+        <SelectMarca
+  name="marca"
+  label="Marca"
+  register={register}
+/>
         <InputField
           register={register}
           name="modelo"

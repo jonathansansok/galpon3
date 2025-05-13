@@ -1,4 +1,4 @@
-//frontend\src\app\portal\eventos\presupuestos\PresupuestosPage.tsx
+//frontend\src\app\portal\eventos\marcas\marcasPage.tsx
 "use client";
 
 import { useState } from "react";

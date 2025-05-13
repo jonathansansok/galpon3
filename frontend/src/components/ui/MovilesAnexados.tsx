@@ -132,7 +132,7 @@ const MovilesAnexados: React.FC<MovilesAnexadosProps> = ({
                   onClick={() => handleSort("anio")}
                 >
                   Año{" "}
-                  {sortConfig?.key === "anio"
+                  {sortConfig?.key  === "anio"
                     ? sortConfig.direction === "asc"
                       ? "▲"
                       : "▼"

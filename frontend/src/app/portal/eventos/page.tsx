@@ -52,6 +52,12 @@ export default function EventosPage() {
         >
           Prepuestos
         </Link>
+        <Link
+          href="/portal/eventos/marcas"
+          className="bg-white shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
+        >
+          Marcas de autos
+        </Link>
         
 
 

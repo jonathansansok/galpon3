@@ -1,7 +1,6 @@
 //frontend\src\app\portal\eventos\temas\Temas.api.ts
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-// frontend\src\app\portal\eventos\temas\Temas.api.ts
-// frontend\src\app\portal\eventos\temas\Temas.api.ts
+
 export async function getPresupuestosAsociados(movilId: string) {
   try {
     const res = await fetch(`${BACKEND_URL}/api/presupuestos/movil?movilId=${movilId}`, {

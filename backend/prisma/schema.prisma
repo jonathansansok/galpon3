@@ -182,98 +182,98 @@ model Agresiones {
 }
 
 model Ingresos {
-  id                        Int            @id @default(autoincrement()) // Clave primaria autoincremental
-  lpu                       String?        @db.VarChar(50) // Puede cambiar
-  identificadorUnico        String?        @unique @db.VarChar(255) // Clave única adicional
-  createdAt                 DateTime?      @default(now()) // TIMESTAMP con valor por defecto
-  updatedAt                 DateTime?      @default(now()) // TIMESTAMP con valor por defecto
-  email                     String?        @db.VarChar(255) // VARCHAR(255)
-  cp                        String?        @db.VarChar(255) // VARCHAR(255)
-  telefono                  String?        @db.VarChar(255) // Campo teléfono, puede ser cualquier texto o null
-  emailCliente              String?        @db.VarChar(255)
-  numeroCuit                String?        @db.VarChar(20) // Número de CUIT
-  dias                      String?        @db.VarChar(10) // Días
-  iva                       String?        @db.VarChar(50) // Condición frente al IVA
-  pyme                      String?        @db.VarChar(5) // Indica si es PyME
-  porcB                     String?        @db.VarChar(10) // Porcentaje B
-  porcRetIB                 String?        @db.VarChar(10) // Porcentaje Retención IB
-  imagen                    String?        @db.VarChar(255) // VARCHAR(255)
-  imagenDer                 String?        @db.VarChar(255)
-  imagenIz                  String?        @db.VarChar(255)
-  imagenDact                String?        @db.VarChar(255)
-  imagenSen1                String?        @db.VarChar(255)
-  imagenSen2                String?        @db.VarChar(255)
-  imagenSen3                String?        @db.VarChar(255)
-  imagenSen4                String?        @db.VarChar(255)
-  imagenSen5                String?        @db.VarChar(255)
-  imagenSen6                String?        @db.VarChar(255)
-  pdf1                      String?        @db.VarChar(255)
-  pdf2                      String?        @db.VarChar(255)
-  pdf3                      String?        @db.VarChar(255)
-  pdf4                      String?        @db.VarChar(255)
-  pdf5                      String?        @db.VarChar(255)
-  pdf6                      String?        @db.VarChar(255)
-  pdf7                      String?        @db.VarChar(255)
-  pdf8                      String?        @db.VarChar(255)
-  pdf9                      String?        @db.VarChar(255)
-  pdf10                     String?        @db.VarChar(255)
-  word1                     String?        @db.VarChar(255)
+  id                        Int       @id @default(autoincrement()) // Clave primaria autoincremental
+  lpu                       String?   @db.VarChar(50) // Puede cambiar
+  identificadorUnico        String?   @unique @db.VarChar(255) // Clave única adicional
+  createdAt                 DateTime? @default(now()) // TIMESTAMP con valor por defecto
+  updatedAt                 DateTime? @default(now()) // TIMESTAMP con valor por defecto
+  email                     String?   @db.VarChar(255) // VARCHAR(255)
+  cp                        String?   @db.VarChar(255) // VARCHAR(255)
+  telefono                  String?   @db.VarChar(255) // Campo teléfono, puede ser cualquier texto o null
+  emailCliente              String?   @db.VarChar(255)
+  numeroCuit                String?   @db.VarChar(20) // Número de CUIT
+  dias                      String?   @db.VarChar(10) // Días
+  iva                       String?   @db.VarChar(50) // Condición frente al IVA
+  pyme                      String?   @db.VarChar(5) // Indica si es PyME
+  porcB                     String?   @db.VarChar(10) // Porcentaje B
+  porcRetIB                 String?   @db.VarChar(10) // Porcentaje Retención IB
+  imagen                    String?   @db.VarChar(255) // VARCHAR(255)
+  imagenDer                 String?   @db.VarChar(255)
+  imagenIz                  String?   @db.VarChar(255)
+  imagenDact                String?   @db.VarChar(255)
+  imagenSen1                String?   @db.VarChar(255)
+  imagenSen2                String?   @db.VarChar(255)
+  imagenSen3                String?   @db.VarChar(255)
+  imagenSen4                String?   @db.VarChar(255)
+  imagenSen5                String?   @db.VarChar(255)
+  imagenSen6                String?   @db.VarChar(255)
+  pdf1                      String?   @db.VarChar(255)
+  pdf2                      String?   @db.VarChar(255)
+  pdf3                      String?   @db.VarChar(255)
+  pdf4                      String?   @db.VarChar(255)
+  pdf5                      String?   @db.VarChar(255)
+  pdf6                      String?   @db.VarChar(255)
+  pdf7                      String?   @db.VarChar(255)
+  pdf8                      String?   @db.VarChar(255)
+  pdf9                      String?   @db.VarChar(255)
+  pdf10                     String?   @db.VarChar(255)
+  word1                     String?   @db.VarChar(255)
   imagenes                  String? // LONGTEXT opcional
-  condicion                 String?        @db.VarChar(20)
-  historialEgresos          Json?          @default("[]") // Historial de egresos como JSON
-  unidadDeIngreso           String?        @db.VarChar(40) // VARCHAR(40)
-  fechaHoraIng              DateTime?      @db.DateTime // DATETIME
-  apellido                  String?        @db.VarChar(150) // VARCHAR(150)
-  nombres                   String?        @db.VarChar(255) // VARCHAR(255)
-  alias                     String?        @db.VarChar(100) // VARCHAR(100) opcional
-  tipoDoc                   String?        @db.VarChar(12) // VARCHAR(12)
-  numeroDni                 String?        @db.VarChar(50) // VARCHAR(50)
-  docNacionalidad           String?        @db.VarChar(100)
-  fechaNacimiento           DateTime?      @db.DateTime // DATE
-  edad_ing                  String?        @db.VarChar(5) // INT
-  nacionalidad              String?        @db.VarChar(40) // VARCHAR(40)
-  provincia                 String?        @db.VarChar(100) // VARCHAR(100)
-  domicilios                String?        @db.LongText // Cambiado a texto
-  numeroCausa               String?        @db.VarChar(255) // VARCHAR(50) opcional
-  procedencia               String?        @db.VarChar(100) // VARCHAR(100) opcional
-  orgCrim                   String?        @db.VarChar(50) // VARCHAR(50) opcional
-  cualorg                   String?        @db.VarChar(100) // VARCHAR(100) opcional
-  profesion                 String?        @db.VarChar(100) // VARCHAR(100) opcional
+  condicion                 String?   @db.VarChar(20)
+  historialEgresos          Json?     @default("[]") // Historial de egresos como JSON
+  unidadDeIngreso           String?   @db.VarChar(40) // VARCHAR(40)
+  fechaHoraIng              DateTime? @db.DateTime // DATETIME
+  apellido                  String?   @db.VarChar(150) // VARCHAR(150)
+  nombres                   String?   @db.VarChar(255) // VARCHAR(255)
+  alias                     String?   @db.VarChar(100) // VARCHAR(100) opcional
+  tipoDoc                   String?   @db.VarChar(12) // VARCHAR(12)
+  numeroDni                 String?   @db.VarChar(50) // VARCHAR(50)
+  docNacionalidad           String?   @db.VarChar(100)
+  fechaNacimiento           DateTime? @db.DateTime // DATE
+  edad_ing                  String?   @db.VarChar(5) // INT
+  nacionalidad              String?   @db.VarChar(40) // VARCHAR(40)
+  provincia                 String?   @db.VarChar(100) // VARCHAR(100)
+  domicilios                String?   @db.LongText // Cambiado a texto
+  numeroCausa               String?   @db.VarChar(255) // VARCHAR(50) opcional
+  procedencia               String?   @db.VarChar(100) // VARCHAR(100) opcional
+  orgCrim                   String?   @db.VarChar(50) // VARCHAR(50) opcional
+  cualorg                   String?   @db.VarChar(100) // VARCHAR(100) opcional
+  profesion                 String?   @db.VarChar(100) // VARCHAR(100) opcional
   perfil                    Json?
-  esAlerta                  String?        @db.VarChar(3) // Definir la columna esAlerta como Boolean
-  reingreso                 String?        @db.LongText // LONGTEXT
-  establecimiento           String?        @db.VarChar(200) // VARCHAR(40)
-  modulo_ur                 String?        @db.VarChar(60)
-  pabellon                  String?        @db.VarChar(70)
-  celda                     String?        @db.VarChar(70)
-  historial                 String?        @db.LongText // LONGTEXT
-  titInfoPublic             String?        @db.LongText // VARCHAR(255) opcional
-  resumen                   String?        @db.LongText // TEXT opcional
+  esAlerta                  String?   @db.VarChar(3) // Definir la columna esAlerta como Boolean
+  reingreso                 String?   @db.LongText // LONGTEXT
+  establecimiento           String?   @db.VarChar(200) // VARCHAR(40)
+  modulo_ur                 String?   @db.VarChar(60)
+  pabellon                  String?   @db.VarChar(70)
+  celda                     String?   @db.VarChar(70)
+  historial                 String?   @db.LongText // LONGTEXT
+  titInfoPublic             String?   @db.LongText // VARCHAR(255) opcional
+  resumen                   String?   @db.LongText // TEXT opcional
   observacion               String? // TEXT opcional
-  link                      String?        @db.LongText // VARCHAR(255) opcional
+  link                      String?   @db.LongText // VARCHAR(255) opcional
   patologias                Json?
   tatuajes                  Json?
   cicatrices                Json?
-  ubicacionMap              String?        @db.LongText // LONGTEXT
+  ubicacionMap              String?   @db.LongText // LONGTEXT
   electrodomesticos         Json?
-  electrodomesticosDetalles String?        @db.LongText // TEXT opcional
+  electrodomesticosDetalles String?   @db.LongText // TEXT opcional
   juzgados                  Json?
-  sitProc                   String?        @db.VarChar(20)
-  lpuProv                   String?        @db.VarChar(50) // VARCHAR(50) opcional
-  subGrupo                  String?        @db.VarChar(40) // VARCHAR(40) opcional
-  sexo                      String?        @db.VarChar(10) // VARCHAR(10) opcional
-  sexualidad                String?        @db.VarChar(30) // VARCHAR(30) opcional
+  sitProc                   String?   @db.VarChar(20)
+  lpuProv                   String?   @db.VarChar(50) // VARCHAR(50) opcional
+  subGrupo                  String?   @db.VarChar(40) // VARCHAR(40) opcional
+  sexo                      String?   @db.VarChar(10) // VARCHAR(10) opcional
+  sexualidad                String?   @db.VarChar(30) // VARCHAR(30) opcional
   temaInf                   String? // VARCHAR(30) opcional
-  estadoCivil               String?        @db.VarChar(30) // VARCHAR(30) opcional
-  internosinvolucrado       String?        @db.LongText
+  estadoCivil               String?   @db.VarChar(30) // VARCHAR(30) opcional
+  internosinvolucrado       String?   @db.LongText
   imagenesHistorial         Json? // Historial de imágenes
   moviles                   Temas[]
 }
 
 model Temas {
-  id                  Int            @id @default(autoincrement())
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
+  id                  Int       @id @default(autoincrement())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
   fechaHora           DateTime?
   observacion         String?
   email               String?
@@ -289,30 +289,30 @@ model Temas {
   chasis              String?
   combustion          String?
   vin                 String?
-  imagen              String?        @db.VarChar(255) // VARCHAR(255)
-  imagenDer           String?        @db.VarChar(255)
-  imagenIz            String?        @db.VarChar(255)
-  imagenDact          String?        @db.VarChar(255)
-  imagenSen1          String?        @db.VarChar(255)
-  imagenSen2          String?        @db.VarChar(255)
-  imagenSen3          String?        @db.VarChar(255)
-  imagenSen4          String?        @db.VarChar(255)
-  imagenSen5          String?        @db.VarChar(255)
-  imagenSen6          String?        @db.VarChar(255)
-  pdf1                String?        @db.VarChar(255)
-  pdf2                String?        @db.VarChar(255)
-  pdf3                String?        @db.VarChar(255)
-  pdf4                String?        @db.VarChar(255)
-  pdf5                String?        @db.VarChar(255)
-  pdf6                String?        @db.VarChar(255)
-  pdf7                String?        @db.VarChar(255)
-  pdf8                String?        @db.VarChar(255)
-  pdf9                String?        @db.VarChar(255)
-  pdf10               String?        @db.VarChar(255)
-  word1               String?        @db.VarChar(255)
-  internosinvolucrado String?        @db.Text
+  imagen              String?   @db.VarChar(255) // VARCHAR(255)
+  imagenDer           String?   @db.VarChar(255)
+  imagenIz            String?   @db.VarChar(255)
+  imagenDact          String?   @db.VarChar(255)
+  imagenSen1          String?   @db.VarChar(255)
+  imagenSen2          String?   @db.VarChar(255)
+  imagenSen3          String?   @db.VarChar(255)
+  imagenSen4          String?   @db.VarChar(255)
+  imagenSen5          String?   @db.VarChar(255)
+  imagenSen6          String?   @db.VarChar(255)
+  pdf1                String?   @db.VarChar(255)
+  pdf2                String?   @db.VarChar(255)
+  pdf3                String?   @db.VarChar(255)
+  pdf4                String?   @db.VarChar(255)
+  pdf5                String?   @db.VarChar(255)
+  pdf6                String?   @db.VarChar(255)
+  pdf7                String?   @db.VarChar(255)
+  pdf8                String?   @db.VarChar(255)
+  pdf9                String?   @db.VarChar(255)
+  pdf10               String?   @db.VarChar(255)
+  word1               String?   @db.VarChar(255)
+  internosinvolucrado String?   @db.Text
   clienteId           Int?
-  cliente             Ingresos?      @relation(fields: [clienteId], references: [id])
+  cliente             Ingresos? @relation(fields: [clienteId], references: [id])
 }
 
 model Presupuestos {
@@ -324,7 +324,7 @@ model Presupuestos {
   monto         String?
   estado        String   @default("Pendiente")
   observaciones String?
-   // Campos de archivos multimedia
+  // Campos de archivos multimedia
   imagen        String?  @db.VarChar(255)
   imagenDer     String?  @db.VarChar(255)
   imagenIz      String?  @db.VarChar(255)
@@ -346,6 +346,16 @@ model Presupuestos {
   pdf9          String?  @db.VarChar(255)
   pdf10         String?  @db.VarChar(255)
   word1         String?  @db.VarChar(255)
+}
+
+model Autos {
+  id                  Int      @id @default(autoincrement()) // Clave primaria autoincremental
+  createdAt           DateTime @default(now()) // Timestamp con valor por defecto
+  updatedAt           DateTime @updatedAt // Timestamp actualizado automáticamente
+  value               String   @db.VarChar(500) // Valor interno del select
+  label               String   @db.VarChar(500) // Texto visible en el select
+  internosinvolucrado String?  @db.Text // Campo de texto largo opcional
+  email               String?  @db.VarChar(100) // Correo electrónico (VARCHAR(100)) opcional
 }
 
 model Preingresos {
@@ -823,51 +833,6 @@ model Extramuros {
   pdf9                String?   @db.VarChar(255)
   pdf10               String?   @db.VarChar(255)
   word1               String?   @db.VarChar(255)
-}
-
-model Elementos {
-  id                  Int      @id @default(autoincrement()) // Clave primaria autoincremental
-  clas_seg            String?  @db.VarChar(10)
-  createdAt           DateTime @default(now()) @db.Timestamp(3) // Timestamp con valor por defecto
-  updatedAt           DateTime @updatedAt @db.DateTime(3) // Timestamp actualizado automáticamente
-  prevencion          String?  @db.VarChar(255) // Prevención (VARCHAR(255))
-  establecimiento     String?  @db.VarChar(200) // Establecimiento (VARCHAR(255))
-  modulo_ur           String?  @db.VarChar(80) // Módulo (VARCHAR(255))
-  pabellon            String?  @db.VarChar(80) // Pabellón (VARCHAR(255)) opcional
-  fechaHora           DateTime @db.DateTime // Fecha y hora (DATETIME)
-  expediente          String?  @db.VarChar(255) // Expediente (VARCHAR(255))
-  observacion         String?  @db.LongText // observacion (TEXT)
-  medidas             String?  @db.Text
-  dentroDePabellon    String?  @db.VarChar(255) // Dentro de pabellón (VARCHAR(255))
-  imagenes            String?  @db.LongText // imagenes(LONGTEXT) opcional
-  estupefacientes     String?  @db.LongText // Estupefacientes (LONGTEXT) opcional
-  internosinvolucrado String?  @db.Text
-  personalinvolucrado String?  @db.Text
-  email               String?  @db.VarChar(100) // Correo electrónico (VARCHAR(100)) opcional
-  armas               String?  @db.LongText // Armas (LONGTEXT) opcional
-  electronicos        String?  @db.LongText // Armas (LONGTEXT) opcional
-  componentes         String?  @db.LongText // Armas (LONGTEXT) opcional
-  imagen              String?  @db.VarChar(255) // VARCHAR(255)
-  imagenDer           String?  @db.VarChar(255)
-  imagenIz            String?  @db.VarChar(255)
-  imagenDact          String?  @db.VarChar(255)
-  imagenSen1          String?  @db.VarChar(255)
-  imagenSen2          String?  @db.VarChar(255)
-  imagenSen3          String?  @db.VarChar(255)
-  imagenSen4          String?  @db.VarChar(255)
-  imagenSen5          String?  @db.VarChar(255)
-  imagenSen6          String?  @db.VarChar(255)
-  pdf1                String?  @db.VarChar(255)
-  pdf2                String?  @db.VarChar(255)
-  pdf3                String?  @db.VarChar(255)
-  pdf4                String?  @db.VarChar(255)
-  pdf5                String?  @db.VarChar(255)
-  pdf6                String?  @db.VarChar(255)
-  pdf7                String?  @db.VarChar(255)
-  pdf8                String?  @db.VarChar(255)
-  pdf9                String?  @db.VarChar(255)
-  pdf10               String?  @db.VarChar(255)
-  word1               String?  @db.VarChar(255)
 }
 
 model Atentados {
