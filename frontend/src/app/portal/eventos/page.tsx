@@ -47,11 +47,26 @@ export default function EventosPage() {
           Móviles
         </Link>
         <Link
-          href="/portal/eventos/prepuestos"
+          href="/portal/eventos/presupuestos"
           className="bg-white shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
         >
           Prepuestos
         </Link>
+        <Link
+          href="/portal/eventos/turnos"
+          className="bg-white shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
+        >
+          Turnos
+        </Link>
+
+
+        <Link
+          href="/portal/eventos/ingresosok"
+          className="bg-white shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
+        >
+          Ingresos
+        </Link>
+
         <Link
           href="/portal/eventos/marcas"
           className="bg-blue-500 shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
@@ -69,20 +84,6 @@ export default function EventosPage() {
 
 
 
-        <Link
-          href="/portal/eventos/turnos"
-          className="bg-blue-500 shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
-        >
-          Turnos
-        </Link>
-
-
-        <Link
-          href="/portal/eventos/ingresosok"
-          className="bg-blue-500 shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
-        >
-          Ingresos
-        </Link>
 
         <Link
           href="/portal/eventos/realizados"
