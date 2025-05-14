@@ -66,9 +66,9 @@ export default function AppContentLayoutComponent(
                   Galpón 3 Taller
                 </h1>
               </Link>
-              <div className="my-4 border-b border-gray-100 pb-4">
+              <div className="my-0 border-b border-gray-100 pb-4">
                 <Link href="/portal/eventos" onClick={handleLinkClick}>
-                  <div className="flex mb-2 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
+                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
                     <MdOutlineSpaceDashboard className="text-2xl text-gray-600 group-hover:text-white" />
                     <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
                       Dashboard
@@ -76,7 +76,7 @@ export default function AppContentLayoutComponent(
                   </div>
                 </Link>
                 <Link href="/portal/eventos/ingresos" onClick={handleLinkClick}>
-                  <div className="flex mb-2 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
+                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
                     <CgProfile className="text-2xl text-gray-600 group-hover:text-white" />
                     <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
                       Clientes
@@ -84,7 +84,7 @@ export default function AppContentLayoutComponent(
                   </div>
                 </Link>
                 <Link href="/portal/eventos/temas" onClick={handleLinkClick}>
-                  <div className="flex mb-2 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
+                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
                     <FaCarAlt className="text-2xl text-gray-600 group-hover:text-white" />
                     <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
                       Móviles
@@ -92,7 +92,7 @@ export default function AppContentLayoutComponent(
                   </div>
                 </Link>
                 <Link href="/portal/eventos/presupuestos" onClick={handleLinkClick}>
-                  <div className="flex mb-2 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
+                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
                     <FaFileInvoiceDollar className="text-2xl text-gray-600 group-hover:text-white" />
                     <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
                       Presupuestos
@@ -100,7 +100,7 @@ export default function AppContentLayoutComponent(
                   </div>
                 </Link>
                 <Link href="/portal/eventos/turnos" onClick={handleLinkClick}>
-                  <div className="flex mb-2 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
+                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
                     <MdOutlineEvent className="text-2xl text-gray-600 group-hover:text-white" />
                     <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
                       Turnos
@@ -108,7 +108,7 @@ export default function AppContentLayoutComponent(
                   </div>
                 </Link>
                 <Link href="/portal/eventos/ingresosok" onClick={handleLinkClick}>
-                  <div className="flex mb-2 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
+                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
                     <FaCheckCircle className="text-2xl text-gray-600 group-hover:text-white" />
                     <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
                       Ingresos
@@ -116,7 +116,7 @@ export default function AppContentLayoutComponent(
                   </div>
                 </Link>
                 <Link href="/portal/eventos/marcas" onClick={handleLinkClick}>
-                  <div className="flex mb-2 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
+                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
                     <FaCar className="text-2xl text-gray-600 group-hover:text-white" />
                     <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
                       Marcas/Modelos
@@ -124,7 +124,7 @@ export default function AppContentLayoutComponent(
                   </div>
                 </Link>
                 <Link href="/portal/eventos/piezas" onClick={handleLinkClick}>
-                  <div className="flex mb-2 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
+                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
                     <FaCogs className="text-2xl text-gray-600 group-hover:text-white" />
                     <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
                       Piezas
@@ -132,7 +132,7 @@ export default function AppContentLayoutComponent(
                   </div>
                 </Link>
                 <Link href="/portal/eventos/realizados" onClick={handleLinkClick}>
-                  <div className="flex mb-2 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
+                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
                     <FaWrench className="text-2xl text-gray-600 group-hover:text-white" />
                     <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
                       Trabajos realizados
@@ -141,7 +141,7 @@ export default function AppContentLayoutComponent(
                 </Link>
                 {privilege !== "B1" && (
                   <Link href="/portal/eventos/analytics" onClick={handleLinkClick}>
-                    <div className="flex mb-2 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
+                    <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
                       <MdOutlineAnalytics className="text-2xl text-gray-600 group-hover:text-white" />
                       <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
                         Gráficos
