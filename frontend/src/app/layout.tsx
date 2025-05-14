@@ -14,7 +14,7 @@ const fontSans = FontSans({
 
 export const metadata: Metadata = {
   title: "Galpón 3 Taller",
-  description: "Sistema de gestión integral de la información",
+  description: "Sistema de gestión integral de reparaciones",
 };
 
 export default function RootLayout(props: { children: React.ReactNode }) {

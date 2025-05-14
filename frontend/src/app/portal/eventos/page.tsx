@@ -50,7 +50,7 @@ export default function EventosPage() {
           href="/portal/eventos/presupuestos"
           className="bg-white shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
         >
-          Prepuestos
+          Presupuestos
         </Link>
         <Link
           href="/portal/eventos/turnos"
@@ -58,8 +58,6 @@ export default function EventosPage() {
         >
           Turnos
         </Link>
-
-
         <Link
           href="/portal/eventos/ingresosok"
           className="bg-white shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
