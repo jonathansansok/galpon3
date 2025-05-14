@@ -75,7 +75,7 @@ export default function AppContentLayoutComponent(
                       </h3>
                     </div>
                   </Link>
-                  <Link
+                 {/*  <Link
                     href="/portal/eventos/establecimientos"
                     onClick={handleLinkClick}
                   >
@@ -85,34 +85,11 @@ export default function AppContentLayoutComponent(
                         Establecimientos
                       </h3>
                     </div>
-                  </Link>
+                  </Link> */}
                   {/* Enlaces visibles solo para usuarios que no son B1 */}
                   {privilege !== "B1" && (
                     <>
-                      <Link
-                        href="/portal/eventos/redes"
-                        onClick={handleLinkClick}
-                      >
-                        <div className="flex mb-2 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
-                          <IoGitNetworkSharp className="text-2xl text-gray-600 group-hover:text-white" />{" "}
-                          {/* Usa el ícono de mapamundi */}
-                          <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
-                            Redes
-                          </h3>
-                        </div>
-                      </Link>
-                      <Link
-                        href="/portal/eventos/maps"
-                        onClick={handleLinkClick}
-                      >
-                        <div className="flex mb-2 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
-                          <FaMapMarkedAlt className="text-2xl text-gray-600 group-hover:text-white" />{" "}
-                          {/* Usa el ícono de mapamundi */}
-                          <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
-                            Mapa de calor
-                          </h3>
-                        </div>
-                      </Link>
+                    
                       <Link
                         href="/portal/eventos/analytics"
                         onClick={handleLinkClick}

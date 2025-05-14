@@ -26,13 +26,13 @@ export default function PortalPage() {
       >
         Busqueda por Establecimientos
       </Link>
-      <Link
+     {/*  <Link
         href="/portal/eventos/redes"
         className={buttonVariants()}
         style={{ marginTop: "20px" }}
       >
         Redes
-      </Link>
+      </Link> */}
       <Link
         href="/portal/eventos/analytics"
         className={buttonVariants()}
