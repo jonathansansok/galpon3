@@ -205,7 +205,7 @@ function AppContentLayoutComponent(props: MainLayoutComponentProps) {
       )}
       {user && (
         <footer className="bg-blue-500 text-white text-center py-2 w-full z-30 fixed bottom-0 left-0 text-sm sm:text-base">
-          © 2025 - Galpón3
+          © 2025 - Galpón 3 - Todos los derechos reservados
         </footer>
       )}
     </div>

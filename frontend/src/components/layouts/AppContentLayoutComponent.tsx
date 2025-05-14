@@ -62,7 +62,7 @@ export default function AppContentLayoutComponent(
           <div className="p-6 h-full overflow-y-auto pb-20">
             <div className="flex flex-col justify-start items-center">
               <Link href="/" onClick={handleLinkClick}>
-                <h1 className="text-2xl text-center cursor-pointer font-bold text-blue-900 border-b border-gray-100 pb-4 w-full">
+                <h1 className="text-2xl text-center cursor-pointer font-bold text-blue-900 border-b border-gray-100 pb-1 w-full">
                   Galpón 3 Taller
                 </h1>
               </Link>
@@ -154,7 +154,6 @@ export default function AppContentLayoutComponent(
           </div>
           {/* Botón de logout fijo */}
           <div className="absolute bottom-0 left-0 w-full p-6 bg-white border-t border-gray-200">
-            <p className="text-left text-gray-800 font-bold">Usuario</p>
             <p className="text-left text-gray-800 font-bold mb-5 break-words">
               {user.name}
             </p>
@@ -191,7 +190,7 @@ export default function AppContentLayoutComponent(
   )}
   {user && (
     <footer className="bg-blue-500 text-white text-center py-2 w-full z-30 fixed bottom-0 left-0 text-sm sm:text-base">
-      © 2025 - Galpón3
+      © 2025 - Galpón 3 - Todos los derechos reservados
     </footer>
   )}
 </div>
