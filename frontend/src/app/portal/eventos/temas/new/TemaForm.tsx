@@ -1,5 +1,8 @@
 //frontend\src\app\portal\eventos\temas\new\TemaForm.tsx
 "use client";
+import { getMarcas, getModelos } from "@/app/portal/eventos/marcas/Marcas.api"; // Importar la función getModelos
+import SelectModelo from "@/app/portal/eventos/marcas/SelectModelo"; // Importa el nuevo componente
+import SelectMarca from "@/app/portal/eventos/marcas/SelectMarca";
 import { usePresupuestoStore } from "@/lib/store"; // Importar el store de Zustand
 import PresupuestosAsociados from "@/components/ui/PresupuestosAsociados";
 import { getPresupuestosAsociados } from "../Temas.api";
@@ -20,7 +23,7 @@ import ClienteAsociado from "@/components/ui/ClienteAsociado";
 import PhotosEvModal from "@/components/ui/MultimediaModals/PhotosEvModal";
 import PdfModal from "@/components/ui/MultimediaModals/PdfModal";
 import WordModal from "@/components/ui/MultimediaModals/WordModal";
-import SelectMarca from "@/app/portal/eventos/marcas/SelectMarca";
+
 interface FormValues {
   [key: string]: string;
 }
@@ -40,6 +43,45 @@ export function TemaForm({ tema }: { tema: any }) {
   const [presupuestos, setPresupuestos] = useState<any[]>([]);
   const [showPresupuestos, setShowPresupuestos] = useState(false);
   const idMovil = usePresupuestoStore((state) => state.idMovil);
+  const [modelos, setModelos] = useState<{ id: number; label: string }[]>([]);
+  const fetchModelosByMarca = async (marcaId: string) => {
+    try {
+      const allModelos = await getModelos(); // Obtener todos los modelos
+      const filteredModelos = allModelos.filter(
+        (modelo: any) => modelo.marcaId === parseInt(marcaId)
+      ); // Filtrar por marcaId
+      setModelos(
+        filteredModelos.map((modelo: any) => ({
+          id: modelo.id,
+          label: modelo.label,
+        }))
+      );
+    } catch (error) {
+      console.error("Error al obtener los modelos:", error);
+    }
+  };
+
+  const fetchMarcaLabel = async (marcaId: string) => {
+    try {
+      const marcas = await getMarcas(); // Obtener todas las marcas
+      const marca = marcas.find((m: any) => m.id === parseInt(marcaId));
+      return marca ? marca.label : ""; // Devuelve el label de la marca o una cadena vacía
+    } catch (error) {
+      console.error("Error al obtener el label de la marca:", error);
+      return "";
+    }
+  };
+
+  const fetchModeloLabel = async (modeloId: string) => {
+    try {
+      const modelos = await getModelos(); // Obtener todos los modelos
+      const modelo = modelos.find((m: any) => m.id === parseInt(modeloId));
+      return modelo ? modelo.label : ""; // Devuelve el label del modelo o una cadena vacía
+    } catch (error) {
+      console.error("Error al obtener el label del modelo:", error);
+      return "";
+    }
+  };
 
   const fetchPresupuestos = async () => {
     if (!idMovil) {
@@ -104,7 +146,24 @@ export function TemaForm({ tema }: { tema: any }) {
   const params = useParams<{ id: string }>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Zustand: Obtener y configurar el estado global
+  useEffect(() => {
+    const fetchLabels = async () => {
+      if (tema?.marca) {
+        console.log("Configurando marca:", tema.marca); // Debug
+        setValue("marca", tema.marca); // Establecer el ID de la marca directamente
+        await fetchModelosByMarca(tema.marca); // Cargar los modelos asociados a la marca
+      }
+  
+      if (tema?.modelo) {
+        console.log("Configurando modelo:", tema.modelo); // Debug
+        setTimeout(() => {
+          setValue("modelo", tema.modelo); // Establecer el ID del modelo directamente
+        }, 100); // Esperar un breve momento para que las opciones estén listas
+      }
+    };
+  
+    fetchLabels();
+  }, [tema, setValue]);
   const setIdMovil = usePresupuestoStore((state) => state.setIdMovil);
   const setPatente = usePresupuestoStore((state) => state.setPatente); // Agregar esta línea
 
@@ -376,7 +435,7 @@ export function TemaForm({ tema }: { tema: any }) {
         internosinvolucrado: JSON.stringify(selectedInternos),
         email: user?.email,
         patente: data.patente,
-        marca: data.marca, 
+        marca: data.marca,
         modelo: data.modelo,
         anio: anio, // `anio` ya es una cadena
         color: data.color,
@@ -462,7 +521,7 @@ export function TemaForm({ tema }: { tema: any }) {
         );
 
         if (response.success) {
-          router.push("/portal/eventos/temas");
+          window.location.href = "/portal/eventos/temas"; // Forzar recarga completa del navegador
         } else {
           console.error(
             "[ERROR] Error al crear o actualizar tema:",
@@ -627,15 +686,26 @@ export function TemaForm({ tema }: { tema: any }) {
           placeholder=""
         />
         <SelectMarca
-  name="marca"
-  label="Marca"
-  register={register}
-/>
-        <InputField
+          name="marca"
+          label="Marca"
           register={register}
+          watch={watch} // Pasar watch como prop
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+            const marcaId = e.target.value;
+            setValue("marca", marcaId); // Actualiza el valor de la marca en el formulario
+            fetchModelosByMarca(marcaId); // Carga los modelos asociados a la marca
+          }}
+        />
+
+        <SelectModelo
           name="modelo"
           label="Modelo"
-          placeholder=""
+          register={register}
+          watch={watch} // Pasar watch como prop
+          marcaId={watch("marca")} // Pasar el ID de la marca seleccionada
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+            setValue("modelo", e.target.value); // Actualizar el valor del modelo en el formulario
+          }}
         />
         <InputAnio
           value={anio} // `anio` debe ser una cadena

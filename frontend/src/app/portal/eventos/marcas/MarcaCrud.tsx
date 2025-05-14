@@ -1,4 +1,3 @@
-//frontend\src\app\portal\eventos\marcas\MarcaCrud.tsx
 import React, { useState, useEffect, useCallback } from "react";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
@@ -83,7 +82,9 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
 
   const fetchModelos = useCallback(async () => {
     try {
+      console.log("Iniciando fetchModelos en MarcaCrud..."); // Debug
       const data = await getModelos();
+      console.log("Modelos obtenidos del backend en MarcaCrud:", data); // Debug
 
       // Asignar el nombre de la marca asociada a cada modelo
       const modelosConMarca = data.map((modelo: Modelo) => {
@@ -94,9 +95,10 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
         };
       });
 
+      console.log("Modelos procesados con marca en MarcaCrud:", modelosConMarca); // Debug
       setModelos(modelosConMarca);
     } catch (error) {
-      console.error("Error al obtener los modelos:", error);
+      console.error("Error al obtener los modelos en MarcaCrud:", error);
     }
   }, [marcas]); // Dependencias: marcas
 
@@ -154,6 +156,7 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
             name="marcaId"
             label="Seleccionar marca"
             register={() => {}}
+            watch={() => {}} // Agregar un valor predeterminado para evitar el error
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
               setNewModelo({ ...newModelo, marcaId: Number(e.target.value) })
             }
