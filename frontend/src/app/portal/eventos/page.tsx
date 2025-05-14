@@ -33,7 +33,7 @@ export default function EventosPage() {
     <div className="flex justify-center items-center flex-col w-full px-4 py-6">
       <h1 className="text-4xl font-bold mb-8">Ingresar a:</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-4xl justify-center">
-      <Link
+        <Link
           href="/portal/eventos/ingresos"
           className="bg-white shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
         >
@@ -54,11 +54,42 @@ export default function EventosPage() {
         </Link>
         <Link
           href="/portal/eventos/marcas"
-          className="bg-white shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
+          className="bg-blue-500 shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
         >
           Marcas de autos
         </Link>
-        
+
+
+        <Link
+          href="/portal/eventos/piezas"
+          className="bg-blue-500 shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
+        >
+          Piezas
+        </Link>
+
+
+
+        <Link
+          href="/portal/eventos/turnos"
+          className="bg-blue-500 shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
+        >
+          Turnos
+        </Link>
+
+
+        <Link
+          href="/portal/eventos/ingresosok"
+          className="bg-blue-500 shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
+        >
+          Ingresos
+        </Link>
+
+        <Link
+          href="/portal/eventos/realizados"
+          className="bg-blue-500 shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
+        >
+          Trabajos realizados
+        </Link>
 
 
         {/* Enlaces visibles solo para usuarios que no son B1 */}
@@ -69,30 +100,6 @@ export default function EventosPage() {
               className="bg-blue-500 text-white shadow-md rounded-lg p-4 text-center font-semibold hover:bg-blue-600 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
             >
               Gráficos
-            </Link>
-            <Link
-              href="/portal/eventos/reqpositivos"
-              className="bg-blue-500 text-white shadow-md rounded-lg p-4 text-center font-semibold hover:bg-blue-600 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
-            >
-              &quot;Resp. de req.: Positivo&quot;
-            </Link>
-            <Link
-              href="/portal/eventos/reqnos"
-              className="bg-blue-500 text-white shadow-md rounded-lg p-4 text-center font-semibold hover:bg-blue-600 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
-            >
-              &quot;Resp. de req.: Negativa&quot;
-            </Link>
-            <Link
-              href="/portal/eventos/riesgos"
-              className="bg-blue-500 text-white shadow-md rounded-lg p-4 text-center font-semibold hover:bg-blue-600 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
-            >
-              Eval. S.I.G.P.P.L.A.R.
-            </Link>
-            <Link
-              href="/portal/eventos/reqexts"
-              className="bg-green-500 text-white shadow-md rounded-lg p-4 text-center font-semibold hover:bg-blue-600 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
-            >
-              &quot;Resp. de req. externo&quot;
             </Link>
           </>
         )}
