@@ -69,7 +69,7 @@ export default function EventosPage() {
           href="/portal/eventos/marcas"
           className="bg-blue-500 shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
         >
-          Marcas de autos
+          Marcas/Modelos
         </Link>
 
 
@@ -79,23 +79,17 @@ export default function EventosPage() {
         >
           Piezas
         </Link>
-
-
-
-
         <Link
           href="/portal/eventos/realizados"
           className="bg-blue-500 shadow-md rounded-lg p-4 text-center font-semibold hover:bg-gray-100 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
         >
           Trabajos realizados
         </Link>
-
-
         {/* Enlaces visibles solo para usuarios que no son B1 */}
         {privilege !== "B1" && (
           <>
             <Link
-              href="/portal/eventos/preingresos"
+              href="/portal/eventos/analytics"
               className="bg-blue-500 text-white shadow-md rounded-lg p-4 text-center font-semibold hover:bg-blue-600 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
             >
               Gráficos
