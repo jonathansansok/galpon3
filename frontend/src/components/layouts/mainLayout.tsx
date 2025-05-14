@@ -189,7 +189,8 @@ function AppContentLayoutComponent(props: MainLayoutComponentProps) {
               isSidebarCollapsed ? "block" : "hidden"
             }`}
             onMouseEnter={handleMouseEnter}
-            style={{ width: window.innerWidth < 600 ? "0px" : "9px" }}
+            //style={{ width: window.innerWidth < 600 ? "0px" : "9px" }}
+            style={{ width: "9px" }}
           >
             <div className="absolute top-[6%] left-0 bg-green-400 w-5 h-1/6 rounded-tr-sm rounded-br-xl"></div>
           </div>
@@ -204,8 +205,7 @@ function AppContentLayoutComponent(props: MainLayoutComponentProps) {
       )}
       {user && (
         <footer className="bg-blue-500 text-white text-center py-2 w-full z-30 fixed bottom-0 left-0 text-sm sm:text-base">
-          © 2025 - Servicio Penitenciario Federal - Dirección de Análisis de
-          Información Penitenciaria
+          © 2025 - Galpón3
         </footer>
       )}
     </div>
