@@ -31,7 +31,9 @@ export function SearchBarPresupuestos({ data = [], onSearchResults }: SearchBarP
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [isSearching, setIsSearching] = useState(false);
-
+  const [selectedEstablecimiento, setSelectedEstablecimiento] = useState("");
+  const [selectedModuloUr, setSelectedModuloUr] = useState("");
+  const [selectedPabellon, setSelectedPabellon] = useState("");
   // Estados adicionales requeridos por SearchAndFilter
   const [selectedEstado, setSelectedEstado] = useState("");
   const [selectedMonto, setSelectedMonto] = useState("");
@@ -121,7 +123,7 @@ export function SearchBarPresupuestos({ data = [], onSearchResults }: SearchBarP
   };
 
   return (
-    <SearchAndFilter
+<SearchAndFilter
   onSearch={handleSearchClick}
   onDateRangeChange={(start, end) => {
     setStartDate(start);
@@ -134,6 +136,12 @@ export function SearchBarPresupuestos({ data = [], onSearchResults }: SearchBarP
   endDate={endDate}
   query={query}
   additionalQuery={additionalQuery}
+  selectedEstablecimiento={selectedEstablecimiento}
+  setSelectedEstablecimiento={setSelectedEstablecimiento}
+  selectedModuloUr={selectedModuloUr}
+  setSelectedModuloUr={setSelectedModuloUr}
+  selectedPabellon={selectedPabellon}
+  setSelectedPabellon={setSelectedPabellon}
 />
   );
 }
