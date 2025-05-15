@@ -114,6 +114,21 @@ export default function PresupuestosPage() {
     { key: "estado", label: "Estado" },
     { key: "observaciones", label: "Observaciones" },
     {
+      key: "marca",
+      label: "Marca del Móvil",
+      render: (item: Presupuesto) => item.movil?.marca || "N/A",
+    },
+    {
+      key: "modelo",
+      label: "Modelo del Móvil",
+      render: (item: Presupuesto) => item.movil?.modelo || "N/A",
+    },
+    {
+      key: "anio",
+      label: "Año del Móvil",
+      render: (item: Presupuesto) => item.movil?.anio || "N/A",
+    },
+    {
       key: "createdAt",
       label: "Creado el",
       render: (item: Presupuesto) => <DateTimeFormatter dateTime={item.createdAt} />,
@@ -126,10 +141,6 @@ export default function PresupuestosPage() {
     {
       key: "movilId",
       label: "ID del Móvil",
-    },
-    {
-      key: "clienteId",
-      label: "ID del Cliente",
     },
   ];
 
