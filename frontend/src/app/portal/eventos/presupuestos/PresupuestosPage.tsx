@@ -1,4 +1,4 @@
-//frontend\src\app\portal\eventos\marcas\marcasPage.tsx
+//frontend\src\app\portal\eventos\presupuestos\PresupuestosPage.tsx
 "use client";
 
 import { useState } from "react";
@@ -26,7 +26,9 @@ export default function PresupuestosPage() {
       const data = await getPresupuestos();
       const formattedData = Array.isArray(data) ? data : [];
       setPresupuestos(formattedData);
-      setSearchResults(formattedData.map((item) => ({ item, matches: [] })));
+      setSearchResults(
+        formattedData.map((item) => ({ item, matches: [] })) // Convertir a SearchResult[]
+      );
     } catch (error) {
       console.error("Error al obtener presupuestos:", error);
       setPresupuestos([]);
@@ -34,8 +36,60 @@ export default function PresupuestosPage() {
     }
   };
 
-  const handleSearchResults = (results: SearchResult[]) => {
-    setSearchResults(results);
+  const handleSearch = (queries: {
+    generalQuery: string;
+    monto: string;
+    estado: string;
+    observaciones: string;
+    movilId: string;
+    patente: string;
+  }) => {
+    const filtered = presupuestos.filter((presupuesto) => {
+      const matchesGeneralQuery =
+        queries.generalQuery &&
+        Object.values(presupuesto).some((value) =>
+          String(value).toLowerCase().includes(queries.generalQuery.toLowerCase())
+        );
+  
+        const matchesMonto =
+        queries.monto &&
+        String(presupuesto.monto || "")
+          .toLowerCase()
+          .includes(queries.monto.toLowerCase());
+  
+      const matchesEstado =
+        queries.estado &&
+        presupuesto.estado?.toLowerCase().includes(queries.estado.toLowerCase());
+  
+      const matchesObservaciones =
+        queries.observaciones &&
+        presupuesto.observaciones
+          ?.toLowerCase()
+          .includes(queries.observaciones.toLowerCase());
+  
+          const matchesMovilId =
+          queries.movilId &&
+          String(presupuesto.movilId || "")
+            .toLowerCase()
+            .includes(queries.movilId.toLowerCase());
+  
+      const matchesPatente =
+        queries.patente &&
+        presupuesto.patente?.toLowerCase().includes(queries.patente.toLowerCase());
+  
+      return (
+        matchesGeneralQuery ||
+        matchesMonto ||
+        matchesEstado ||
+        matchesObservaciones ||
+        matchesMovilId ||
+        matchesPatente
+      );
+    });
+  
+    setSearchResults(
+      filtered.map((item) => ({ item, matches: [] })) // Convertir a SearchResult[]
+    );
   };
 
   const handleRowClick = (id: string) => {
@@ -103,7 +157,7 @@ export default function PresupuestosPage() {
         fileName="Presupuestos"
       />
 
-      <SearchBarPresupuestos data={presupuestos} onSearchResults={handleSearchResults} />
+      <SearchBarPresupuestos onSearch={handleSearch} />
 
       {searchResults.length > 0 ? (
         <TableMoviles
