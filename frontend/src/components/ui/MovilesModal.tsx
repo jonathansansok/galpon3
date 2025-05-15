@@ -1,8 +1,11 @@
-import React from "react";
+//frontend\src\components\ui\MovilesModal.tsx
+import React, { useState } from "react";
 import Modal from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
-import { toast } from "react-toastify"; // Importar Toastify
-import "react-toastify/dist/ReactToastify.css"; // Importar estilos de Toastify
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import MovilesTable from "./MovilesTable";
+import { SearchBarMoviles } from "@/components/ui/SearchBars/SearchBarMoviles";
 
 interface MovilesModalProps {
   isOpen: boolean;
@@ -21,6 +24,8 @@ const MovilesModal: React.FC<MovilesModalProps> = ({
   setSelectedMoviles,
   handleAnexarMoviles,
 }) => {
+  const [filteredMoviles, setFilteredMoviles] = useState(moviles); // Estado para los móviles filtrados
+
   const toggleSelection = (id: number) => {
     setSelectedMoviles((prev) =>
       prev.includes(id)
@@ -28,7 +33,6 @@ const MovilesModal: React.FC<MovilesModalProps> = ({
         : [...prev, id]
     );
 
-    // Mostrar Toastify
     toast.info("Recuerde clickear en guardar para confirmar cambios", {
       position: "top-right",
       autoClose: 3000,
@@ -39,6 +43,68 @@ const MovilesModal: React.FC<MovilesModalProps> = ({
       progress: undefined,
       theme: "colored",
     });
+  };
+
+  const handleSearch = (queries: {
+    generalQuery: string;
+    patente: string;
+    marca: string;
+    modelo: string;
+    anio: string;
+    color: string;
+    tipoVehic: string;
+    vin: string;
+  }) => {
+    const filtered = moviles.filter((movil) => {
+      const matchesGeneralQuery =
+        queries.generalQuery &&
+        Object.values(movil).some((value) =>
+          String(value).toLowerCase().includes(queries.generalQuery.toLowerCase())
+        );
+
+      const matchesPatente =
+        queries.patente &&
+        movil.patente?.toLowerCase().includes(queries.patente.toLowerCase());
+
+      const matchesMarca =
+        queries.marca &&
+        movil.marca?.toLowerCase().includes(queries.marca.toLowerCase());
+
+      const matchesModelo =
+        queries.modelo &&
+        movil.modelo?.toLowerCase().includes(queries.modelo.toLowerCase());
+
+      const matchesAnio =
+        queries.anio &&
+        movil.anio?.toLowerCase().includes(queries.anio.toLowerCase());
+
+      const matchesColor =
+        queries.color &&
+        movil.color?.toLowerCase().includes(queries.color.toLowerCase());
+
+      const matchesTipoVehic =
+        queries.tipoVehic &&
+        movil.tipoVehic
+          ?.toLowerCase()
+          .includes(queries.tipoVehic.toLowerCase());
+
+      const matchesVin =
+        queries.vin &&
+        movil.vin?.toLowerCase().includes(queries.vin.toLowerCase());
+
+      return (
+        matchesGeneralQuery ||
+        matchesPatente ||
+        matchesMarca ||
+        matchesModelo ||
+        matchesAnio ||
+        matchesColor ||
+        matchesTipoVehic ||
+        matchesVin
+      );
+    });
+
+    setFilteredMoviles(filtered.length > 0 ? filtered : moviles); // Si no hay coincidencias, mostrar todos los móviles
   };
 
   return (
@@ -52,44 +118,14 @@ const MovilesModal: React.FC<MovilesModalProps> = ({
       >
         Crear Móvil
       </a>
-      <div className="overflow-x-auto">
-        <table className="min-w-full border-collapse border border-gray-300">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border border-gray-300 px-4 py-2 text-left">Creado el</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Actualizado el</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Patente</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Marca</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Modelo</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Año</th>
-            </tr>
-          </thead>
-          <tbody>
-            {moviles.map((movil) => (
-              <tr
-                key={movil.id}
-                onClick={() => toggleSelection(movil.id)} // Seleccionar fila al hacer clic
-                className={`cursor-pointer ${
-                  selectedMoviles.includes(movil.id)
-                    ? "bg-green-100" // Fondo verde claro si está seleccionado
-                    : "bg-white"
-                } hover:bg-green-50`} // Fondo verde claro al pasar el cursor
-              >
-                <td className="border border-gray-300 px-4 py-2">
-                  {new Date(movil.createdAt).toLocaleString()}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  {new Date(movil.updatedAt).toLocaleString()}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">{movil.patente || "N/A"}</td>
-                <td className="border border-gray-300 px-4 py-2">{movil.marca || "N/A"}</td>
-                <td className="border border-gray-300 px-4 py-2">{movil.modelo || "N/A"}</td>
-                <td className="border border-gray-300 px-4 py-2">{movil.anio || "N/A"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Barra de búsqueda */}
+      <SearchBarMoviles onSearch={handleSearch} />
+      {/* Tabla de móviles */}
+      <MovilesTable
+        moviles={filteredMoviles}
+        selectedMoviles={selectedMoviles}
+        toggleSelection={toggleSelection}
+      />
       <Button
         type="button"
         onClick={handleAnexarMoviles}

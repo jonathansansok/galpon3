@@ -1,4 +1,3 @@
-//frontend\src\app\portal\eventos\temas\TemasPage.tsx
 "use client";
 
 import { useState } from "react";
@@ -6,18 +5,17 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { getTemas } from "./Temas.api";
 import { ExportButton } from "@/components/ui/ExportButton";
-import { Tema, SearchResult } from "@/types/Tema";
+import { Tema } from "@/types/Tema";
 import { useRouter } from "next/navigation";
 import TableMoviles from "@/components/eventossearch/TableMoviles";
 import DateTimeFormatter from "@/components/eventossearch/DateTimeFormatter";
-import { SearchBarTemas } from "@/components/ui/SearchBars/SearchBarTemas";
-
+import { SearchBarMoviles } from "@/components/ui/SearchBars/SearchBarMoviles";
 
 export const dynamic = "force-dynamic";
 
 export default function TemasPage() {
   const [temas, setTemas] = useState<Tema[]>([]);
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searchResults, setSearchResults] = useState<Tema[]>([]);
   const [sortColumn, setSortColumn] = useState<keyof Tema | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const router = useRouter();
@@ -27,7 +25,7 @@ export default function TemasPage() {
       const data = await getTemas();
       const formattedData = Array.isArray(data) ? data : [];
       setTemas(formattedData);
-      setSearchResults(formattedData.map((item) => ({ item, matches: [] })));
+      setSearchResults(formattedData); // Inicialmente, los resultados son todos los datos
     } catch (error) {
       console.error("Error al obtener temas:", error);
       setTemas([]);
@@ -35,8 +33,66 @@ export default function TemasPage() {
     }
   };
 
-  const handleSearchResults = (results: SearchResult[]) => {
-    setSearchResults(results);
+  const handleSearch = (queries: {
+    generalQuery: string;
+    patente: string;
+    marca: string;
+    modelo: string;
+    anio: string;
+    color: string;
+    tipoVehic: string;
+    vin: string;
+  }) => {
+    const filtered = temas.filter((tema) => {
+      const matchesGeneralQuery =
+        queries.generalQuery &&
+        Object.values(tema).some((value) =>
+          String(value).toLowerCase().includes(queries.generalQuery.toLowerCase())
+        );
+
+      const matchesPatente =
+        queries.patente &&
+        tema.patente?.toLowerCase().includes(queries.patente.toLowerCase());
+
+      const matchesMarca =
+        queries.marca &&
+        tema.marca?.toLowerCase().includes(queries.marca.toLowerCase());
+
+      const matchesModelo =
+        queries.modelo &&
+        tema.modelo?.toLowerCase().includes(queries.modelo.toLowerCase());
+
+      const matchesAnio =
+        queries.anio &&
+        tema.anio?.toLowerCase().includes(queries.anio.toLowerCase());
+
+      const matchesColor =
+        queries.color &&
+        tema.color?.toLowerCase().includes(queries.color.toLowerCase());
+
+      const matchesTipoVehic =
+        queries.tipoVehic &&
+        tema.tipoVehic
+          ?.toLowerCase()
+          .includes(queries.tipoVehic.toLowerCase());
+
+      const matchesVin =
+        queries.vin &&
+        tema.vin?.toLowerCase().includes(queries.vin.toLowerCase());
+
+      return (
+        matchesGeneralQuery ||
+        matchesPatente ||
+        matchesMarca ||
+        matchesModelo ||
+        matchesAnio ||
+        matchesColor ||
+        matchesTipoVehic ||
+        matchesVin
+      );
+    });
+
+    setSearchResults(filtered.length > 0 ? filtered : temas); // Si no hay coincidencias, mostrar todos los datos
   };
 
   const handleRowClick = (id: string) => {
@@ -56,7 +112,6 @@ export default function TemasPage() {
     }
   };
 
- 
   const columns = [
     { key: "patente", label: "Patente" },
     { key: "marca", label: "Marca" },
@@ -104,19 +159,20 @@ export default function TemasPage() {
         className={buttonVariants({ variant: "outline" })}
         style={{ marginBottom: "20px" }}
       >
-        Cargar historial
+        Cargar moviles
       </button>
 
       <ExportButton<Tema>
-        data={searchResults.map((result) => result.item)}
+        data={searchResults}
         fileName="Temas"
       />
 
-      <SearchBarTemas data={temas} onSearchResults={handleSearchResults} />
+      {/* Reemplazamos SearchBarTemas con SearchBarMoviles */}
+      <SearchBarMoviles onSearch={handleSearch} />
 
       {searchResults.length > 0 ? (
         <TableMoviles
-          data={searchResults.map((result) => result.item)}
+          data={searchResults}
           columns={columns}
           sortColumn={sortColumn}
           sortDirection={sortDirection}
