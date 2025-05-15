@@ -124,10 +124,6 @@ export default function SumariosPage() {
         Cargar historial
       </button>
 
-      <ExportButton<Sumario>
-        data={searchResults.map((result) => result.item)}
-        fileName="Sumarios"
-      />
 
       <SearchBarSumarios
         data={sumarios}

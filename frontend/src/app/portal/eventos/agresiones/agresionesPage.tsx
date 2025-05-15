@@ -113,10 +113,7 @@ export default function AgresionesPage() {
         Cargar historial
       </button>
 
-      <ExportButton<Agresion>
-        data={searchResults.map((result) => result.item)}
-        fileName="Agresiones"
-      />
+
 
       <SearchBarAgresiones data={agresiones} onSearchResults={handleSearchResults} />
 

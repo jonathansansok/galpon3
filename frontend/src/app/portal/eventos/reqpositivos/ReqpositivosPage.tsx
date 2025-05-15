@@ -125,11 +125,6 @@ export default function ReqpositivosPage() {
         Cargar historial
       </button>
 
-      {/* Botón para exportar las respuestas positivas a Excel */}
-      <ExportButton<Reqpositivo> data={searchResults.map((result) => result.item)} fileName="Reqpositivo" />
-
-      {/* Barra de búsqueda */}
-      <SearchBarReqpositivos data={reqpositivos} onSearchResults={handleSearchResults} />
 
       {/* Tabla para mostrar las respuestas positivas */}
       {searchResults.length > 0 ? (

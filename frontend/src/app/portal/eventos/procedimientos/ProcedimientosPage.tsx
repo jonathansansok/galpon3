@@ -117,10 +117,7 @@ export default function ProcedimientosPage() {
         Cargar historial
       </button>
 
-      <ExportButton<Procedimiento>
-        data={searchResults.map((result) => result.item)}
-        fileName="Procedimientos"
-      />
+ 
 
       <SearchBarProcedimientos data={procedimientos} onSearchResults={handleSearchResults} />
 

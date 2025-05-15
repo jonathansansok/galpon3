@@ -118,11 +118,7 @@ export default function ManifestacionesPage() {
         Cargar historial
       </button>
 
-      <ExportButton<Manifestacion>
-        data={searchResults.map((result) => result.item)}
-        fileName="Manifestaciones"
-      />
-
+ 
       <SearchBarManifestaciones data={manifestaciones} onSearchResults={handleSearchResults} />
 
       {searchResults.length > 0 ? (

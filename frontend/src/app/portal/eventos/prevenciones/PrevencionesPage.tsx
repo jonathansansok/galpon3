@@ -117,10 +117,6 @@ export default function PrevencionesPage() {
         Cargar historial
       </button>
 
-      <ExportButton<Prevencion>
-        data={searchResults.map((result) => result.item)}
-        fileName="Prevenciones"
-      />
 
       <SearchBarPrevenciones data={prevenciones} onSearchResults={handleSearchResults} />
 

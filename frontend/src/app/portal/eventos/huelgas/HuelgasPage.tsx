@@ -117,10 +117,6 @@ export default function HuelgasPage() {
         Cargar historial
       </button>
 
-      <ExportButton<Huelga>
-        data={searchResults.map((result) => result.item)}
-        fileName="Huelgas"
-      />
 
       <SearchBarHuelgas data={huelgas} onSearchResults={handleSearchResults} />
 

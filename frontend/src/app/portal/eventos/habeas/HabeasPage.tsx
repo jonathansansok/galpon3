@@ -117,10 +117,6 @@ export default function HabeasPage() {
         Cargar historial
       </button>
 
-      <ExportButton<Habeas>
-        data={searchResults.map((result) => result.item)}
-        fileName="Habeas"
-      />
 
       <SearchBarHabeas data={habeas} onSearchResults={handleSearchResults} />
 

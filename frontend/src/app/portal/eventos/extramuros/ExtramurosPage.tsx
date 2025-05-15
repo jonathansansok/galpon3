@@ -116,10 +116,6 @@ export default function ExtramurosPage() {
         Cargar historial
       </button>
 
-      <ExportButton<Extramuro>
-        data={searchResults.map((result) => result.item)}
-        fileName="Extramuros"
-      />
 
       <SearchBarExtramuros data={extramuros} onSearchResults={handleSearchResults} />
 

@@ -122,7 +122,6 @@ export default function AtentadosPage() {
         Cargar historial
       </button>
 
-      <ExportButton<Atentado> data={searchResults.map((result) => result.item)} fileName="Atentados" />
 
       <SearchBarAtentados data={atentados} onSearchResults={handleSearchResults} />
 

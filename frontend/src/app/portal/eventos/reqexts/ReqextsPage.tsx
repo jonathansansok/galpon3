@@ -113,10 +113,6 @@ export default function ReqextsPage() {
         Cargar historial
       </button>
 
-      {/* Botón para exportar los datos */}
-      <ExportButton<Reqext> data={searchResults.map((result) => result.item)} fileName="Reqexts" />
-
-      {/* Barra de búsqueda */}
       <SearchBarReqexts data={reqexts} onSearchResults={handleSearchResults} />
 
       {/* Tabla de resultados */}

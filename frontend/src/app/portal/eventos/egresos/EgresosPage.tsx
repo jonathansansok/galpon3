@@ -134,11 +134,6 @@ export default function EgresosPage() {
         Cargar historial
       </button>
 
-      <ExportButton<Egreso>
-        data={searchResults.map((result) => result.item)}
-        fileName="Egresos"
-      />
-
       <SearchBarEgresos data={egresos} onSearchResults={handleSearchResults} />
 
       {searchResults.length > 0 ? (

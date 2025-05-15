@@ -132,10 +132,7 @@ export default function Manifestaciones2Page() {
         Cargar historial
       </button>
 
-      <ExportButton<Manifestacion2>
-        data={searchResults.map((result) => result.item)}
-        fileName="Manifestaciones2"
-      />
+
 
       <SearchBarManifestaciones2
         data={manifestaciones2}

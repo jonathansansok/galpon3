@@ -121,10 +121,7 @@ export default function ElementosPage() {
         Cargar historial
       </button>
 
-      <ExportButton<Elemento>
-        data={searchResults.map((result) => result.item)}
-        fileName="Elementos"
-      />
+
 
       <SearchBarElementos data={elementos} onSearchResults={handleSearchResults} />
 

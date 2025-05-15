@@ -118,10 +118,7 @@ export default function ImpactosPage() {
         Cargar historial
       </button>
 
-      <ExportButton<Impacto>
-        data={searchResults.map((result) => result.item)}
-        fileName="Impactos"
-      />
+
 
       <SearchBarImpactos data={impactos} onSearchResults={handleSearchResults} />
 

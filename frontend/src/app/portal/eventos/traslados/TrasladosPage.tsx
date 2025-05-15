@@ -113,10 +113,6 @@ export default function TrasladosPage() {
         Cargar historial
       </button>
 
-      <ExportButton<Traslado>
-        data={searchResults.map((result) => result.item)}
-        fileName="Traslados"
-      />
 
       <SearchBarTraslados data={traslados} onSearchResults={handleSearchResults} />
 

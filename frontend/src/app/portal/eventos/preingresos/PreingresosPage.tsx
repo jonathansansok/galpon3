@@ -126,7 +126,6 @@ export default function PreingresosPage() {
         Cargar historial
       </button>
 
-      <ExportButton<Preingreso> data={searchResults.map((result) => result.item)} fileName="Preingresos" />
 
       <SearchBarPreingresos data={preingresos} onSearchResults={handleSearchResults} />
 

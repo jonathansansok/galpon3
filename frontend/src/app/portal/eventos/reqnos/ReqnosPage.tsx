@@ -111,11 +111,6 @@ export default function ReqnosPage() {
         Cargar historial
       </button>
 
-      {/* Botón para exportar las respuestas negativas a Excel */}
-      <ExportButton<Reqno> data={searchResults.map((result) => result.item)} fileName="Reqnos" />
-
-      {/* Barra de búsqueda */}
-      <SearchBarReqnos data={reqnos} onSearchResults={handleSearchResults} />
 
       {/* Tabla para mostrar las respuestas negativas */}
       {searchResults.length > 0 ? (

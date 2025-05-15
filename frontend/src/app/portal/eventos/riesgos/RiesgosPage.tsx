@@ -120,10 +120,7 @@ export default function RiesgosPage() {
       >
         Cargar historial
       </button>
-      <ExportButton<Riesgo>
-        data={searchResults.map((result) => result.item)}
-        fileName="Riesgos"
-      />
+
 
       {/* Barra de búsqueda */}
       <SearchBarRiesgos
