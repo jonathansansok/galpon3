@@ -4,7 +4,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { getPresupuestos } from "./Presupuestos.api";
+import { getPresupuestos, getMovilById, getPresupuestosWithMovilData } from "./Presupuestos.api";
 import { ExportButton } from "@/components/ui/ExportButton";
 import { Presupuesto, SearchResult } from "@/types/Presupuesto";
 import { useRouter } from "next/navigation";
@@ -23,11 +23,22 @@ export default function PresupuestosPage() {
 
   const handleLoadData = async () => {
     try {
-      const data = await getPresupuestos();
-      const formattedData = Array.isArray(data) ? data : [];
-      setPresupuestos(formattedData);
+      const presupuestos = await getPresupuestosWithMovilData();
+  
+      // Obtener datos adicionales de los móviles
+      const presupuestosConMovil = await Promise.all(
+        presupuestos.map(async (presupuesto: Presupuesto) => {
+          if (presupuesto.movilId) {
+            const movil = await getMovilById(presupuesto.movilId);
+            return { ...presupuesto, ...movil }; // Combina los datos del presupuesto y del móvil
+          }
+          return presupuesto;
+        })
+      );
+  
+      setPresupuestos(presupuestosConMovil);
       setSearchResults(
-        formattedData.map((item) => ({ item, matches: [] })) // Convertir a SearchResult[]
+        presupuestosConMovil.map((item) => ({ item, matches: [] }))
       );
     } catch (error) {
       console.error("Error al obtener presupuestos:", error);
@@ -116,17 +127,22 @@ export default function PresupuestosPage() {
     {
       key: "marca",
       label: "Marca del Móvil",
-      render: (item: Presupuesto) => item.movil?.marca || "N/A",
+      render: (item: Presupuesto) => item.marca || "N/A", // Asegúrate de que "marca" esté en el objeto
     },
     {
       key: "modelo",
       label: "Modelo del Móvil",
-      render: (item: Presupuesto) => item.movil?.modelo || "N/A",
+      render: (item: Presupuesto) => item.modelo || "N/A",
     },
     {
       key: "anio",
       label: "Año del Móvil",
-      render: (item: Presupuesto) => item.movil?.anio || "N/A",
+      render: (item: Presupuesto) => item.anio || "N/A",
+    },
+    {
+      key: "movilId",
+      label: "ID del Móvil",
+      render: (item: Presupuesto) => item.movilId || "N/A",
     },
     {
       key: "createdAt",
@@ -137,10 +153,6 @@ export default function PresupuestosPage() {
       key: "updatedAt",
       label: "Actualizado el",
       render: (item: Presupuesto) => <DateTimeFormatter dateTime={item.updatedAt} />,
-    },
-    {
-      key: "movilId",
-      label: "ID del Móvil",
     },
   ];
 

@@ -14,6 +14,55 @@ import { Prisma } from '@prisma/client';
 export class PresupuestosService {
   constructor(private prismaService: PrismaService) {}
   // backend\src\presupuestos\presupuestos.service.ts
+
+  async findAllWithMovilData() {
+    try {
+      const result = await this.prismaService.$queryRaw<
+        Array<{
+          id: number;
+          createdAt: Date;
+          updatedAt: Date;
+          movilId: string | null;
+          patente: string | null;
+          monto: string | null;
+          estado: string;
+          observaciones: string | null;
+          marca: string | null;
+          modelo: string | null;
+          anio: string | null;
+          color: string | null;
+        }>
+      >(Prisma.sql`
+        SELECT 
+          p.id, 
+          p.createdAt, 
+          p.updatedAt, 
+          p.movilId, 
+          p.patente, 
+          p.monto, 
+          p.estado, 
+          p.observaciones,
+          t.marca, 
+          t.modelo, 
+          t.anio, 
+          t.color
+        FROM Presupuestos p
+        LEFT JOIN Temas t ON p.movilId = t.id
+      `);
+
+      console.log('[DEBUG] Resultado de la consulta SQL:', result); // <-- Agrega este log
+
+      return result;
+    } catch (error) {
+      console.error(
+        '[ERROR] Error al buscar los presupuestos con datos de móviles:',
+        error,
+      );
+      throw new InternalServerErrorException(
+        'Error al buscar los presupuestos con datos de móviles',
+      );
+    }
+  }
   async findByMovilId(movilId: string) {
     try {
       const presupuestos = await this.prismaService.presupuestos.findMany({

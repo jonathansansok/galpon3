@@ -1,6 +1,37 @@
 //frontend\src\app\portal\eventos\presupuestos\Presupuestos.api.ts
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+export async function getPresupuestosWithMovilData() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/presupuestos/with-movil-data`, {
+      cache: "no-store",
+    });
 
+    if (!res.ok) {
+      throw new Error("Error al obtener los presupuestos con datos de móviles");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Error al obtener presupuestos con datos de móviles:", error);
+    throw error;
+  }
+}
+export async function getMovilById(movilId: string) {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/temas/${movilId}`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      throw new Error(`Error al obtener el móvil con ID ${movilId}`);
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error(`Error al obtener móvil con ID ${movilId}:`, error);
+    throw error;
+  }
+}
 // Obtener todos los presupuestos
 export async function getPresupuestos() {
   try {

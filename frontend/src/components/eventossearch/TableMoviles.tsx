@@ -1,10 +1,11 @@
+//frontend\src\components\eventossearch\TableMoviles.tsx
 import React, { ReactNode, useState } from "react";
 import { FaEdit, FaEye, FaFilePdf } from "react-icons/fa";
 import { formatDateTime } from "@/app/utils/formatData";
 
 interface TableProps<T> {
   data: T[];
-  columns: { key: keyof T; label: string; render?: (item: T) => ReactNode }[];
+  columns: { key: keyof T | string; label: string; render?: (item: T) => ReactNode }[];
   sortColumn: keyof T | null;
   sortDirection: "asc" | "desc";
   onSort: (column: keyof T) => void;

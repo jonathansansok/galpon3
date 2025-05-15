@@ -33,6 +33,26 @@ const { validateRequest } = doubleCsrf({
 @Controller('presupuestos')
 export class PresupuestosController {
   constructor(private readonly presupuestosService: PresupuestosService) {}
+  @Get('with-movil-data')
+  @ApiOperation({ summary: 'Obtener presupuestos con datos de móviles' })
+  async findAllWithMovilData(@Req() req: Request) {
+    try {
+      console.log('[GET] Token CSRF recibido:', req.headers['csrf-token']);
+      validateRequest(req);
+      console.log('[GET] Token CSRF válido');
+
+      return this.presupuestosService.findAllWithMovilData();
+    } catch (error) {
+      console.error(
+        '[GET] Error al obtener presupuestos con datos de móviles:',
+        error.message,
+      );
+      throw new HttpException(
+        error.message || 'Error al procesar la solicitud',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
   @Get('movil')
   @ApiOperation({ summary: 'Obtener presupuestos asociados a un movilId' })
   async findByMovilId(@Query('movilId') movilId: string, @Req() req: Request) {
