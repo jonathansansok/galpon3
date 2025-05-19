@@ -1,3 +1,4 @@
+//frontend\src\components\ui\PinturaTable.tsx
 import React, { useState } from "react";
 import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 
