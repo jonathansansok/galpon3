@@ -19,14 +19,14 @@ const partesPintura = {
 };
 
 const piezasConValores = {
-  "Color Base": { costoPorPano: 50, panos: 3 },
-  "Capa Final": { costoPorPano: 50, panos: 2 },
+  "Color Base": { costoPorPano: 50, panos: 1},
+  "Capa Final": { costoPorPano: 50, panos: 1 },
   Polarizado: { costoPorPano: 70, panos: 1 },
-  Impermeabilización: { costoPorPano: 90, panos: 2 },
-  Puerta: { costoPorPano: 120, panos: 2 },
+  Impermeabilización: { costoPorPano: 90, panos: 1 },
+  Puerta: { costoPorPano: 120, panos: 1 },
   Retrovisor: { costoPorPano: 60, panos: 1 },
   "Manija Conductor": { costoPorPano: 40, panos: 1 },
-  "Puerta Izquierda": { costoPorPano: 110, panos: 2 },
+  "Puerta Izquierda": { costoPorPano: 110, panos: 1 },
   "Retrovisor Izquierdo": { costoPorPano: 55, panos: 1 },
 };
 
