@@ -103,24 +103,32 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
     },
   });
 
-  const onUpdate = (row: "chapa" | "pintura", field: string, value: number) => {
+  const onUpdateChapa = (costo: number, horas: number, diasPanos: number) => {
     setPreciosData((prev) => {
-      const updatedRow = { ...prev[row] };
-  
-      if (field === "costo" || field === "horas") {
-        updatedRow[field] += value; // Acumular los valores
-      }
-  
-      // Calcular días/paños automáticamente si se actualizan las horas
-      if (field === "horas") {
-        const totalHoras = updatedRow.horas;
-        updatedRow.diasPanos =
-          Math.floor(totalHoras / 4) + (totalHoras % 4 >= 2 ? 0.5 : 0);
-      }
-  
+      const updatedRow = { ...prev.chapa };
+
+      updatedRow.costo += costo;
+      updatedRow.horas += horas;
+      updatedRow.diasPanos += diasPanos;
+
       return {
         ...prev,
-        [row]: updatedRow,
+        chapa: updatedRow,
+      };
+    });
+  };
+
+  const onUpdatePintura = (costo: number, horas: number, diasPanos: number) => {
+    setPreciosData((prev) => {
+      const updatedRow = { ...prev.pintura };
+
+      updatedRow.costo += costo;
+      updatedRow.horas += horas;
+      updatedRow.diasPanos += diasPanos;
+
+      return {
+        ...prev,
+        pintura: updatedRow,
       };
     });
   };
@@ -542,15 +550,36 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
       </div>
 
       <ChapaYPinturaPage
-        onUpdate={(costo, horas) => {
-          onUpdate("chapa", "costo", costo);
-          onUpdate("chapa", "horas", horas);
+        onUpdateChapa={(costo, horas, diasPanos) =>
+          onUpdateChapa(costo, horas, diasPanos)
+        }
+        onUpdatePintura={(costo, horas, diasPanos) =>
+          onUpdatePintura(costo, horas, diasPanos)
+        }
+      />
+      <PreciosCyP
+        data={preciosData}
+        onUpdate={(row, field, value) => {
+          const diasPanos =
+            field === "horas"
+              ? Math.floor(value / 4) + (value % 4 >= 2 ? 0.5 : 0)
+              : 0;
+
+          if (row === "chapa") {
+            onUpdateChapa(
+              field === "costo" ? value : 0,
+              field === "horas" ? value : 0,
+              diasPanos
+            );
+          } else if (row === "pintura") {
+            onUpdatePintura(
+              field === "costo" ? value : 0,
+              field === "horas" ? value : 0,
+              diasPanos
+            );
+          }
         }}
       />
-<PreciosCyP
-  data={preciosData}
-  onUpdate={onUpdate}
-/>
       {/* Select de Tipo de Trabajo */}
       <TipoTrabajoSelect
         value={tipoTrabajo}

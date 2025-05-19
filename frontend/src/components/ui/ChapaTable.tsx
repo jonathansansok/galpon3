@@ -64,14 +64,14 @@ export default function ChapaTable({
 
   const handleAddRow = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-
+  
     if (!newRow.parte || !newRow.piezas || !newRow.especificacion) {
       alert("Por favor, complete todos los campos.");
       return;
     }
-
+  
     const diasPanos = calculateDiasPanos(newRow.horas);
-
+  
     setRows([...rows, { ...newRow, id: Date.now() }]);
     setNewRow({
       id: 0,
@@ -81,11 +81,10 @@ export default function ChapaTable({
       horas: 0,
       costo: 0,
     });
-
-    // Acumular los valores de costo, horas y días/paños
+  
+    // Llamar a onUpdate con los tres argumentos
     onUpdate(newRow.costo, newRow.horas, diasPanos);
   };
-
   const handleDeleteRow = (id: number) => {
     const rowToDelete = rows.find((row) => row.id === id);
     if (rowToDelete) {
