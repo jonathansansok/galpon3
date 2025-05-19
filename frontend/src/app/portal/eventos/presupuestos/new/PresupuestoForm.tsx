@@ -1,3 +1,4 @@
+//frontend\src\app\portal\eventos\presupuestos\new\PresupuestoForm.tsx
 "use client";
 import { usePresupuestoStore } from "@/lib/store"; // Importar el store de Zustand
 import { InputField } from "@/components/ui/InputField";
@@ -13,6 +14,12 @@ import { useState, useEffect } from "react";
 import PhotosEvModal from "@/components/ui/MultimediaModals/PhotosEvModal";
 import PdfModal from "@/components/ui/MultimediaModals/PdfModal";
 import WordModal from "@/components/ui/MultimediaModals/WordModal";
+import ChapaYPinturaPage from "@/components/ui/ChapaYPinturaPage";
+//import ChapaPinturaTable from "@/components/ui/ChapaPinturaTable";
+import PreciosCyP from "@/components/ui/PreciosCyP";
+import TipoTrabajoSelect from "@/components/ui/TipoTrabajoSelect";
+import MagnitudDanioCheckbox from "@/components/ui/MagnitudDanioCheckbox";
+
 import {
   ShowPresupuestos,
   showCancelAlert,
@@ -79,6 +86,46 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
   console.log("[DEBUG] Valor de data.patente antes de enviar:", patenteValue);
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [tipoTrabajo, setTipoTrabajo] = useState<string>("Siniestro");
+  const [preciosData, setPreciosData] = useState({
+    chapa: {
+      costo: 0,
+      horas: 0,
+      diasPanos: 0,
+      materiales: "",
+    },
+    pintura: {
+      costo: 0,
+      horas: 0,
+      diasPanos: 0,
+      materiales: "",
+    },
+  });
+
+  const onUpdate = (row: "chapa" | "pintura", field: string, value: number) => {
+    setPreciosData((prev) => {
+      const updatedRow = { ...prev[row] };
+  
+      if (field === "costo" || field === "horas") {
+        updatedRow[field] += value; // Acumular los valores
+      }
+  
+      // Calcular días/paños automáticamente si se actualizan las horas
+      if (field === "horas") {
+        const totalHoras = updatedRow.horas;
+        updatedRow.diasPanos =
+          Math.floor(totalHoras / 4) + (totalHoras % 4 >= 2 ? 0.5 : 0);
+      }
+  
+      return {
+        ...prev,
+        [row]: updatedRow,
+      };
+    });
+  };
+  // Estado para los checkboxes "Magnitud del Daño"
+  const [magnitudDanio, setMagnitudDanio] = useState<string[]>([]);
   const [imagen, setImagen] = useState<string | null>(
     presupuesto?.imagen
       ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/presupuestos/uploads/${presupuesto.imagen}`
@@ -477,7 +524,7 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
           register={register}
           name="monto"
           label="Monto"
-          placeholder="Ingrese el monto"
+          placeholder=""
         />
         <InputField
           register={register}
@@ -492,24 +539,52 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
           label="Observaciones"
           placeholder="Escribe las observaciones aquí..."
         />
-        <div className="flex space-x-4">
-          <Button
-            type="button"
-            onClick={() => router.push("/portal/eventos/presupuestos")}
-            className="bg-orange-500"
-          >
-            Volver
-          </Button>
-          <Button type="submit" className="bg-blue-500" disabled={isSubmitting}>
-            {isSubmitting
-              ? params.id
-                ? "Actualizando..."
-                : "Creando..."
-              : params.id
-              ? "Actualizar Presupuesto"
-              : "Crear Presupuesto"}
-          </Button>
-        </div>
+      </div>
+
+      <ChapaYPinturaPage
+        onUpdate={(costo, horas) => {
+          onUpdate("chapa", "costo", costo);
+          onUpdate("chapa", "horas", horas);
+        }}
+      />
+<PreciosCyP
+  data={preciosData}
+  onUpdate={onUpdate}
+/>
+      {/* Select de Tipo de Trabajo */}
+      <TipoTrabajoSelect
+        value={tipoTrabajo}
+        onChange={(value) => setTipoTrabajo(value)}
+      />
+
+      {/* Checkboxes de Magnitud del Daño */}
+      <MagnitudDanioCheckbox
+        values={magnitudDanio}
+        onChange={(value) => {
+          setMagnitudDanio((prev) =>
+            prev.includes(value)
+              ? prev.filter((v) => v !== value)
+              : [...prev, value]
+          );
+        }}
+      />
+      <div className="flex space-x-4">
+        <Button
+          type="button"
+          onClick={() => router.push("/portal/eventos/presupuestos")}
+          className="bg-orange-500"
+        >
+          Volver
+        </Button>
+        <Button type="submit" className="bg-blue-500" disabled={isSubmitting}>
+          {isSubmitting
+            ? params.id
+              ? "Actualizando..."
+              : "Creando..."
+            : params.id
+            ? "Actualizar Presupuesto"
+            : "Crear Presupuesto"}
+        </Button>
       </div>
     </form>
   );
