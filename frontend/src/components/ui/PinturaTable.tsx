@@ -108,236 +108,239 @@ const handleAddRow = (e: React.MouseEvent<HTMLButtonElement>) => {
 
   return (
     <div className="mt-6">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">Pintura</h2>
-      <div className="overflow-hidden rounded-lg shadow-lg bg-white">
-        <table className="min-w-full bg-white">
-          <thead>
-            <tr className="bg-gradient-to-r from-blue-200 via-blue-300 to-blue-400 text-gray-800">
-              <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
-                Parte
-              </th>
-              <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
-                Piezas
-              </th>
-              <th className="py-3 px-2 text-left text-sm font-semibold uppercase tracking-wider w-[80px]">
-                Paños
-              </th>
-              <th className="py-3 px-2 text-left text-sm font-semibold uppercase tracking-wider w-[80px]">
-                Horas
-              </th>
-              <th className="py-3 px-2 text-left text-sm font-semibold uppercase tracking-wider w-[80px]">
-                Costo
-              </th>
-              <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
-                Especificación
-              </th>
-              <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {rows.map((row) => (
-              <tr key={row.id} className="hover:bg-blue-50">
-                <td className="py-4 px-6 text-sm text-gray-700">{row.parte}</td>
-                <td className="py-4 px-6 text-sm text-gray-700">
-                  {row.piezas}
-                </td>
-                <td className="py-4 px-2 text-sm text-gray-700 w-[80px]">
-                  <input
-                    type="number"
-                    value={row.horas}
-                    onChange={(e) =>
-                      handleEditRow(
-                        row.id,
-                        "horas",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="py-4 px-2 text-sm text-gray-700 w-[80px]">
-                  <input
-                    type="number"
-                    value={row.horas}
-                    onChange={(e) =>
-                      handleEditRow(
-                        row.id,
-                        "horas",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="py-4 px-2 text-sm text-gray-700 w-[80px]">
-                  <input
-                    type="number"
-                    value={row.costo}
-                    onChange={(e) =>
-                      handleEditRow(
-                        row.id,
-                        "costo",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="py-4 px-6 text-sm text-gray-700">
-                  <input
-                    type="text"
-                    value={row.especificacion}
-                    onChange={(e) =>
-                      handleEditRow(row.id, "especificacion", e.target.value)
-                    }
-                    className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </td>
-                <td className="py-4 px-6 text-sm text-gray-700 flex space-x-2">
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleUpdateRow(row);
-                    }}
-                    className="text-blue-500 hover:text-blue-700 transition duration-200"
-                  >
-                    <FaSave />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteRow(row.id)}
-                    className="text-red-500 hover:text-red-700 transition duration-200"
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {/* Fila de entrada */}
-            <tr className="bg-gray-50">
-              <td className="py-4 px-6">
-                <select
-                  value={newRow.parte}
-                  onChange={(e) =>
-                    setNewRow({ ...newRow, parte: e.target.value, piezas: "" })
-                  }
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Seleccione una parte</option>
-                  {Object.keys(partesPintura).map((parte) => (
-                    <option key={parte} value={parte}>
-                      {parte}
-                    </option>
-                  ))}
-                </select>
-              </td>
-              <td className="py-4 px-6">
-                <select
-                  value={newRow.piezas}
-                  onChange={(e) => {
-                    const pieza = e.target.value;
-                    const valores = piezasConValores[pieza as PiezaKey];
-
-                    if (valores) {
-                      const horas = valores.panos * 6; // Cada paño equivale a 6 horas
-                      const costo = valores.panos * valores.costoPorPano; // Costo total basado en los paños
-
-                      setNewRow({
-                        ...newRow,
-                        piezas: pieza,
-                        horas,
-                        costo,
-                      });
-                    }
-                  }}
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Seleccione una pieza</option>
-                  {partesPintura[newRow.parte as ParteKey]
-                    ?.slice(1)
-                    .map((pieza) => (
-                      <option key={pieza} value={pieza}>
-                        {pieza} -{" "}
-                        {piezasConValores[pieza as PiezaKey]?.panos || 0} paños
-                      </option>
-                    ))}
-                </select>
-              </td>
-              <td className="py-4 px-2 w-[80px]">
+    <h2 className="text-2xl font-bold mb-4 text-gray-800">Pintura</h2>
+    <div className="overflow-hidden rounded-lg shadow-lg bg-white">
+      <table className="min-w-full bg-white">
+        <thead>
+          <tr className="bg-gradient-to-r from-blue-200 via-blue-300 to-blue-400 text-gray-800">
+            <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+              Parte
+            </th>
+            <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+              Piezas
+            </th>
+            <th className="py-3 px-2 text-left text-sm font-semibold uppercase tracking-wider w-[80px]">
+              Paños
+            </th>
+            <th className="py-3 px-2 text-left text-sm font-semibold uppercase tracking-wider w-[80px]">
+              Horas
+            </th>
+            <th className="py-3 px-2 text-left text-sm font-semibold uppercase tracking-wider w-[80px]">
+              Costo
+            </th>
+            <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+              Especificación
+            </th>
+            <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+              Acciones
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {rows.map((row) => (
+            <tr key={row.id} className="hover:bg-blue-50">
+              <td className="py-4 px-6 text-sm text-gray-700">{row.parte}</td>
+              <td className="py-4 px-6 text-sm text-gray-700">{row.piezas}</td>
+              <td className="py-4 px-2 text-sm text-gray-700 w-[80px]">
                 <input
                   type="number"
-                  value={newRow.horas / 6 || 0} // Convertir horas a paños
+                  value={row.horas / 6} // Convertir horas a paños
                   onChange={(e) => {
                     const panos = parseFloat(e.target.value) || 0;
-                    const horas = panos * 6;
+                    const horas = panos * 6; // Cada paño equivale a 6 horas
                     const costo =
                       panos *
-                        piezasConValores[newRow.piezas as PiezaKey]
-                          ?.costoPorPano || 0;
-
-                    setNewRow({
-                      ...newRow,
-                      horas,
-                      costo,
-                    });
+                      (piezasConValores[row.piezas as PiezaKey]?.costoPorPano ||
+                        0);
+  
+                    handleEditRow(row.id, "horas", horas); // Actualiza las horas
+                    handleEditRow(row.id, "costo", costo); // Actualiza el costo
                   }}
                   className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </td>
-              <td className="py-4 px-2 w-[80px]">
-  <input
-    type="number"
-    value={newRow.horas}
-    onChange={(e) =>
-      setNewRow({
-        ...newRow,
-        horas: parseFloat(e.target.value) || 0,
-      })
-    }
-    className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-  />
-</td>
-              <td className="py-4 px-2 w-[80px]">
+              <td className="py-4 px-2 text-sm text-gray-700 w-[80px]">
                 <input
                   type="number"
-                  value={newRow.costo}
+                  value={row.horas}
+                  onChange={(e) => {
+                    const horas = parseFloat(e.target.value) || 0;
+                    const diasPanos = calculateDiasPanos(horas); // Calcular días
+                    handleEditRow(row.id, "horas", horas); // Actualiza solo las horas
+                    onUpdate(row.costo, horas, diasPanos); // Actualiza los días
+                  }}
+                  className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </td>
+              <td className="py-4 px-2 text-sm text-gray-700 w-[80px]">
+                <input
+                  type="number"
+                  value={row.costo}
                   onChange={(e) =>
-                    setNewRow({
-                      ...newRow,
-                      costo: parseFloat(e.target.value) || 0,
-                    })
+                    handleEditRow(
+                      row.id,
+                      "costo",
+                      parseFloat(e.target.value) || 0
+                    )
                   }
                   className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </td>
-              <td className="py-4 px-6">
+              <td className="py-4 px-6 text-sm text-gray-700">
                 <input
                   type="text"
-                  value={newRow.especificacion}
+                  value={row.especificacion}
                   onChange={(e) =>
-                    setNewRow({ ...newRow, especificacion: e.target.value })
+                    handleEditRow(row.id, "especificacion", e.target.value)
                   }
                   className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Especificación"
                 />
               </td>
-              <td className="py-4 px-6">
+              <td className="py-4 px-6 text-sm text-gray-700 flex space-x-2">
                 <button
-                  type="button"
                   onClick={(e) => {
                     e.preventDefault();
-                    handleAddRow(e);
+                    handleUpdateRow(row);
                   }}
-                  className="text-green-500 hover:text-green-700 transition duration-200"
+                  className="text-blue-500 hover:text-blue-700 transition duration-200"
                 >
-                  <FaPlus />
+                  <FaSave />
+                </button>
+                <button
+                  onClick={() => handleDeleteRow(row.id)}
+                  className="text-red-500 hover:text-red-700 transition duration-200"
+                >
+                  <FaTrash />
                 </button>
               </td>
             </tr>
-          </tbody>
-        </table>
-      </div>
+          ))}
+          {/* Fila de entrada */}
+          <tr className="bg-gray-50">
+            <td className="py-4 px-6">
+              <select
+                value={newRow.parte}
+                onChange={(e) =>
+                  setNewRow({ ...newRow, parte: e.target.value, piezas: "" })
+                }
+                className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Seleccione una parte</option>
+                {Object.keys(partesPintura).map((parte) => (
+                  <option key={parte} value={parte}>
+                    {parte}
+                  </option>
+                ))}
+              </select>
+            </td>
+            <td className="py-4 px-6">
+              <select
+                value={newRow.piezas}
+                onChange={(e) => {
+                  const pieza = e.target.value;
+                  const valores = piezasConValores[pieza as PiezaKey];
+  
+                  if (valores) {
+                    const horas = valores.panos * 6; // Cada paño equivale a 6 horas
+                    const costo = valores.panos * valores.costoPorPano; // Costo total basado en los paños
+  
+                    setNewRow({
+                      ...newRow,
+                      piezas: pieza,
+                      horas,
+                      costo,
+                    });
+                  }
+                }}
+                className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Seleccione una pieza</option>
+                {partesPintura[newRow.parte as ParteKey]?.map((pieza) => (
+                  <option key={pieza} value={pieza}>
+                    {pieza} -{" "}
+                    {piezasConValores[pieza as PiezaKey]?.panos || 0} paños
+                  </option>
+                ))}
+              </select>
+            </td>
+            <td className="py-4 px-2 w-[80px]">
+              <input
+                type="number"
+                value={newRow.horas / 6 || 0} // Convertir horas a paños
+                onChange={(e) => {
+                  const panos = parseFloat(e.target.value) || 0;
+                  const horas = panos * 6;
+                  const costo =
+                    panos *
+                    (piezasConValores[newRow.piezas as PiezaKey]?.costoPorPano ||
+                      0);
+  
+                  setNewRow({
+                    ...newRow,
+                    horas,
+                    costo,
+                  });
+                }}
+                className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </td>
+            <td className="py-4 px-2 w-[80px]">
+              <input
+                type="number"
+                value={newRow.horas}
+                onChange={(e) => {
+                  const horas = parseFloat(e.target.value) || 0;
+                  const diasPanos = calculateDiasPanos(horas); // Calcular días
+                  setNewRow({
+                    ...newRow,
+                    horas,
+                  });
+                  onUpdate(newRow.costo, horas, diasPanos); // Actualizar días
+                }}
+                className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </td>
+            <td className="py-4 px-2 w-[80px]">
+              <input
+                type="number"
+                value={newRow.costo}
+                onChange={(e) => {
+                  const costo = parseFloat(e.target.value) || 0;
+                  setNewRow({
+                    ...newRow,
+                    costo,
+                  });
+                }}
+                className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </td>
+            <td className="py-4 px-6">
+              <input
+                type="text"
+                value={newRow.especificacion}
+                onChange={(e) =>
+                  setNewRow({ ...newRow, especificacion: e.target.value })
+                }
+                className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Especificación"
+              />
+            </td>
+            <td className="py-4 px-6">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleAddRow(e);
+                }}
+                className="text-green-500 hover:text-green-700 transition duration-200"
+              >
+                <FaPlus />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+  </div>
   );
 }
