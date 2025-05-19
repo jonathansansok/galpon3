@@ -52,29 +52,27 @@ export default function PinturaTable({
     return Math.floor(horas / 4) + (horas % 4 >= 2 ? 0.5 : 0);
   };
 
-  const handleAddRow = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+const handleAddRow = (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.preventDefault();
 
-    if (!newRow.parte || !newRow.piezas || !newRow.especificacion) {
-      alert("Por favor, complete todos los campos.");
-      return;
-    }
+  if (!newRow.parte || !newRow.piezas || !newRow.especificacion) {
+    alert("Por favor, complete todos los campos.");
+    return;
+  }
 
-    const diasPanos = newRow.horas / 6; // Cada 6 horas es igual a un día
+  setRows([...rows, { ...newRow, id: Date.now() }]);
+  setNewRow({
+    id: 0,
+    parte: "",
+    piezas: "",
+    especificacion: "",
+    horas: 0,
+    costo: 0,
+  });
 
-    setRows([...rows, { ...newRow, id: Date.now() }]);
-    setNewRow({
-      id: 0,
-      parte: "",
-      piezas: "",
-      especificacion: "",
-      horas: 0,
-      costo: 0,
-    });
-
-    // Llamar a onUpdate con los tres argumentos
-    onUpdate(newRow.costo, newRow.horas, diasPanos);
-  };
+  // Llamar a onUpdate con los valores ingresados manualmente
+  onUpdate(newRow.costo, newRow.horas, 0); // Los días ya no se calculan automáticamente
+};
   const handleDeleteRow = (id: number) => {
     const rowToDelete = rows.find((row) => row.id === id);
     if (rowToDelete) {
@@ -148,18 +146,14 @@ export default function PinturaTable({
                 <td className="py-4 px-2 text-sm text-gray-700 w-[80px]">
                   <input
                     type="number"
-                    value={row.horas / 6} // Convertir horas a paños
-                    onChange={(e) => {
-                      const panos = parseFloat(e.target.value) || 0;
-                      const horas = panos * 6;
-                      const costo =
-                        panos *
-                          piezasConValores[row.piezas as PiezaKey]
-                            ?.costoPorPano || 0;
-
-                      handleEditRow(row.id, "horas", horas);
-                      handleEditRow(row.id, "costo", costo);
-                    }}
+                    value={row.horas}
+                    onChange={(e) =>
+                      handleEditRow(
+                        row.id,
+                        "horas",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
                     className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </td>
@@ -292,18 +286,18 @@ export default function PinturaTable({
                 />
               </td>
               <td className="py-4 px-2 w-[80px]">
-                <input
-                  type="number"
-                  value={newRow.horas}
-                  onChange={(e) =>
-                    setNewRow({
-                      ...newRow,
-                      horas: parseFloat(e.target.value) || 0,
-                    })
-                  }
-                  className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </td>
+  <input
+    type="number"
+    value={newRow.horas}
+    onChange={(e) =>
+      setNewRow({
+        ...newRow,
+        horas: parseFloat(e.target.value) || 0,
+      })
+    }
+    className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+</td>
               <td className="py-4 px-2 w-[80px]">
                 <input
                   type="number"
