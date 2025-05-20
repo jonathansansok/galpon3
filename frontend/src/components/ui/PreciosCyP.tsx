@@ -33,73 +33,51 @@ export default function PreciosCyP({
                 Horas
               </th>
               <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
-                Días de Chapa / Días de Paño
+                Días de Chapa / Paños
               </th>
               <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
                 Costo
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
-            {/* Fila fija: Chapa */}
-            <tr className="hover:bg-green-50">
-              <td className="py-4 px-6 text-sm font-bold text-gray-700">Chapa</td>
+          <tbody>
+            <tr>
+              <td className="py-4 px-6">Chapa</td>
               <td className="py-4 px-6">
                 <input
                   type="number"
                   value={data.chapa.horas}
                   onChange={(e) => handleInputChange(e, "chapa", "horas")}
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Horas"
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full"
                 />
               </td>
-              <td className="py-4 px-6">
-                <input
-                  type="number"
-                  value={data.chapa.diasPanos}
-                  readOnly
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full bg-gray-100 focus:outline-none"
-                  placeholder="Días/Paños"
-                />
-              </td>
+              <td className="py-4 px-6">{data.chapa.diasPanos}</td>
               <td className="py-4 px-6">
                 <input
                   type="number"
                   value={data.chapa.costo}
                   onChange={(e) => handleInputChange(e, "chapa", "costo")}
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Costo"
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full"
                 />
               </td>
             </tr>
-            {/* Fila fija: Pintura */}
-            <tr className="hover:bg-green-50">
-              <td className="py-4 px-6 text-sm font-bold text-gray-700">Pintura</td>
+            <tr>
+              <td className="py-4 px-6">Pintura</td>
               <td className="py-4 px-6">
                 <input
                   type="number"
                   value={data.pintura.horas}
                   onChange={(e) => handleInputChange(e, "pintura", "horas")}
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Horas"
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full"
                 />
               </td>
-              <td className="py-4 px-6">
-                <input
-                  type="number"
-                  value={data.pintura.diasPanos}
-                  readOnly
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full bg-gray-100 focus:outline-none"
-                  placeholder="Días/Paños"
-                />
-              </td>
+              <td className="py-4 px-6">{data.pintura.diasPanos}</td>
               <td className="py-4 px-6">
                 <input
                   type="number"
                   value={data.pintura.costo}
                   onChange={(e) => handleInputChange(e, "pintura", "costo")}
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Costo"
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full"
                 />
               </td>
             </tr>
