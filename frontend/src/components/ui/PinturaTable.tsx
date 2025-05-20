@@ -55,7 +55,7 @@ export default function PinturaTable({
 const handleAddRow = (e: React.MouseEvent<HTMLButtonElement>) => {
   e.preventDefault();
 
-  if (!newRow.parte || !newRow.piezas || !newRow.especificacion) {
+  if (!newRow.parte || !newRow.piezas) {
     alert("Por favor, complete todos los campos.");
     return;
   }
@@ -122,11 +122,17 @@ const handleAddRow = (e: React.MouseEvent<HTMLButtonElement>) => {
             <th className="py-3 px-2 text-left text-sm font-semibold uppercase tracking-wider w-[80px]">
               Paños
             </th>
-            <th className="py-3 px-2 text-left text-sm font-semibold uppercase tracking-wider w-[80px]">
+            <th className="py-3 px-2 text-left text-sm font-semibold uppercase tracking-wider w-[80px] hidden">
               Horas
             </th>
-            <th className="py-3 px-2 text-left text-sm font-semibold uppercase tracking-wider w-[80px]">
+            <th className="py-3 px-2 text-left text-sm font-semibold uppercase tracking-wider w-[80px] hidden">
               Costo
+            </th>
+            <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+            Pintar o difuminar
+            </th>
+            <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+              Tipo de Pintura
             </th>
             <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
               Especificación
@@ -159,7 +165,7 @@ const handleAddRow = (e: React.MouseEvent<HTMLButtonElement>) => {
                   className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </td>
-              <td className="py-4 px-2 text-sm text-gray-700 w-[80px]">
+              <td className="py-4 px-2 text-sm text-gray-700 w-[80px] hidden">
                 <input
                   type="number"
                   value={row.horas}
@@ -172,7 +178,7 @@ const handleAddRow = (e: React.MouseEvent<HTMLButtonElement>) => {
                   className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </td>
-              <td className="py-4 px-2 text-sm text-gray-700 w-[80px]">
+              <td className="py-4 px-2 text-sm text-gray-700 w-[80px] hidden">
                 <input
                   type="number"
                   value={row.costo}
@@ -185,6 +191,34 @@ const handleAddRow = (e: React.MouseEvent<HTMLButtonElement>) => {
                   }
                   className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+              </td>
+              <td className="py-4 px-6 text-sm text-gray-700">
+                <select
+                  onChange={(e) =>
+                    handleEditRow(row.id, "especificacion", e.target.value)
+                  }
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Pintar o Difuminar</option>
+                  <option value="Pintar">Pintar</option>
+                  <option value="Difuminar">Difuminar</option>
+                </select>
+              </td>
+              <td className="py-4 px-6 text-sm text-gray-700">
+                <select
+                  onChange={(e) => {
+                    const tipoPintura = e.target.value;
+                    let costoBase = 100; // Bicapa
+                    if (tipoPintura === "Monocapa") costoBase -= 30; // Monocapa
+                    if (tipoPintura === "Tricapa") costoBase *= 1.3; // Tricapa
+                    handleEditRow(row.id, "costo", costoBase);
+                  }}
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="Bicapa">Bicapa</option>
+                  <option value="Monocapa">Monocapa</option>
+                  <option value="Tricapa">Tricapa</option>
+                </select>
               </td>
               <td className="py-4 px-6 text-sm text-gray-700">
                 <input
@@ -284,35 +318,33 @@ const handleAddRow = (e: React.MouseEvent<HTMLButtonElement>) => {
                 className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </td>
-            <td className="py-4 px-2 w-[80px]">
-              <input
-                type="number"
-                value={newRow.horas}
-                onChange={(e) => {
-                  const horas = parseFloat(e.target.value) || 0;
-                  const diasPanos = calculateDiasPanos(horas); // Calcular días
-                  setNewRow({
-                    ...newRow,
-                    horas,
-                  });
-                  onUpdate(newRow.costo, horas, diasPanos); // Actualizar días
-                }}
-                className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+            <td className="py-4 px-6">
+              <select
+                onChange={(e) =>
+                  setNewRow({ ...newRow, especificacion: e.target.value })
+                }
+                className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Pintar o difuminar</option>
+                <option value="Pintar">Pintar</option>
+                <option value="Difuminar">Difuminar</option>
+              </select>
             </td>
-            <td className="py-4 px-2 w-[80px]">
-              <input
-                type="number"
-                value={newRow.costo}
+            <td className="py-4 px-6">
+              <select
                 onChange={(e) => {
-                  const costo = parseFloat(e.target.value) || 0;
-                  setNewRow({
-                    ...newRow,
-                    costo,
-                  });
+                  const tipoPintura = e.target.value;
+                  let costoBase = 100; // Bicapa
+                  if (tipoPintura === "Monocapa") costoBase -= 30; // Monocapa
+                  if (tipoPintura === "Tricapa") costoBase *= 1.3; // Tricapa
+                  setNewRow({ ...newRow, costo: costoBase });
                 }}
-                className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+                className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Bicapa">Bicapa</option>
+                <option value="Monocapa">Monocapa</option>
+                <option value="Tricapa">Tricapa</option>
+              </select>
             </td>
             <td className="py-4 px-6">
               <input
