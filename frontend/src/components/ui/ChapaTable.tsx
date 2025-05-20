@@ -10,36 +10,18 @@ interface ChapaRow {
   horas: number;
   costo: number;
 }
-
+// Solo dos opciones de partes y dos piezas por cada parte
 const partesChapa = {
-  "Parte Trasera": ["P.T.", "Paragolpe trasero", "Luces traseras"],
-  "Parte Delantera": ["P.D.", "Paragolpe delantero", "Luces delanteras"],
-  "Lado Derecho": ["LD", "Puerta", "Retrovisor", "Manija Conductor"],
-  "Lado Izquierdo": ["LI", "Puerta Izquierda", "Retrovisor Izquierdo"],
-  Techo: ["T.", "Polarizado", "Impermeabilización"],
-  "Tren Delantero": ["T.D.", "Amortiguadores", "Rótulas", "Bujes"],
-};
-
-const piezasConValores = {
-  "Paragolpe trasero": { costo: 100, horas: 4 },
-  "Luces traseras": { costo: 50, horas: 2 },
-  "Paragolpe delantero": { costo: 120, horas: 5 },
-  "Luces delanteras": { costo: 60, horas: 3 },
-  Puerta: { costo: 200, horas: 6 },
-  Retrovisor: { costo: 80, horas: 3 },
-  "Manija Conductor": { costo: 40, horas: 1 },
-  "Puerta Izquierda": { costo: 190, horas: 6 },
-  "Retrovisor Izquierdo": { costo: 75, horas: 3 },
-  Polarizado: { costo: 50, horas: 2 },
-  Impermeabilización: { costo: 70, horas: 3 },
-  Amortiguadores: { costo: 150, horas: 4 },
-  Rótulas: { costo: 90, horas: 2 },
-  Bujes: { costo: 60, horas: 1 },
-  Capó: { costo: 150, horas: 5 },
-  Filtro: { costo: 30, horas: 1 },
-  Radiador: { costo: 120, horas: 4 },
-};
-
+    "Parte Trasera": ["P.T.", "Paragolpe trasero", "Luces traseras"],
+    "Parte Delantera": ["P.D.", "Paragolpe delantero", "Luces delanteras"],
+  };
+  
+  const piezasConValores = {
+    "Paragolpe trasero": { costo: 100, horas: 4 },
+    "Luces traseras": { costo: 50, horas: 2 },
+    "Paragolpe delantero": { costo: 120, horas: 5 },
+    "Luces delanteras": { costo: 60, horas: 3 },
+  };
 type ParteKey = keyof typeof partesChapa;
 type PiezaKey = keyof typeof piezasConValores;
 

@@ -11,25 +11,18 @@ interface PinturaRow {
   costo: number;
 }
 
+// Solo dos opciones de partes y dos piezas por cada parte
 const partesPintura = {
-  "Pintura Completa": ["P.C.", "Color Base", "Capa Final"],
-  Techo: ["T.", "Polarizado", "Impermeabilización"],
-  "Lado Derecho": ["LD", "Puerta", "Retrovisor", "Manija Conductor"],
-  "Lado Izquierdo": ["LI", "Puerta Izquierda", "Retrovisor Izquierdo"],
-};
-
-const piezasConValores = {
-  "Color Base": { costoPorPano: 50, panos: 1},
-  "Capa Final": { costoPorPano: 50, panos: 1 },
-  Polarizado: { costoPorPano: 70, panos: 1 },
-  Impermeabilización: { costoPorPano: 90, panos: 1 },
-  Puerta: { costoPorPano: 120, panos: 1 },
-  Retrovisor: { costoPorPano: 60, panos: 1 },
-  "Manija Conductor": { costoPorPano: 40, panos: 1 },
-  "Puerta Izquierda": { costoPorPano: 110, panos: 1 },
-  "Retrovisor Izquierdo": { costoPorPano: 55, panos: 1 },
-};
-
+    "Parte Trasera": ["P.T.", "Paragolpe trasero", "Luces traseras"],
+    "Parte Delantera": ["P.D.", "Paragolpe delantero", "Luces delanteras"],
+  };
+  
+  const piezasConValores = {
+    "Paragolpe trasero": { costoPorPano: 80, panos: 2 },
+    "Luces traseras": { costoPorPano: 40, panos: 1 },
+    "Paragolpe delantero": { costoPorPano: 100, panos: 2 },
+    "Luces delanteras": { costoPorPano: 50, panos: 1 },
+  };
 type ParteKey = keyof typeof partesPintura;
 type PiezaKey = keyof typeof piezasConValores;
 
