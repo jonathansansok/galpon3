@@ -1,6 +1,6 @@
-//frontend\src\components\ui\ChapaTable.tsx
 import React, { useState } from "react";
 import { FaEdit, FaTrash, FaPlus, FaSave } from "react-icons/fa";
+import { useChapaPinturaStore } from "./ChapaPinturaStore";
 
 interface ChapaRow {
   id: number;
@@ -10,18 +10,19 @@ interface ChapaRow {
   horas: number;
   costo: number;
 }
-// Solo dos opciones de partes y dos piezas por cada parte
+
 const partesChapa = {
-    "Parte Trasera": ["P.T.", "Paragolpe trasero", "Luces traseras"],
-    "Parte Delantera": ["P.D.", "Paragolpe delantero", "Luces delanteras"],
-  };
-  
-  const piezasConValores = {
-    "Paragolpe trasero": { costo: 100, horas: 4 },
-    "Luces traseras": { costo: 50, horas: 2 },
-    "Paragolpe delantero": { costo: 120, horas: 5 },
-    "Luces delanteras": { costo: 60, horas: 3 },
-  };
+  "Parte Trasera": ["P.T.", "Paragolpe trasero", "Luces traseras"],
+  "Parte Delantera": ["P.D.", "Paragolpe delantero", "Luces delanteras"],
+};
+
+const piezasConValores = {
+  "Paragolpe trasero": { costo: 100, horas: 4 },
+  "Luces traseras": { costo: 50, horas: 2 },
+  "Paragolpe delantero": { costo: 120, horas: 5 },
+  "Luces delanteras": { costo: 60, horas: 3 },
+};
+
 type ParteKey = keyof typeof partesChapa;
 type PiezaKey = keyof typeof piezasConValores;
 
@@ -30,6 +31,7 @@ export default function ChapaTable({
 }: {
   onUpdate: (costo: number, horas: number, diasPanos: number) => void;
 }) {
+  const { addChapaRow, removeChapaRow } = useChapaPinturaStore();
   const [rows, setRows] = useState<ChapaRow[]>([]);
   const [newRow, setNewRow] = useState<ChapaRow>({
     id: 0,
@@ -53,8 +55,11 @@ export default function ChapaTable({
     }
 
     const diasPanos = calculateDiasPanos(newRow.horas);
+    const rowWithId = { ...newRow, id: Date.now() };
 
-    setRows([...rows, { ...newRow, id: Date.now() }]);
+    setRows([...rows, rowWithId]);
+    addChapaRow(rowWithId); // Agregar al estado compartido
+
     setNewRow({
       id: 0,
       parte: "",
@@ -64,40 +69,35 @@ export default function ChapaTable({
       costo: 0,
     });
 
-    // Llamar a onUpdate con los tres argumentos
     onUpdate(newRow.costo, newRow.horas, diasPanos);
   };
+
   const handleDeleteRow = (id: number) => {
     const rowToDelete = rows.find((row) => row.id === id);
     if (rowToDelete) {
       const diasPanos = calculateDiasPanos(rowToDelete.horas);
-
-      // Restar los valores de costo, horas y días/paños al eliminar una fila
       onUpdate(-rowToDelete.costo, -rowToDelete.horas, -diasPanos);
     }
+
     setRows(rows.filter((row) => row.id !== id));
+    removeChapaRow(id); // Eliminar del estado compartido
   };
 
+  // **Nueva función: handleEditRow**
   const handleEditRow = (
     id: number,
-    field: "horas" | "costo" | "especificacion", // Agregar "especificacion"
-    value: number | string // Permitir valores de tipo string para "especificacion"
+    field: keyof ChapaRow,
+    value: string | number
   ) => {
-    setRows((prevRows) =>
-      prevRows.map((row) =>
-        row.id === id
-          ? {
-              ...row,
-              [field]: value,
-            }
-          : row
-      )
+    const updatedRows = rows.map((row) =>
+      row.id === id
+        ? {
+            ...row,
+            [field]: value,
+          }
+        : row
     );
-  };
-
-  const handleUpdateRow = (row: ChapaRow) => {
-    const diasPanos = calculateDiasPanos(row.horas);
-    onUpdate(row.costo, row.horas, diasPanos);
+    setRows(updatedRows);
   };
 
   return (
@@ -117,9 +117,6 @@ export default function ChapaTable({
                 Horas
               </th>
               <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
-                Acción
-              </th>
-              <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
                 Especificación
               </th>
               <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
@@ -127,13 +124,11 @@ export default function ChapaTable({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody>
             {rows.map((row) => (
               <tr key={row.id} className="hover:bg-gray-100">
                 <td className="py-4 px-6 text-sm text-gray-700">{row.parte}</td>
-                <td className="py-4 px-6 text-sm text-gray-700">
-                  {row.piezas}
-                </td>
+                <td className="py-4 px-6 text-sm text-gray-700">{row.piezas}</td>
                 <td className="py-4 px-2 text-sm text-gray-700 w-[80px]">
                   <input
                     type="number"
@@ -149,36 +144,16 @@ export default function ChapaTable({
                   />
                 </td>
                 <td className="py-4 px-6 text-sm text-gray-700">
-                  <select
+                  <input
+                    type="text"
                     value={row.especificacion}
-                    onChange={
-                      (e) =>
-                        handleEditRow(row.id, "especificacion", e.target.value) // Ahora es válido
+                    onChange={(e) =>
+                      handleEditRow(row.id, "especificacion", e.target.value)
                     }
                     className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Seleccione una acción</option>
-                    <option value="Sustituir">Sustituir</option>
-                    <option value="Reparar">Reparar</option>
-                    <option value="Verificar">Verificar</option>
-                    <option value="Desmontar y Montar">
-                      Desmontar y Montar
-                    </option>
-                  </select>
-                </td>
-                <td className="py-4 px-6 text-sm text-gray-700">
-                  {row.especificacion}
+                  />
                 </td>
                 <td className="py-4 px-6 text-sm text-gray-700 flex space-x-2">
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleUpdateRow(row);
-                    }}
-                    className="text-blue-500 hover:text-blue-700 transition duration-200"
-                  >
-                    <FaSave />
-                  </button>
                   <button
                     onClick={() => handleDeleteRow(row.id)}
                     className="text-red-500 hover:text-red-700 transition duration-200"
@@ -223,13 +198,11 @@ export default function ChapaTable({
                   className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Seleccione una pieza</option>
-                  {partesChapa[newRow.parte as ParteKey]
-                    ?.slice(1)
-                    .map((pieza) => (
-                      <option key={pieza} value={pieza}>
-                        {pieza}
-                      </option>
-                    ))}
+                  {partesChapa[newRow.parte as ParteKey]?.map((pieza) => (
+                    <option key={pieza} value={pieza}>
+                      {pieza}
+                    </option>
+                  ))}
                 </select>
               </td>
               <td className="py-4 px-2 w-[80px]">
@@ -246,21 +219,6 @@ export default function ChapaTable({
                 />
               </td>
               <td className="py-4 px-6">
-                <select
-                  value={newRow.especificacion}
-                  onChange={(e) =>
-                    setNewRow({ ...newRow, especificacion: e.target.value })
-                  }
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Seleccione una acción</option>
-                  <option value="Sustituir">Sustituir</option>
-                  <option value="Reparar">Reparar</option>
-                  <option value="Verificar">Verificar</option>
-                  <option value="Desmontar y Montar">Desmontar y Montar</option>
-                </select>
-              </td>
-              <td className="py-4 px-6">
                 <input
                   type="text"
                   value={newRow.especificacion}
@@ -268,7 +226,6 @@ export default function ChapaTable({
                     setNewRow({ ...newRow, especificacion: e.target.value })
                   }
                   className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Especificación"
                 />
               </td>
               <td className="py-4 px-6">
