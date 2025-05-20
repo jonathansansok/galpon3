@@ -1,19 +1,19 @@
-//frontend\src\components\ui\PreciosCyP.tsx
-import React, { useState } from "react";
+import React from "react";
+
 export default function PreciosCyP({
   data,
   onUpdate,
 }: {
   data: {
-    chapa: { costo: number; horas: number; diasPanos: number; materiales: string };
-    pintura: { costo: number; horas: number; diasPanos: number; materiales: string };
+    chapa: { costo: number; horas: number; diasPanos: number };
+    pintura: { costo: number; horas: number; diasPanos: number };
   };
   onUpdate: (row: "chapa" | "pintura", field: string, value: number) => void;
 }) {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     row: "chapa" | "pintura",
-    field: "costo" | "horas" | "diasPanos" | "materiales"
+    field: "costo" | "horas" | "diasPanos"
   ) => {
     const value = parseFloat(e.target.value) || 0;
     onUpdate(row, field, value);
@@ -30,16 +30,13 @@ export default function PreciosCyP({
                 Trabajo
               </th>
               <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
-                Costo
-              </th>
-              <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
                 Horas
               </th>
               <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
                 Días de Chapa / Días de Paño
               </th>
               <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
-                Materiales
+                Costo
               </th>
             </tr>
           </thead>
@@ -47,15 +44,6 @@ export default function PreciosCyP({
             {/* Fila fija: Chapa */}
             <tr className="hover:bg-green-50">
               <td className="py-4 px-6 text-sm font-bold text-gray-700">Chapa</td>
-              <td className="py-4 px-6">
-                <input
-                  type="number"
-                  value={data.chapa.costo}
-                  onChange={(e) => handleInputChange(e, "chapa", "costo")}
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Costo"
-                />
-              </td>
               <td className="py-4 px-6">
                 <input
                   type="number"
@@ -76,26 +64,17 @@ export default function PreciosCyP({
               </td>
               <td className="py-4 px-6">
                 <input
-                  type="text"
-                  value={data.chapa.materiales}
-                  onChange={(e) => handleInputChange(e, "chapa", "materiales")}
+                  type="number"
+                  value={data.chapa.costo}
+                  onChange={(e) => handleInputChange(e, "chapa", "costo")}
                   className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Materiales"
+                  placeholder="Costo"
                 />
               </td>
             </tr>
             {/* Fila fija: Pintura */}
             <tr className="hover:bg-green-50">
               <td className="py-4 px-6 text-sm font-bold text-gray-700">Pintura</td>
-              <td className="py-4 px-6">
-                <input
-                  type="number"
-                  value={data.pintura.costo}
-                  onChange={(e) => handleInputChange(e, "pintura", "costo")}
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Costo"
-                />
-              </td>
               <td className="py-4 px-6">
                 <input
                   type="number"
@@ -116,11 +95,11 @@ export default function PreciosCyP({
               </td>
               <td className="py-4 px-6">
                 <input
-                  type="text"
-                  value={data.pintura.materiales}
-                  onChange={(e) => handleInputChange(e, "pintura", "materiales")}
+                  type="number"
+                  value={data.pintura.costo}
+                  onChange={(e) => handleInputChange(e, "pintura", "costo")}
                   className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Materiales"
+                  placeholder="Costo"
                 />
               </td>
             </tr>

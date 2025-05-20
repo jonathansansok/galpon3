@@ -18,7 +18,6 @@ import ChapaYPinturaPage from "@/components/ui/ChapaYPinturaPage";
 //import ChapaPinturaTable from "@/components/ui/ChapaPinturaTable";
 import PreciosCyP from "@/components/ui/PreciosCyP";
 import TipoTrabajoSelect from "@/components/ui/TipoTrabajoSelect";
-import MagnitudDanioCheckbox from "@/components/ui/MagnitudDanioCheckbox";
 
 import {
   ShowPresupuestos,
@@ -586,17 +585,7 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
         onChange={(value) => setTipoTrabajo(value)}
       />
 
-      {/* Checkboxes de Magnitud del Daño */}
-      <MagnitudDanioCheckbox
-        values={magnitudDanio}
-        onChange={(value) => {
-          setMagnitudDanio((prev) =>
-            prev.includes(value)
-              ? prev.filter((v) => v !== value)
-              : [...prev, value]
-          );
-        }}
-      />
+
       <div className="flex space-x-4">
         <Button
           type="button"
