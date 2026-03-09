@@ -38,12 +38,18 @@ export function useFileFields(module: ModuleName, entity: any) {
     initFileStates(module, entity, ALL_FILE_FIELDS)
   );
 
+  const [originalNames, setOriginalNames] = useState<Record<string, string>>({});
+
   const setFile = useCallback((field: string, value: string | null) => {
     console.log("multimedia", "setFile", {
       field,
       isDataUri: value?.startsWith("data:") ?? false,
     });
     setFiles((prev) => ({ ...prev, [field]: value }));
+  }, []);
+
+  const setOriginalName = useCallback((field: string, name: string) => {
+    setOriginalNames((prev) => ({ ...prev, [field]: name }));
   }, []);
 
   const getFileUrl = useCallback(
@@ -59,6 +65,8 @@ export function useFileFields(module: ModuleName, entity: any) {
     files,
     setFile,
     getFileUrl,
+    originalNames,
+    setOriginalName,
     IMAGE_FIELDS,
     PDF_FIELDS,
     WORD_FIELDS,

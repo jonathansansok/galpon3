@@ -14,6 +14,7 @@ interface ImageCropperProps {
   onImageCropped: (croppedImage: string) => void;
   onCancel: () => void;
   initialAspectRatio?: number;
+  onFileNameCaptured?: (name: string) => void;
 }
 
 const ASPECT_RATIOS: { label: string; value: AspectRatioOption; ratio: number | undefined }[] = [
@@ -32,6 +33,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({
   onImageCropped,
   onCancel,
   initialAspectRatio,
+  onFileNameCaptured,
 }) => {
   const [image, setImage] = useState<string | null>(null);
   const [aspectRatio, setAspectRatio] = useState<AspectRatioOption>(
@@ -46,6 +48,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({
   const onImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      onFileNameCaptured?.(file.name);
       const reader = new FileReader();
       reader.onloadend = () => setImage(reader.result as string);
       reader.readAsDataURL(file);
@@ -56,11 +59,12 @@ const ImageCropper: React.FC<ImageCropperProps> = ({
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
     if (file && file.type.startsWith("image/")) {
+      onFileNameCaptured?.(file.name);
       const reader = new FileReader();
       reader.onloadend = () => setImage(reader.result as string);
       reader.readAsDataURL(file);
     }
-  }, []);
+  }, [onFileNameCaptured]);
 
   const updateEstimatedSize = useCallback(() => {
     const cropper = cropperRef.current?.cropper;

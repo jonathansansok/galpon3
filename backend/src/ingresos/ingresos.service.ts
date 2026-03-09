@@ -14,7 +14,8 @@ import { CreateIngresoDto } from './dto/create-ingreso.dto';
 import { UpdateIngresoDto } from './dto/update-ingreso.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { extname } from 'path';
+import { extname, join } from 'path';
+import * as fs from 'fs';
 
 @Injectable()
 export class IngresosService {
@@ -352,9 +353,58 @@ export class IngresosService {
 
     updateIngresoDto.imagenesHistorial = imagenesHistorial;
 
+    // Limpiar campos de archivos que se enviaron como vacíos (eliminados desde frontend)
+    for (const field of this.FILE_FIELDS) {
+      if (updateIngresoDto[field] === '') {
+        updateIngresoDto[field] = null;
+      }
+    }
+
     return this.prismaService.ingresos.update({
       where: { id },
       data: updateIngresoDto,
+    });
+  }
+
+  private readonly FILE_FIELDS = [
+    'imagen', 'imagenDer', 'imagenIz', 'imagenDact',
+    'imagenSen1', 'imagenSen2', 'imagenSen3', 'imagenSen4', 'imagenSen5', 'imagenSen6',
+    'pdf1', 'pdf2', 'pdf3', 'pdf4', 'pdf5', 'pdf6', 'pdf7', 'pdf8', 'pdf9', 'pdf10',
+    'word1',
+  ];
+
+  async removeFile(id: number, field: string) {
+    if (!this.FILE_FIELDS.includes(field)) {
+      throw new BadRequestException(`Campo "${field}" no es un campo de archivo válido`);
+    }
+
+    const ingreso = await this.findOne(id);
+    const filename = ingreso[field];
+
+    if (filename) {
+      // Determinar la carpeta de uploads
+      const uploadsDir = field === 'imagenDer'
+        ? join(__dirname, '..', 'uploads', 'der')
+        : join(__dirname, '..', 'uploads');
+
+      const filePath = join(uploadsDir, filename);
+
+      try {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          console.log(`[REMOVE-FILE] Archivo eliminado del disco: ${filePath}`);
+        } else {
+          console.warn(`[REMOVE-FILE] Archivo no encontrado en disco: ${filePath}`);
+        }
+      } catch (err) {
+        console.error(`[REMOVE-FILE] Error al eliminar archivo del disco: ${err.message}`);
+      }
+    }
+
+    // Limpiar el campo en la base de datos
+    return this.prismaService.ingresos.update({
+      where: { id },
+      data: { [field]: null },
     });
   }
 

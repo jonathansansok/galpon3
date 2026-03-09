@@ -22,7 +22,7 @@ import { IngresosService } from './ingresos.service';
 import { CreateIngresoDto } from './dto/create-ingreso.dto';
 import { UpdateIngresoDto } from './dto/update-ingreso.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { extname } from 'path';
+import { extname, join } from 'path';
 import { Request } from 'express';
 import { doubleCsrf } from 'csrf-csrf';
 
@@ -344,6 +344,32 @@ export class IngresosController {
       throw new HttpException(
         'Error al procesar la solicitud',
         HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Patch(':id/remove-file')
+  @ApiOperation({ summary: 'Eliminar un archivo de un ingreso' })
+  async removeFile(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('field') field: string,
+    @Req() req: Request,
+  ) {
+    try {
+      validateRequest(req);
+      const result = await this.ingresosService.removeFile(id, field);
+      return {
+        message: 'Archivo eliminado exitosamente',
+        data: result,
+      };
+    } catch (error) {
+      console.error('Error al eliminar archivo:', error.message);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        error.message || 'Error al procesar la solicitud',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

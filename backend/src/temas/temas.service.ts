@@ -4,11 +4,14 @@ import {
   NotFoundException,
   ConflictException,
   InternalServerErrorException,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateTemaDto } from './dto/create-tema.dto';
 import { UpdateTemaDto } from './dto/update-tema.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import { join } from 'path';
+import * as fs from 'fs';
 
 @Injectable()
 export class TemasService {
@@ -83,6 +86,13 @@ export class TemasService {
 
   async update(id: number, updateTemasDto: UpdateTemaDto) {
     try {
+      // Limpiar campos de archivos que se enviaron como vacíos (eliminados desde frontend)
+      for (const field of this.FILE_FIELDS) {
+        if (updateTemasDto[field] === '') {
+          updateTemasDto[field] = null;
+        }
+      }
+
       const result = await this.prismaService.temas.update({
         where: {
           id,
@@ -106,6 +116,46 @@ export class TemasService {
 
       throw new InternalServerErrorException('Error al actualizar el tema');
     }
+  }
+
+  private readonly FILE_FIELDS = [
+    'imagen', 'imagenDer', 'imagenIz', 'imagenDact',
+    'imagenSen1', 'imagenSen2', 'imagenSen3', 'imagenSen4', 'imagenSen5', 'imagenSen6',
+    'pdf1', 'pdf2', 'pdf3', 'pdf4', 'pdf5', 'pdf6', 'pdf7', 'pdf8', 'pdf9', 'pdf10',
+    'word1',
+  ];
+
+  async removeFile(id: number, field: string) {
+    if (!this.FILE_FIELDS.includes(field)) {
+      throw new BadRequestException(`Campo "${field}" no es un campo de archivo válido`);
+    }
+
+    const tema = await this.findOne(id);
+    const filename = tema[field];
+
+    if (filename) {
+      const uploadsDir = field === 'imagenDer'
+        ? join(__dirname, '..', 'uploads', 'der')
+        : join(__dirname, '..', 'uploads');
+
+      const filePath = join(uploadsDir, filename);
+
+      try {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          console.log(`[REMOVE-FILE] Archivo eliminado del disco: ${filePath}`);
+        } else {
+          console.warn(`[REMOVE-FILE] Archivo no encontrado en disco: ${filePath}`);
+        }
+      } catch (err) {
+        console.error(`[REMOVE-FILE] Error al eliminar archivo del disco: ${err.message}`);
+      }
+    }
+
+    return this.prismaService.temas.update({
+      where: { id },
+      data: { [field]: null },
+    });
   }
 
   async remove(id: number) {

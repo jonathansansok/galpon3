@@ -182,7 +182,7 @@ export function TemaForm({ tema }: { tema: any }) {
     tema?.observacion || ""
   );
 
-  const { files, setFile, getFileUrl } = useFileFields("temas", tema);
+  const { files, setFile, getFileUrl, originalNames, setOriginalName } = useFileFields("temas", tema);
   const [selectedInternos, setSelectedInternos] = useState<Interno[]>(() => {
     try {
       if (tema?.internosinvolucrado) {
@@ -347,15 +347,17 @@ export function TemaForm({ tema }: { tema: any }) {
       }
 
       // Procesar imágenes y archivos
+      const sanitizeName = (name: string) => name.replace(/[^a-zA-Z0-9._-]/g, "_").substring(0, 60);
+
       const processFile = async (
         file: string | null,
         key: string,
         extension: string
       ) => {
         if (file && file.startsWith("data:")) {
-          const uniqueFileName = `${key}-${Date.now()}-${Math.floor(
-            Math.random() * 1000000
-          )}.${extension}`;
+          const origName = originalNames[key];
+          const baseName = origName ? sanitizeName(origName.replace(/\.[^.]+$/, "")) : key;
+          const uniqueFileName = `${key}--${baseName}-${Date.now()}.${extension}`;
           console.log("multimedia", "processFile", { key, extension, uniqueFileName });
           const response = await fetch(file);
           const blob = await response.blob();
@@ -373,6 +375,13 @@ export function TemaForm({ tema }: { tema: any }) {
           return processFile(files[field], field, ext);
         })
       );
+
+      // Enviar explícitamente campos vacíos para archivos eliminados
+      for (const field of ALL_FILE_FIELDS) {
+        if (!files[field] && !formData.has(field)) {
+          formData.append(field, "");
+        }
+      }
 
       try {
         let response;
@@ -487,6 +496,8 @@ export function TemaForm({ tema }: { tema: any }) {
           files={files}
           setFile={setFile}
           getFileUrl={getFileUrl}
+          originalNames={originalNames}
+          setOriginalName={setOriginalName}
         />
 
         <Button
@@ -502,6 +513,8 @@ export function TemaForm({ tema }: { tema: any }) {
           files={files}
           setFile={setFile}
           getFileUrl={getFileUrl}
+          originalNames={originalNames}
+          setOriginalName={setOriginalName}
         />
         <Button
           type="button"
@@ -515,6 +528,8 @@ export function TemaForm({ tema }: { tema: any }) {
           onClose={() => setIsWordOpen(false)}
           files={files}
           setFile={setFile}
+          originalNames={originalNames}
+          setOriginalName={setOriginalName}
         />
 
         <InputField

@@ -20,7 +20,7 @@ import { TemasService } from './temas.service';
 import { CreateTemaDto } from './dto/create-tema.dto';
 import { UpdateTemaDto } from './dto/update-tema.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { extname } from 'path';
+import { extname, join } from 'path';
 import { Request } from 'express';
 import { doubleCsrf } from 'csrf-csrf';
 
@@ -213,6 +213,32 @@ export class TemasController {
       throw new HttpException(
         'Invalid CSRF token or other error',
         HttpStatus.FORBIDDEN,
+      );
+    }
+  }
+
+  @Patch(':id/remove-file')
+  @ApiOperation({ summary: 'Eliminar un archivo de un tema' })
+  async removeFile(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('field') field: string,
+    @Req() req: Request,
+  ) {
+    try {
+      validateRequest(req);
+      const result = await this.temasService.removeFile(id, field);
+      return {
+        message: 'Archivo eliminado exitosamente',
+        data: result,
+      };
+    } catch (error) {
+      console.error('Error al eliminar archivo:', error.message);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        error.message || 'Error al procesar la solicitud',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
