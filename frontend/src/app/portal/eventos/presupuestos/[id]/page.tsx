@@ -37,7 +37,7 @@ const PresupuestoDetailPage: React.FC<Props> = ({ params }) => {
   }, [id]);
 
   const handleRemovePresupuesto = async (id: string) => {
-    if (user?.email !== presupuesto?.email && privilege !== "A1") {
+    if (privilege !== "A1" && privilege !== "B1") {
       Alert.error({
         title: "Acceso denegado",
         text: "No tienes permiso para eliminar este presupuesto.",
@@ -151,7 +151,7 @@ const PresupuestoDetailPage: React.FC<Props> = ({ params }) => {
           </div>
 
           <div className="flex justify-end">
-            {(user?.email === presupuesto.email || privilege === "A1") && (
+            {(privilege === "A1" || privilege === "B1") && (
               <button
                 className="bg-red-500 text-white py-2 px-4 rounded"
                 onClick={() => handleRemovePresupuesto(id)}

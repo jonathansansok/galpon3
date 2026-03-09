@@ -20,6 +20,7 @@ export const dynamic = "force-dynamic";
 export default function IngresosPage() {
   const [ingresos, setIngresos] = useState<Ingreso[]>([]);
   const [searchResults, setSearchResults] = useState<IngresoSearchResult[]>([]);
+  const [searchTerms, setSearchTerms] = useState<string[]>([]);
   const [sortColumn, setSortColumn] = useState<keyof Ingreso | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null); // Definir el estado backgroundImage
@@ -78,6 +79,7 @@ export default function IngresosPage() {
       emailCliente;
 
     if (query) {
+      setSearchTerms(Object.values(queries).filter((v) => v.length > 0));
       try {
         const data = await searchInternos(query);
         console.log("Resultados de búsqueda recibidos:", data); // Agregado
@@ -241,6 +243,7 @@ export default function IngresosPage() {
           onViewClick={handleViewClick}
           getEditUrl={(id) => `/portal/eventos/ingresos/${id}/edit`}
           getViewUrl={(id) => `/portal/eventos/ingresos/${id}`}
+          searchTerms={searchTerms}
         />
       </div>
     </div>

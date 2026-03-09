@@ -16,12 +16,14 @@ interface MarcaTableProps {
     updatedMarca: { value: string; label: string }
   ) => void;
   onDelete: (id: string) => void;
+  privilege?: string | null;
 }
 
 const MarcaTable: React.FC<MarcaTableProps> = ({
   marcas,
   onUpdate,
   onDelete,
+  privilege,
 }) => {
   const [sortColumn, setSortColumn] = useState<keyof Marca | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -152,12 +154,14 @@ const MarcaTable: React.FC<MarcaTableProps> = ({
                 >
                   <FaEdit />
                 </button>
-                <button
-                  onClick={() => handleDelete(marca.id, marca.label)}
-                  className="text-red-500 hover:text-red-600"
-                >
-                  <FaTrash />
-                </button>
+                {(privilege === "A1" || privilege === "B1") && (
+                  <button
+                    onClick={() => handleDelete(marca.id, marca.label)}
+                    className="text-red-500 hover:text-red-600"
+                  >
+                    <FaTrash />
+                  </button>
+                )}
               </td>
               <td className="px-4 py-2">{marca.label}</td>
               <td className="px-4 py-2">{marca.value}</td>

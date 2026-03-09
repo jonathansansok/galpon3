@@ -38,10 +38,10 @@ const TemaDetailPage: React.FC<Props> = ({ params }) => {
   }, [id]);
 
   const handleRemoveTema = async (id: string) => {
-    if (user?.email !== tema?.email && privilege !== "A1") {
+    if (privilege !== "A1" && privilege !== "B1") {
       Alert.error({
         title: "Acceso denegado",
-        text: "No tienes permiso para eliminar este tema.",
+        text: "No tienes permiso para eliminar este móvil.",
         icon: "error",
       });
       return;
@@ -170,7 +170,7 @@ const TemaDetailPage: React.FC<Props> = ({ params }) => {
           </div>
 
           <div className="flex justify-end">
-            {(user?.email === tema.email || privilege === "A1") && (
+            {(privilege === "A1" || privilege === "B1") && (
               <button
                 className="bg-red-500 text-white py-2 px-4 rounded"
                 onClick={() => handleRemoveTema(id)}

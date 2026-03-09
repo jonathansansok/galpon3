@@ -1,6 +1,7 @@
-import { Injectable, ConflictException, BadRequestException } from '@nestjs/common';
+import { Injectable, ConflictException, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { Response } from 'express';
@@ -10,12 +11,19 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
     console.log('[AuthService] validateUser called for:', email);
     const user = await this.usersService.findByEmail(email);
     if (user && (await bcrypt.compare(password, user.password))) {
+      if (user.status === 'PENDIENTE') {
+        throw new UnauthorizedException('Tu cuenta está pendiente de aprobación por un administrador');
+      }
+      if (user.status === 'RECHAZADO') {
+        throw new UnauthorizedException('Tu solicitud de registro fue rechazada');
+      }
       console.log('[AuthService] validateUser success for:', email);
       const { password: _, ...result } = user;
       return result;
@@ -79,8 +87,17 @@ export class AuthService {
       telefono,
     });
 
+    // Crear notificación para admins
+    await this.notificationsService.create({
+      action: 'CREATE',
+      entity: 'Solicitud',
+      entityId: user.id,
+      detail: `Nueva solicitud de registro: ${email}`,
+      userId: user.id,
+    });
+
     const { password: _, ...result } = user;
-    return result;
+    return { ...result, message: 'Solicitud enviada. Un administrador revisará tu cuenta.' };
   }
 
   async logout(res: Response) {

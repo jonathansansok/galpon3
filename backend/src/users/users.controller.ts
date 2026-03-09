@@ -48,6 +48,7 @@ export class UsersController {
       email?: string;
       privilege?: string;
       comp?: string;
+      status?: string;
     },
   ) {
     if (req.user.privilege !== 'A1') {

@@ -13,6 +13,7 @@ interface User {
   telefono: string | null;
   privilege: string | null;
   comp: string | null;
+  status: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -66,6 +67,7 @@ function UsersSection() {
   const [resetLoading, setResetLoading] = useState<number | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const [resetConfirm, setResetConfirm] = useState<User | null>(null);
+  const [approvePrivilege, setApprovePrivilege] = useState<Record<number, string>>({});
 
   const fetchUsers = async () => {
     try {
@@ -132,10 +134,43 @@ function UsersSection() {
     }
   };
 
+  const handleApprove = async (id: number) => {
+    const priv = approvePrivilege[id];
+    if (!priv) {
+      toast.warning("Selecciona un privilegio antes de aprobar");
+      return;
+    }
+    try {
+      await updateUser(id, { status: "APROBADO", privilege: priv });
+      toast.success("Usuario aprobado como " + priv);
+      setApprovePrivilege((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      await fetchUsers();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
+  const handleReject = async (id: number) => {
+    try {
+      await updateUser(id, { status: "RECHAZADO" });
+      toast.success("Solicitud rechazada");
+      await fetchUsers();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.info("Enlace copiado");
   };
+
+  const pendingUsers = users.filter((u) => u.status === "PENDIENTE");
+  const approvedUsers = users.filter((u) => u.status !== "PENDIENTE");
 
   if (loading) {
     return (
@@ -157,12 +192,18 @@ function UsersSection() {
       <div className="flex items-center gap-4">
         <div className="bg-white rounded-xl border border-slate-200/80 px-4 py-3 shadow-sm">
           <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Total</p>
-          <p className="text-2xl font-bold text-slate-800">{users.length}</p>
+          <p className="text-2xl font-bold text-slate-800">{approvedUsers.length}</p>
         </div>
         <div className="bg-white rounded-xl border border-slate-200/80 px-4 py-3 shadow-sm">
           <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Admins</p>
           <p className="text-2xl font-bold text-indigo-600">{users.filter((u) => u.privilege === "A1").length}</p>
         </div>
+        {pendingUsers.length > 0 && (
+          <div className="bg-amber-50 rounded-xl border border-amber-200 px-4 py-3 shadow-sm">
+            <p className="text-xs text-amber-500 font-medium uppercase tracking-wider">Pendientes</p>
+            <p className="text-2xl font-bold text-amber-600">{pendingUsers.length}</p>
+          </div>
+        )}
       </div>
 
       {/* Reset link banner */}
@@ -204,9 +245,65 @@ function UsersSection() {
         </div>
       )}
 
+      {/* Pending requests */}
+      {pendingUsers.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-lg font-semibold text-slate-800">Solicitudes pendientes</h2>
+          <div className="grid gap-3">
+            {pendingUsers.map((user) => {
+              const fullName = [user.nombre, user.apellido].filter(Boolean).join(" ");
+              const initials = [user.nombre?.[0], user.apellido?.[0]].filter(Boolean).join("").toUpperCase() || user.email[0].toUpperCase();
+              return (
+                <div
+                  key={user.id}
+                  className="bg-white rounded-xl border border-amber-200 shadow-sm p-4 flex items-center gap-4"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 font-bold text-sm">
+                    {initials}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-800 truncate">
+                      {fullName || <span className="text-slate-300 italic">Sin nombre</span>}
+                    </p>
+                    <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                    {user.telefono && (
+                      <p className="text-xs text-slate-400 truncate">Tel: {user.telefono}</p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <select
+                      value={approvePrivilege[user.id] || ""}
+                      onChange={(e) => setApprovePrivilege((prev) => ({ ...prev, [user.id]: e.target.value }))}
+                      className="px-2 py-2 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                    >
+                      <option value="">Privilegio...</option>
+                      <option value="A1">A1 - Admin</option>
+                      <option value="B1">B1 - Operador</option>
+                      <option value="C1">C1 - Cliente</option>
+                    </select>
+                    <button
+                      onClick={() => handleApprove(user.id)}
+                      className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 transition-colors shadow-sm"
+                    >
+                      Aprobar
+                    </button>
+                    <button
+                      onClick={() => handleReject(user.id)}
+                      className="px-4 py-2 bg-red-500 text-white rounded-lg text-xs font-semibold hover:bg-red-600 transition-colors shadow-sm"
+                    >
+                      Rechazar
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Users cards */}
       <div className="grid gap-3">
-        {users.map((user) => {
+        {approvedUsers.map((user) => {
           const isEditing = editingId === user.id;
           const isAdmin = user.privilege === "A1";
           const fullName = [user.nombre, user.apellido].filter(Boolean).join(" ");
@@ -254,20 +351,31 @@ function UsersSection() {
                       { label: "Apellido", key: "apellido" as const, type: "text" },
                       { label: "Email", key: "email" as const, type: "email" },
                       { label: "Telefono", key: "telefono" as const, type: "tel" },
-                      { label: "Privilegio", key: "privilege" as const, type: "text", placeholder: "A1, etc." },
                       { label: "Comp", key: "comp" as const, type: "text" },
-                    ].map(({ label, key, type, placeholder }) => (
+                    ].map(({ label, key, type }) => (
                       <div key={key}>
                         <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">{label}</label>
                         <input
                           type={type}
                           value={editForm[key]}
                           onChange={(e) => setEditForm({ ...editForm, [key]: e.target.value })}
-                          placeholder={placeholder}
                           className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition-all"
                         />
                       </div>
                     ))}
+                    <div>
+                      <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Privilegio</label>
+                      <select
+                        value={editForm.privilege}
+                        onChange={(e) => setEditForm({ ...editForm, privilege: e.target.value })}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition-all"
+                      >
+                        <option value="">Sin privilegio</option>
+                        <option value="A1">A1 - Admin</option>
+                        <option value="B1">B1 - Operador</option>
+                        <option value="C1">C1 - Cliente</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               ) : (

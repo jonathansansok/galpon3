@@ -2,7 +2,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   MdOutlineSpaceDashboard,
   MdOutlineSettings,
@@ -35,9 +35,17 @@ export default function AppContentLayoutComponent(
   const setUser = useUserStore((state) => state.setUser);
   const { children } = props;
   const router = useRouter();
+  const pathname = usePathname();
 
   console.log('[AppContentLayout] user:', user, 'privilege:', privilege);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+
+  // Redirigir C1 a turnos si intenta acceder a otra sección
+  const isC1 = privilege === "C1";
+  const allowedForC1 = pathname?.startsWith("/portal/eventos/turnos") || pathname === "/auth/login" || pathname === "/auth/register";
+  if (isC1 && user && pathname && !allowedForC1) {
+    router.replace("/portal/eventos/turnos");
+  }
 
   const handleMouseEnter = () => {
     setIsSidebarCollapsed(false);
@@ -72,78 +80,26 @@ export default function AppContentLayoutComponent(
                 </h1>
               </Link>
               <div className="my-0 border-b border-gray-100 pb-4">
-                <Link href="/portal/eventos" onClick={handleLinkClick}>
-                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
-                    <MdOutlineSpaceDashboard className="text-2xl text-gray-600 group-hover:text-white" />
-                    <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
-                      Dashboard
-                    </h3>
-                  </div>
-                </Link>
-                <Link href="/portal/eventos/ingresos" onClick={handleLinkClick}>
-                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
-                    <CgProfile className="text-2xl text-gray-600 group-hover:text-white" />
-                    <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
-                      Clientes
-                    </h3>
-                  </div>
-                </Link>
-                <Link href="/portal/eventos/temas" onClick={handleLinkClick}>
-                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
-                    <FaCarAlt className="text-2xl text-gray-600 group-hover:text-white" />
-                    <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
-                      Móviles
-                    </h3>
-                  </div>
-                </Link>
-                <Link href="/portal/eventos/presupuestos" onClick={handleLinkClick}>
-                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
-                    <FaFileInvoiceDollar className="text-2xl text-gray-600 group-hover:text-white" />
-                    <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
-                      Presupuestos
-                    </h3>
-                  </div>
-                </Link>
-                <Link href="/portal/eventos/turnos" onClick={handleLinkClick}>
-                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
-                    <MdOutlineEvent className="text-2xl text-gray-600 group-hover:text-white" />
-                    <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
-                      Turnos
-                    </h3>
-                  </div>
-                </Link>
-                <Link href="/portal/eventos/ingresosok" onClick={handleLinkClick}>
-                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
-                    <FaCheckCircle className="text-2xl text-gray-600 group-hover:text-white" />
-                    <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
-                      Ingresos
-                    </h3>
-                  </div>
-                </Link>
-                <Link href="/portal/eventos/marcas" onClick={handleLinkClick}>
-                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
-                    <FaCar className="text-2xl text-gray-600 group-hover:text-white" />
-                    <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
-                      Marcas/Modelos
-                    </h3>
-                  </div>
-                </Link>
-                <Link href="/portal/eventos/piezas" onClick={handleLinkClick}>
-                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
-                    <FaCogs className="text-2xl text-gray-600 group-hover:text-white" />
-                    <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
-                      Piezas
-                    </h3>
-                  </div>
-                </Link>
-                <Link href="/portal/eventos/realizados" onClick={handleLinkClick}>
-                  <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
-                    <FaWrench className="text-2xl text-gray-600 group-hover:text-white" />
-                    <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
-                      Trabajos realizados
-                    </h3>
-                  </div>
-                </Link>
+                {[
+                  { href: "/portal/eventos", label: "Dashboard", icon: <MdOutlineSpaceDashboard className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
+                  { href: "/portal/eventos/ingresos", label: "Clientes", icon: <CgProfile className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
+                  { href: "/portal/eventos/temas", label: "Móviles", icon: <FaCarAlt className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
+                  { href: "/portal/eventos/presupuestos", label: "Presupuestos", icon: <FaFileInvoiceDollar className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
+                  { href: "/portal/eventos/turnos", label: "Turnos", icon: <MdOutlineEvent className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1", "C1"] },
+                  { href: "/portal/eventos/ingresosok", label: "Ingresos", icon: <FaCheckCircle className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
+                  { href: "/portal/eventos/marcas", label: "Marcas/Modelos", icon: <FaCar className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
+                  { href: "/portal/eventos/piezas", label: "Piezas", icon: <FaCogs className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
+                  { href: "/portal/eventos/realizados", label: "Trabajos realizados", icon: <FaWrench className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
+                ].filter((item) => !privilege || item.roles.includes(privilege)).map((item) => (
+                  <Link key={item.href} href={item.href} onClick={handleLinkClick}>
+                    <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
+                      {item.icon}
+                      <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
+                        {item.label}
+                      </h3>
+                    </div>
+                  </Link>
+                ))}
                 {privilege === "A1" && (
                   <Link href="/portal/eventos/admin" onClick={handleLinkClick}>
                     <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-red-700 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
@@ -193,10 +149,12 @@ export default function AppContentLayoutComponent(
         }`}
         onClick={handleMouseLeave}
       />
-      {/* Notification bell - fixed top right */}
-      <div className="fixed top-3 right-4 z-40">
-        <NotificationBell />
-      </div>
+      {/* Notification bell - fixed top right (hidden for C1 clients) */}
+      {privilege !== "C1" && (
+        <div className="fixed top-3 right-4 z-40">
+          <NotificationBell />
+        </div>
+      )}
       <main className="flex-1 p-6 lg:ml-2 bg-white">{children}</main>
     </div>
   )}

@@ -32,6 +32,7 @@ interface MarcaCrudProps {
     value: string;
     marcaId: number;
   }) => void;
+  privilege?: string | null;
 }
 
 const MarcaCrud: React.FC<MarcaCrudProps> = ({
@@ -40,6 +41,7 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
   onUpdate,
   onDelete,
   onCreateModelo,
+  privilege,
 }) => {
   const [newMarca, setNewMarca] = useState({ value: "", label: "" });
   const [newModelo, setNewModelo] = useState({
@@ -154,7 +156,7 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
         </button>
 
         {/* Tabla de marcas */}
-        <MarcaTable marcas={marcas} onUpdate={onUpdate} onDelete={onDelete} />
+        <MarcaTable marcas={marcas} onUpdate={onUpdate} onDelete={onDelete} privilege={privilege} />
       </div>
 
       {/* Crear nuevo modelo */}
@@ -199,6 +201,7 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
           modelos={modelos}
           onUpdate={fetchModelos} // Recargar la lista de modelos después de actualizar
           onDelete={fetchModelos} // Recargar la lista de modelos después de eliminar
+          privilege={privilege}
         />
       </div>
     </div>

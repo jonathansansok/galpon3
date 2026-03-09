@@ -16,6 +16,7 @@ export const dynamic = "force-dynamic";
 export default function TemasPage() {
   const [temas, setTemas] = useState<Tema[]>([]);
   const [searchResults, setSearchResults] = useState<Tema[]>([]);
+  const [searchTerms, setSearchTerms] = useState<string[]>([]);
   const [sortColumn, setSortColumn] = useState<keyof Tema | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const router = useRouter();
@@ -98,6 +99,7 @@ export default function TemasPage() {
           const parsed = JSON.parse(saved);
           const hasFilter = Object.values(parsed).some((v: unknown) => typeof v === "string" && (v as string).length >= 3);
           if (hasFilter) {
+            setSearchTerms(Object.values(parsed).filter((v: unknown) => typeof v === "string" && (v as string).length > 0) as string[]);
             setSearchResults(applyFilters(formattedData, parsed));
             return;
           }
@@ -122,6 +124,7 @@ export default function TemasPage() {
     tipoVehic: string;
     vin: string;
   }) => {
+    setSearchTerms(Object.values(queries).filter((v) => v.length > 0));
     setSearchResults(applyFilters(temas, queries));
   };
 
@@ -212,6 +215,7 @@ export default function TemasPage() {
           onViewClick={handleRowClick}
           getEditUrl={(id) => `/portal/eventos/temas/${id}/edit`}
           getViewUrl={(id) => `/portal/eventos/temas/${id}`}
+          searchTerms={searchTerms}
           hasPDFs={(item) =>
             [
               item.pdf1,

@@ -16,6 +16,7 @@ async function main() {
       nombre: 'Admin',
       apellido: '',
       privilege: 'A1',
+      status: 'APROBADO',
       internosinvolucrado: null,
     },
   });
@@ -30,6 +31,7 @@ async function main() {
       nombre: 'Usuario',
       apellido: '',
       privilege: null,
+      status: 'APROBADO',
       internosinvolucrado: null,
     },
   });

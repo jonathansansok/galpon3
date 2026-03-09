@@ -38,6 +38,7 @@ const ENTITY_ROUTES: Record<string, string> = {
   Temas: "/portal/eventos/temas",
   Presupuestos: "/portal/eventos/presupuestos",
   Marcas: "/portal/eventos/marcas",
+  Solicitud: "/portal/eventos/admin",
 };
 
 function getNotificationUrl(
@@ -46,6 +47,7 @@ function getNotificationUrl(
 ): string | null {
   const base = ENTITY_ROUTES[entity];
   if (!base) return null;
+  if (entity === "Solicitud") return base;
   if (entityId) return `${base}/${entityId}/edit`;
   return base;
 }

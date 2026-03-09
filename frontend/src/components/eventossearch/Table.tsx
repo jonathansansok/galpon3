@@ -2,6 +2,7 @@
 import React, { ReactNode, useState } from "react";
 import { FaEdit, FaEye, FaFilePdf } from "react-icons/fa";
 import { formatDateTime } from "@/app/utils/formatData";
+import { highlightCellValue } from "@/components/ui/HighlightText";
 interface TableProps<T> {
   data: T[];
   columns: { key: keyof T; label: string; render?: (item: T) => ReactNode }[];
@@ -14,6 +15,7 @@ interface TableProps<T> {
   hasPDFs?: (item: T) => boolean; // Función opcional para verificar PDFs
   getEditUrl?: (id: string) => string; // URL para abrir en nueva pestaña
   getViewUrl?: (id: string) => string; // URL de vista para abrir en nueva pestaña
+  searchTerms?: string[];
 }
 
 const Table = <T extends { id: string | number; [key: string]: any }>({
@@ -28,6 +30,7 @@ const Table = <T extends { id: string | number; [key: string]: any }>({
   hasPDFs,
   getEditUrl,
   getViewUrl,
+  searchTerms = [],
 }: TableProps<T>) => {
   const [expandedRows, setExpandedRows] = useState<Set<string | number>>(
     new Set()
@@ -165,12 +168,12 @@ const Table = <T extends { id: string | number; [key: string]: any }>({
                       >
                         {column.render
                           ? column.render(item)
-                          : (item[column.key] as ReactNode)}
+                          : highlightCellValue(item[column.key], searchTerms)}
                       </a>
                     ) : (
                       column.render
                         ? column.render(item)
-                        : (item[column.key] as ReactNode)
+                        : highlightCellValue(item[column.key], searchTerms)
                     )}
                   </td>
                 ))}
@@ -231,7 +234,7 @@ const Table = <T extends { id: string | number; [key: string]: any }>({
                               <span>
                                 {format
                                   ? format(item[key])
-                                  : item[key] || "No disponible"}
+                                  : highlightCellValue(item[key] || "No disponible", searchTerms)}
                               </span>
                             </div>
                             <hr className="border-t-2 border-turquoise-500 my-2" />

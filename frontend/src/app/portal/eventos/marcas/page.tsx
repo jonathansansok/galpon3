@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import { getMarcas, createMarca, updateMarca, deleteMarca, createModelo } from "./Marcas.api";
 import MarcaCrud from "./MarcaCrud";
+import { useUserStore } from "@/lib/store";
 
 export default function MarcasPage() {
+  const privilege = useUserStore((state) => state.privilege);
   const [marcas, setMarcas] = useState<{ id: string; value: string; label: string }[]>([]);
 
   const fetchMarcas = async () => {
@@ -74,6 +76,7 @@ export default function MarcasPage() {
         onUpdate={handleUpdate}
         onDelete={handleDelete}
         onCreateModelo={handleCreateModelo}
+        privilege={privilege}
       />
     </div>
   );

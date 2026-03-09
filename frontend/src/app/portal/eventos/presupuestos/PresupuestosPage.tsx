@@ -17,6 +17,7 @@ export const dynamic = "force-dynamic";
 export default function PresupuestosPage() {
   const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([]);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searchTerms, setSearchTerms] = useState<string[]>([]);
   const [sortColumn, setSortColumn] = useState<keyof Presupuesto | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const router = useRouter();
@@ -101,6 +102,7 @@ export default function PresupuestosPage() {
           const parsed = JSON.parse(saved);
           const hasFilter = Object.values(parsed).some((v: unknown) => typeof v === "string" && (v as string).length >= 3);
           if (hasFilter) {
+            setSearchTerms(Object.values(parsed).filter((v: unknown) => typeof v === "string" && (v as string).length > 0) as string[]);
             const filtered = applyFilters(presupuestosConMovil, parsed);
             setSearchResults(filtered.map((item) => ({ item, matches: [] })));
             return;
@@ -126,6 +128,7 @@ export default function PresupuestosPage() {
     movilId: string;
     patente: string;
   }) => {
+    setSearchTerms(Object.values(queries).filter((v) => v.length > 0));
     const filtered = applyFilters(presupuestos, queries);
     setSearchResults(
       filtered.map((item) => ({ item, matches: [] }))
@@ -223,6 +226,7 @@ export default function PresupuestosPage() {
           onViewClick={handleRowClick}
           getEditUrl={(id) => `/portal/eventos/presupuestos/${id}/edit`}
           getViewUrl={(id) => `/portal/eventos/presupuestos/${id}`}
+          searchTerms={searchTerms}
           hasPDFs={(item) =>
             [
               item.pdf1,

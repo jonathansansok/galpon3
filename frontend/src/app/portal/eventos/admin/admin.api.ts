@@ -29,6 +29,7 @@ export async function updateUser(
     email?: string;
     privilege?: string;
     comp?: string;
+    status?: string;
   },
 ) {
   const csrfToken = getCsrfTokenFromCookies();

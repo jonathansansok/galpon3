@@ -62,7 +62,7 @@ async function bootstrap() {
   });
 
   // Otros middlewares y configuraciones
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
   app.useStaticAssets(join(__dirname, '..', 'src', 'ingresos', 'uploads'), {
     prefix: '/ingresos/uploads/',

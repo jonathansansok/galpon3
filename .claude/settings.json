@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/repos/galpon3/galpon3/**)",
+      "Bash(xargs grep -l \"render.*cell\\\\|cell.*render\")",
+      "Bash(npx tsc --noEmit --pretty)"
+    ]
+  }
+}

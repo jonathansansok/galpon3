@@ -7,5 +7,6 @@ export interface AppUser {
     telefono?: string | null;
     privilege?: string | null;
     comp?: string | null;
+    status?: string | null;
     [key: string]: any;
   }

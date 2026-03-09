@@ -1,9 +1,8 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { register } from "@/lib/api/auth";
-import { FaShieldAlt, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaShieldAlt, FaEye, FaEyeSlash, FaCheckCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
@@ -16,7 +15,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,8 +29,7 @@ export default function RegisterPage() {
 
     try {
       await register(email, password, nombre, apellido, telefono);
-      toast.success("Cuenta creada. Redirigiendo al login...");
-      setTimeout(() => router.push("/auth/login"), 2000);
+      setSubmitted(true);
     } catch (err: any) {
       toast.error(err.message || "Error al registrarse");
     } finally {
@@ -39,13 +37,33 @@ export default function RegisterPage() {
     }
   };
 
+  if (submitted) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-blue-900">
+        <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
+          <FaCheckCircle className="text-emerald-500 text-5xl mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Solicitud enviada</h2>
+          <p className="text-gray-500 text-sm mb-6">
+            Tu solicitud de registro fue enviada correctamente. Un administrador revisará tu cuenta y te habilitará el acceso.
+          </p>
+          <Link
+            href="/auth/login"
+            className="inline-block px-6 py-2 bg-blue-900 text-white rounded-lg font-semibold hover:bg-blue-800 transition duration-300"
+          >
+            Volver al login
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-blue-900">
       <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
         <div className="flex flex-col items-center mb-6">
           <FaShieldAlt className="text-blue-900 text-5xl mb-2" />
-          <h1 className="text-2xl font-bold text-blue-900">Galpón 3 Taller</h1>
-          <p className="text-gray-500 text-sm">Crear cuenta</p>
+          <h1 className="text-2xl font-bold text-blue-900">Galpon 3 Taller</h1>
+          <p className="text-gray-500 text-sm">Solicitar cuenta</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -92,7 +110,7 @@ export default function RegisterPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Teléfono
+              Telefono
             </label>
             <input
               type="tel"
@@ -105,7 +123,7 @@ export default function RegisterPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Contraseña
+              Contrasena
             </label>
             <div className="relative">
               <input
@@ -115,7 +133,7 @@ export default function RegisterPage() {
                 required
                 minLength={6}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
-                placeholder="Mínimo 6, una mayúscula, un número"
+                placeholder="Minimo 6, una mayuscula, un numero"
               />
               <button
                 type="button"
@@ -132,7 +150,7 @@ export default function RegisterPage() {
             disabled={loading}
             className="w-full bg-blue-900 text-white py-2 rounded-lg font-semibold hover:bg-blue-800 transition duration-300 disabled:opacity-50"
           >
-            {loading ? "Registrando..." : "Registrarse"}
+            {loading ? "Enviando solicitud..." : "Enviar solicitud"}
           </button>
         </form>
 
@@ -140,11 +158,6 @@ export default function RegisterPage() {
           <div>
             <Link href="/auth/login" className="text-blue-600 hover:underline">
               Ya tengo cuenta
-            </Link>
-          </div>
-          <div>
-            <Link href="/auth/forgot-password" className="text-blue-600 hover:underline">
-              ¿Olvidaste tu contraseña?
             </Link>
           </div>
         </div>

@@ -25,6 +25,7 @@ export class UsersService {
     apellido?: string;
     telefono?: string;
   }) {
+    console.log('[UsersService] createUser data:', JSON.stringify({ email: data.email, nombre: data.nombre, apellido: data.apellido, telefono: data.telefono }));
     return this.prisma.users.create({
       data: {
         email: data.email,
@@ -82,6 +83,7 @@ export class UsersService {
         telefono: true,
         privilege: true,
         comp: true,
+        status: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -98,6 +100,7 @@ export class UsersService {
       email?: string;
       privilege?: string;
       comp?: string;
+      status?: string;
     },
   ) {
     return this.prisma.users.update({
@@ -111,6 +114,7 @@ export class UsersService {
         telefono: true,
         privilege: true,
         comp: true,
+        status: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -118,6 +122,28 @@ export class UsersService {
   }
 
   async deleteUser(userId: number) {
+    const user = await this.prisma.users.findUnique({ where: { id: userId } });
+    const email = user?.email || 'desconocido';
+
+    // Estampar email en el detalle de cada log antes de desasociar
+    const logs = await this.prisma.auditLog.findMany({
+      where: { userId },
+      select: { id: true, detail: true },
+    });
+    await Promise.all(
+      logs.map((log) =>
+        this.prisma.auditLog.update({
+          where: { id: log.id },
+          data: {
+            detail: log.detail
+              ? `[${email}] ${log.detail}`
+              : `[${email}]`,
+            user: { disconnect: true },
+          },
+        }),
+      ),
+    );
+
     return this.prisma.users.delete({
       where: { id: userId },
     });

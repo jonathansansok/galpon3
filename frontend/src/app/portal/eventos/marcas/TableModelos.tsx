@@ -15,12 +15,14 @@ interface TableModelosProps {
   modelos: Modelo[];
   onUpdate: () => void; // Recargar la lista de modelos
   onDelete: () => void; // Recargar la lista de modelos
+  privilege?: string | null;
 }
 
 const TableModelos: React.FC<TableModelosProps> = ({
   modelos,
   onUpdate,
   onDelete,
+  privilege,
 }) => {
   const [isLoading, setIsLoading] = useState(false); // Estado para mostrar el estado de carga
 
@@ -155,13 +157,15 @@ const TableModelos: React.FC<TableModelosProps> = ({
                 >
                   <FaEdit />
                 </button>
-                <button
-                  onClick={() => handleDelete(modelo.id, modelo.label)}
-                  className="text-red-500 hover:text-red-600"
-                  title="Eliminar"
-                >
-                  <FaTrash />
-                </button>
+                {(privilege === "A1" || privilege === "B1") && (
+                  <button
+                    onClick={() => handleDelete(modelo.id, modelo.label)}
+                    className="text-red-500 hover:text-red-600"
+                    title="Eliminar"
+                  >
+                    <FaTrash />
+                  </button>
+                )}
               </td>
               <td className="px-4 py-2 border">{modelo.id}</td>
               <td className="px-4 py-2 border">{modelo.label}</td>
