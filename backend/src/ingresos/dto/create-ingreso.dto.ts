@@ -402,4 +402,7 @@ export class CreateIngresoDto {
   @IsOptional()
   @Transform(({ value }) => value?.trim())
   identificadorUnico?: string;
+
+  @IsOptional()
+  nombresOriginales?: any;
 }

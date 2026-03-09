@@ -11,9 +11,8 @@ const IMAGE_FIELDS = [
 ];
 
 const IMAGE_LABELS = [
-  "Fotografía rostro", "Fotografía perfil derecho", "Fotografía perfil izquierdo", "Fotografía dactilar",
-  "Señas part.-tatuajes 1", "Señas part.-tatuajes 2", "Señas part.-tatuajes 3",
-  "Señas part.-tatuajes 4", "Señas part.-tatuajes 5", "Señas part.-tatuajes 6",
+  "Foto 1", "Foto 2", "Foto 3", "Foto 4", "Foto 5",
+  "Foto 6", "Foto 7", "Foto 8", "Foto 9", "Foto 10",
 ];
 
 interface PhotosModalProps {
@@ -164,8 +163,8 @@ const PhotosModalPreing: React.FC<PhotosModalProps> = (props) => {
                   )}
                 </div>
                 <div className="px-3 py-2.5 border-t border-slate-100">
-                  <p className="text-xs font-semibold text-slate-700 truncate">{label}</p>
-                  {localOriginalNames[field] && <p className="text-[10px] text-slate-400 truncate" title={localOriginalNames[field]}>{localOriginalNames[field]}</p>}
+                  <p className="text-xs font-semibold text-slate-700 truncate" title={localOriginalNames[field] || label}>{localOriginalNames[field] || label}</p>
+                  {localOriginalNames[field] && <p className="text-[10px] text-slate-400 truncate">{label}</p>}
                 </div>
               </div>
             );

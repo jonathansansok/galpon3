@@ -383,6 +383,9 @@ export function TemaForm({ tema }: { tema: any }) {
         }
       }
 
+      // Enviar nombres originales de archivos
+      formData.append("nombresOriginales", JSON.stringify(originalNames));
+
       try {
         let response;
 

@@ -97,6 +97,7 @@ model Ingresos {
   estadoCivil               String?   @db.VarChar(30) // VARCHAR(30) opcional
   internosinvolucrado       String?   @db.LongText
   imagenesHistorial         Json? // Historial de imágenes
+  nombresOriginales         Json? // Nombres originales de archivos subidos
   moviles                   Temas[]
 }
 
@@ -141,6 +142,7 @@ model Temas {
   pdf10               String?   @db.VarChar(255)
   word1               String?   @db.VarChar(255)
   internosinvolucrado String?   @db.Text
+  nombresOriginales   Json? // Nombres originales de archivos subidos
   clienteId           Int?
   cliente             Ingresos? @relation(fields: [clienteId], references: [id])
 }

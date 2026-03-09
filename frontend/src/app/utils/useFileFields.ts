@@ -38,7 +38,9 @@ export function useFileFields(module: ModuleName, entity: any) {
     initFileStates(module, entity, ALL_FILE_FIELDS)
   );
 
-  const [originalNames, setOriginalNames] = useState<Record<string, string>>({});
+  const [originalNames, setOriginalNames] = useState<Record<string, string>>(
+    () => (entity?.nombresOriginales && typeof entity.nombresOriginales === 'object' ? entity.nombresOriginales : {})
+  );
 
   const setFile = useCallback((field: string, value: string | null) => {
     console.log("multimedia", "setFile", {

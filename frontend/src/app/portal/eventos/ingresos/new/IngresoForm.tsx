@@ -356,6 +356,9 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
         }
       }
 
+      // Enviar nombres originales de archivos
+      formData.append("nombresOriginales", JSON.stringify(originalNames));
+
       console.log("[DEBUG] Payload enviado al backend:");
       Object.entries(payload).forEach(([key, value]) => {
         console.log(`  ${key}:`, value, `(${typeof value})`);

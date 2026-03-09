@@ -137,8 +137,8 @@ const PdfModal: React.FC<PdfModalProps> = ({
                   <input ref={(el) => { fileInputRefs.current[field] = el; }} type="file" accept=".pdf" onChange={onChange(field)} className="hidden" />
                 </div>
                 <div className="px-3 py-2.5 border-t border-slate-100">
-                  <p className="text-xs font-semibold text-slate-700">{label}</p>
-                  {originalNames[field] && <p className="text-[10px] text-slate-400 truncate" title={originalNames[field]}>{originalNames[field]}</p>}
+                  <p className="text-xs font-semibold text-slate-700 truncate" title={originalNames[field] || label}>{originalNames[field] || label}</p>
+                  {originalNames[field] && <p className="text-[10px] text-slate-400 truncate">{label}</p>}
                 </div>
               </div>
             );

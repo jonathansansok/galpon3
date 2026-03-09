@@ -30,6 +30,11 @@ export class TemasService {
   }
   async create(createTemasDto: CreateTemaDto) {
     try {
+      // Parsear nombresOriginales si viene como string JSON
+      if (createTemasDto.nombresOriginales && typeof createTemasDto.nombresOriginales === 'string') {
+        try { createTemasDto.nombresOriginales = JSON.parse(createTemasDto.nombresOriginales); } catch { /* ignore */ }
+      }
+
       console.log('[DEBUG] DTO recibido en el servicio:', createTemasDto);
 
       const result = await this.prismaService.temas.create({
@@ -86,6 +91,11 @@ export class TemasService {
 
   async update(id: number, updateTemasDto: UpdateTemaDto) {
     try {
+      // Parsear nombresOriginales si viene como string JSON
+      if (updateTemasDto.nombresOriginales && typeof updateTemasDto.nombresOriginales === 'string') {
+        try { updateTemasDto.nombresOriginales = JSON.parse(updateTemasDto.nombresOriginales); } catch { /* ignore */ }
+      }
+
       // Limpiar campos de archivos que se enviaron como vacíos (eliminados desde frontend)
       for (const field of this.FILE_FIELDS) {
         if (updateTemasDto[field] === '') {

@@ -7,16 +7,8 @@ import { formatFileSize, dataUriSizeBytes, compressDataUri } from "@/lib/imageCo
 import { downloadFile } from "@/lib/fileDownload";
 
 const IMAGE_LABELS = [
-  "Fotografía rostro",
-  "Fotografía perfil derecho",
-  "Fotografía perfil izquierdo",
-  "Fotografía dactilar",
-  "Fotografía señas 1",
-  "Fotografía señas 2",
-  "Fotografía señas 3",
-  "Fotografía señas 4",
-  "Fotografía señas 5",
-  "Fotografía señas 6",
+  "Foto 1", "Foto 2", "Foto 3", "Foto 4", "Foto 5",
+  "Foto 6", "Foto 7", "Foto 8", "Foto 9", "Foto 10",
 ];
 
 interface PhotosModalProps {
@@ -230,11 +222,11 @@ const PhotosModal: React.FC<PhotosModalProps> = ({
 
                 {/* Label */}
                 <div className="px-3 py-2.5 border-t border-slate-100">
-                  <p className="text-xs font-semibold text-slate-700 truncate">{label}</p>
+                  <p className="text-xs font-semibold text-slate-700 truncate" title={originalNames[field] || label}>
+                    {originalNames[field] || label}
+                  </p>
                   {originalNames[field] && (
-                    <p className="text-[10px] text-slate-400 truncate" title={originalNames[field]}>
-                      {originalNames[field]}
-                    </p>
+                    <p className="text-[10px] text-slate-400 truncate">{label}</p>
                   )}
                   {historial.length > 0 && (
                     <button

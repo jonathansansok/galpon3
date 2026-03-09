@@ -188,4 +188,7 @@ export class CreateTemaDto {
   @IsOptional()
   @Transform(({ value }) => value.trim())
   vin?: string;
+
+  @IsOptional()
+  nombresOriginales?: any;
 }

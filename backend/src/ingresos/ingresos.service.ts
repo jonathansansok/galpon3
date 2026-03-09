@@ -31,6 +31,11 @@ export class IngresosService {
   }
   async create(createIngresoDto: CreateIngresoDto) {
     try {
+      // Parsear nombresOriginales si viene como string JSON
+      if (createIngresoDto.nombresOriginales && typeof createIngresoDto.nombresOriginales === 'string') {
+        try { createIngresoDto.nombresOriginales = JSON.parse(createIngresoDto.nombresOriginales); } catch { /* ignore */ }
+      }
+
       console.log(
         '[SERVICE] Datos recibidos para validación:',
         createIngresoDto,
@@ -193,6 +198,11 @@ export class IngresosService {
     updateIngresoDto: UpdateIngresoDto,
   ) {
     const existingIngreso = await this.findOne(id);
+
+    // Parsear nombresOriginales si viene como string JSON
+    if (updateIngresoDto.nombresOriginales && typeof updateIngresoDto.nombresOriginales === 'string') {
+      try { updateIngresoDto.nombresOriginales = JSON.parse(updateIngresoDto.nombresOriginales); } catch { /* ignore */ }
+    }
 
     // Manejar historial de egresos
     if (
