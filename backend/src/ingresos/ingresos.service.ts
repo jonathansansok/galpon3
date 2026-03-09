@@ -373,6 +373,10 @@ export class IngresosService {
   }
 
   async findEventosByLpu(evento: string, lpu: string) {
+    const allowedTables = ['ingresos', 'temas', 'presupuestos'];
+    if (!allowedTables.includes(evento)) {
+      return [];
+    }
     const eventos = await this.prismaService[evento].findMany({
       where: {
         internosinvolucrado: {

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { FaEdit } from "react-icons/fa"; // Importar el ícono de edición
 
 interface Presupuesto {
@@ -15,7 +14,6 @@ interface PresupuestosAsociadosProps {
 }
 
 const PresupuestosAsociados: React.FC<PresupuestosAsociadosProps> = ({ presupuestos }) => {
-  const router = useRouter();
   const [sortedPresupuestos, setSortedPresupuestos] = useState(presupuestos);
   const [sortConfig, setSortConfig] = useState<{ key: keyof Presupuesto; direction: "asc" | "desc" } | null>(null);
 
@@ -84,20 +82,33 @@ const PresupuestosAsociados: React.FC<PresupuestosAsociadosProps> = ({ presupues
               <tr key={presupuesto.id} className="hover:bg-gray-50">
                 <td className="px-4 py-2 flex items-center space-x-2">
                   {/* Ícono de edición */}
-                  <button
-                    type="button"
-                    onClick={() => router.push(`/portal/eventos/presupuestos/${presupuesto.id}/edit`)}
+                  <a
+                    href={`/portal/eventos/presupuestos/${presupuesto.id}/edit`}
                     className="text-blue-500 hover:text-blue-700"
                   >
                     <FaEdit />
-                  </button>
+                  </a>
                   <span>{presupuesto.id}</span>
                 </td>
-                <td className="px-4 py-2">{presupuesto.monto || "No disponible"}</td>
-                <td className="px-4 py-2">{presupuesto.estado || "No disponible"}</td>
-                <td className="px-4 py-2">{presupuesto.observaciones || "No disponible"}</td>
-                <td className="px-4 py-2">
-                  {new Date(presupuesto.createdAt).toLocaleString()}
+                <td className="p-0">
+                  <a href={`/portal/eventos/presupuestos/${presupuesto.id}/edit`} className="block px-4 py-2" style={{ color: "inherit", textDecoration: "none" }}>
+                    {presupuesto.monto || "No disponible"}
+                  </a>
+                </td>
+                <td className="p-0">
+                  <a href={`/portal/eventos/presupuestos/${presupuesto.id}/edit`} className="block px-4 py-2" style={{ color: "inherit", textDecoration: "none" }}>
+                    {presupuesto.estado || "No disponible"}
+                  </a>
+                </td>
+                <td className="p-0">
+                  <a href={`/portal/eventos/presupuestos/${presupuesto.id}/edit`} className="block px-4 py-2" style={{ color: "inherit", textDecoration: "none" }}>
+                    {presupuesto.observaciones || "No disponible"}
+                  </a>
+                </td>
+                <td className="p-0">
+                  <a href={`/portal/eventos/presupuestos/${presupuesto.id}/edit`} className="block px-4 py-2" style={{ color: "inherit", textDecoration: "none" }}>
+                    {new Date(presupuesto.createdAt).toLocaleString()}
+                  </a>
                 </td>
               </tr>
             ))}

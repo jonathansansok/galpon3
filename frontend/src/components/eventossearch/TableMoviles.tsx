@@ -13,6 +13,8 @@ interface TableProps<T> {
   onEditClick: (id: string) => void;
   onViewClick: (id: string) => void;
   hasPDFs?: (item: T) => boolean; // Función opcional para verificar PDFs
+  getEditUrl?: (id: string) => string; // URL para abrir en nueva pestaña
+  getViewUrl?: (id: string) => string; // URL de vista para abrir en nueva pestaña
 }
 
 const Table = <T extends { id: string | number; [key: string]: any }>({
@@ -25,6 +27,8 @@ const Table = <T extends { id: string | number; [key: string]: any }>({
   onEditClick,
   onViewClick,
   hasPDFs,
+  getEditUrl,
+  getViewUrl,
 }: TableProps<T>) => {
   const [expandedRows, setExpandedRows] = useState<Set<string | number>>(
     new Set()
@@ -109,26 +113,30 @@ const Table = <T extends { id: string | number; [key: string]: any }>({
                       </button>
                     )}
                     {/* Botón de edición */}
-                    <button
+                    <a
+                      href={getEditUrl ? getEditUrl(item.id.toString()) : "#"}
                       className="text-green-500 hover:text-green-700"
                       onClick={(e) => {
+                        e.preventDefault();
                         e.stopPropagation();
                         onEditClick(item.id.toString());
                       }}
                     >
                       <FaEdit size={18} />
-                    </button>
+                    </a>
 
                     {/* Botón de vista */}
-                    <button
+                    <a
+                      href={getViewUrl ? getViewUrl(item.id.toString()) : "#"}
                       className="text-blue-500 hover:text-blue-700"
                       onClick={(e) => {
+                        e.preventDefault();
                         e.stopPropagation();
                         onViewClick(item.id.toString());
                       }}
                     >
                       <FaEye size={18} />
-                    </button>
+                    </a>
                   </div>
                 </td>
                 {columns.map((column) => (
@@ -141,11 +149,28 @@ const Table = <T extends { id: string | number; [key: string]: any }>({
                       borderRight: "1px solid #ccc",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
+                      padding: 0,
                     }}
                   >
-                    {column.render
-                      ? column.render(item) // Renderiza columnas personalizadas
-                      : (item[column.key] as ReactNode)}
+                    {getEditUrl ? (
+                      <a
+                        href={getEditUrl(item.id.toString())}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleRowClick(item.id);
+                        }}
+                        className="block py-2 px-4"
+                        style={{ color: "inherit", textDecoration: "none" }}
+                      >
+                        {column.render
+                          ? column.render(item)
+                          : (item[column.key] as ReactNode)}
+                      </a>
+                    ) : (
+                      column.render
+                        ? column.render(item)
+                        : (item[column.key] as ReactNode)
+                    )}
                   </td>
                 ))}
               </tr>

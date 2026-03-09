@@ -1,9 +1,11 @@
 //frontend\src\components\ui\SearchBars\SearchBarPresupuestos.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Alert } from "@/components/ui/alert";
 import { InputFieldSimple } from "@/components/ui/inputs/InputFieldSimple";
+
+const STORAGE_KEY = "searchBar_presupuestos";
 
 interface SearchBarPresupuestosProps {
   onSearch: (queries: {
@@ -24,12 +26,33 @@ export function SearchBarPresupuestos({ onSearch }: SearchBarPresupuestosProps) 
   const [movilId, setMovilId] = useState("");
   const [patente, setPatente] = useState("");
   const [loading, setLoading] = useState(false);
+  const hasRestoredRef = useRef(false);
+
+  // Restaurar filtros de sessionStorage al montar
+  useEffect(() => {
+    if (hasRestoredRef.current) return;
+    hasRestoredRef.current = true;
+    try {
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.generalQuery) setGeneralQuery(parsed.generalQuery);
+        if (parsed.monto) setMonto(parsed.monto);
+        if (parsed.estado) setEstado(parsed.estado);
+        if (parsed.observaciones) setObservaciones(parsed.observaciones);
+        if (parsed.movilId) setMovilId(parsed.movilId);
+        if (parsed.patente) setPatente(parsed.patente);
+        // No auto-ejecutar búsqueda aquí (la página maneja la auto-búsqueda después de cargar datos)
+      }
+    } catch (e) {
+      // Ignorar errores de sessionStorage
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleInputChange =
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
-      // Evitar que se ingresen llaves o corchetes
       if (/[{}\[\]]/.test(value)) {
         Alert.error({
           title: "Caracter no permitido",
@@ -41,7 +64,7 @@ export function SearchBarPresupuestos({ onSearch }: SearchBarPresupuestosProps) 
     };
 
   const handleSearchClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); // Prevenir el envío del formulario
+    e.preventDefault();
 
     if (
       generalQuery.length < 3 &&
@@ -66,7 +89,9 @@ export function SearchBarPresupuestos({ onSearch }: SearchBarPresupuestosProps) 
       movilId,
       patente,
     };
-    console.log("Parámetros de búsqueda enviados:", searchParams);
+
+    // Guardar en sessionStorage
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(searchParams));
 
     setLoading(true);
     await onSearch(searchParams);
@@ -117,7 +142,7 @@ export function SearchBarPresupuestos({ onSearch }: SearchBarPresupuestosProps) 
         label="Buscar por Patente"
         placeholder=""
       />
-      <div className="md:col-span-3 flex justify-start">
+      <div className="md:col-span-3 flex justify-start gap-2">
         <button
           onClick={handleSearchClick}
           className={`mt-2 px-4 py-2 rounded-lg ${
@@ -126,6 +151,15 @@ export function SearchBarPresupuestos({ onSearch }: SearchBarPresupuestosProps) 
           disabled={loading}
         >
           {loading ? "Buscando..." : "Buscar"}
+        </button>
+        <button
+          onClick={() => {
+            setGeneralQuery(""); setMonto(""); setEstado(""); setObservaciones(""); setMovilId(""); setPatente("");
+            sessionStorage.removeItem(STORAGE_KEY);
+          }}
+          className="mt-2 px-4 py-2 rounded-lg bg-gray-400 text-white"
+        >
+          Limpiar filtros
         </button>
       </div>
     </div>

@@ -24,6 +24,7 @@ import {
   ShowPresupuestos,
   showCancelAlert,
 } from "../../../../utils/alertUtils"; // Importa las funciones
+import { validateAndNotify, clearFieldErrors, handleBackendErrors } from "../../../../utils/formValidation";
 
 interface FormValues {
   [key: string]: string;
@@ -262,7 +263,16 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
     console.log(`Patente recuperada: ${patente}`);
   }, [idMovil, patente]);
 
+  const presupuestoValidationRules = {
+    monto: { required: true, label: "Monto" },
+  };
+
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    // Validar con toast + scroll + red borders
+    clearFieldErrors();
+    const { valid } = validateAndNotify(data, presupuestoValidationRules);
+    if (!valid) return;
+
     const confirmation = await Alert.confirm({
       title: "¿Estás seguro?",
       text: "¿Deseas enviar el formulario?",
@@ -354,21 +364,18 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
         );
 
         if (response.success) {
+          clearFieldErrors();
           router.push("/portal/eventos/presupuestos");
         } else {
           console.error(
             "[ERROR] Error al crear o actualizar presupuesto:",
             response.error
           );
-          ShowPresupuestos(false, "Error", response.error);
+          handleBackendErrors(response);
         }
       } catch (error) {
         console.error("[EXCEPTION] Error inesperado:", error);
-        ShowPresupuestos(
-          false,
-          "Error inesperado",
-          error instanceof Error ? error.message : "Error desconocido"
-        );
+        handleBackendErrors({ message: error instanceof Error ? error.message : "Error desconocido" });
       } finally {
         setIsSubmitting(false);
       }

@@ -7,11 +7,7 @@ import InputMau from "@/components/ui/InputMau";
 import Condicion from "@/components/ui/Condicion";
 import PymeCheckbox from "@/components/ui/PymeCheckbox";
 import { Button } from "@/components/ui/button";
-import {
-  validateEmptyFields,
-  validateFieldFormats,
-} from "../../../../utils/validationUtils";
-import { excludedFields } from "../../../../utils/excludedFields";
+import { validateAndNotify, clearFieldErrors, handleBackendErrors } from "../../../../utils/formValidation";
 import PhotosModal from "@/components/ui/MultimediaModals/PhotosModal";
 import PdfModal from "@/components/ui/MultimediaModals/PdfModal";
 import WordModal from "@/components/ui/MultimediaModals/WordModal";
@@ -360,38 +356,21 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
   }, [user, setUser, router]);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
 
-  const fieldLabels: Record<string, string> = {
-    apellido: "Apellido",
-    nombres: "Nombres",
+  const ingresoValidationRules = {
+    apellido: { required: true, noNumbers: true, label: "Apellido" },
+    nombres: { required: true, noNumbers: true, label: "Nombres" },
+    numeroCuit: { required: true, numeric: true, label: "CUIT" },
+    dias: { required: true, numeric: true, label: "Días" },
+    numeroDni: { required: true, numeric: true, label: "Número Doc." },
+    telefono: { required: true, label: "Teléfono" },
+    emailCliente: { required: true, email: true, label: "Email Cliente" },
   };
 
-  const requiredFields = ["apellido", "nombres"];
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    const emptyFields = validateEmptyFields(data, fieldLabels, excludedFields);
-
-    const formatErrors = validateFieldFormats(data);
-
-    if (emptyFields.length > 0) {
-      const confirmation = await Alert.confirm({
-        title: "Advertencia",
-        text: `Hay campos vacíos: ${emptyFields.join(
-          " - "
-        )}. ¿Deseas continuar?`,
-        icon: "warning",
-      });
-
-      if (!confirmation.isConfirmed) {
-        return; // El usuario decidió no continuar
-      }
-    }
-
-    if (formatErrors.length > 0) {
-      Alert.error({
-        title: "Error de formato",
-        text: formatErrors.join("\n"),
-      });
-      return;
-    }
+    // Validar con toast + scroll + red borders
+    clearFieldErrors();
+    const { valid } = validateAndNotify(data, ingresoValidationRules);
+    if (!valid) return;
 
     const confirmation = await Alert.confirm({
       title: "¿Estás seguro?",
@@ -519,21 +498,21 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
       };
 
       if (response.success) {
+        clearFieldErrors();
         await showAlert(response.success, mensajeTitulo, alertData);
 
         if (esAlerta !== "No") {
-          const historialEgresos = ingreso.historialEgresos || []; // Asegúrate de que sea un array
-          console.log("Historial que se pasa al PDF:", historialEgresos); // Verificar el historial antes de pasarlo
-          generatePDF(payload, imagen, historialEgresos); // Pasar historialEgresos como tercer argumento
+          const historialEgresos = ingreso.historialEgresos || [];
+          generatePDF(payload, imagen, historialEgresos);
         }
         router.push("/portal/eventos/ingresos");
       } else {
         console.error("Error al crear o actualizar ingreso:", response.error);
-        await showAlert(false, "Error", alertData);
+        handleBackendErrors(response);
       }
     } catch (error) {
       console.error("Error al enviar el formulario:", error);
-      await showAlert(false, "Error", {});
+      handleBackendErrors({ message: "Error al enviar el formulario" });
     } finally {
       setIsSubmitting(false); // Desbloquear el botón al finalizar
     }

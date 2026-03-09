@@ -1,37 +1,42 @@
 //frontend\src\components\layouts\AppContentLayoutComponent.tsx
 "use client";
-import { useUser } from "@auth0/nextjs-auth0/client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   MdOutlineSpaceDashboard,
-  MdOutlineAnalytics,
   MdOutlineSettings,
   MdOutlineLogout,
-  MdSearch,
   MdOutlineEvent,
 } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 import {
-  FaMapMarkedAlt,
   FaCarAlt,
   FaFileInvoiceDollar,
   FaCheckCircle,
   FaCar,
   FaCogs,
   FaWrench,
+  FaUserShield,
 } from "react-icons/fa";
-import { IoGitNetworkSharp } from "react-icons/io5";
+import { useUserStore } from "@/lib/store";
+import { logout as logoutApi } from "@/lib/api/auth";
+import NotificationBell from "@/components/ui/NotificationBell";
+
 interface AppContentLayoutComponentProps {
   children?: React.ReactNode;
 }
-import { useUserStore } from "@/lib/store"; // Importa el estado global
+
 export default function AppContentLayoutComponent(
   props: AppContentLayoutComponentProps
 ) {
-  const privilege = useUserStore((state) => state.privilege); // Obtén el privilegio del usuario
+  const privilege = useUserStore((state) => state.privilege);
+  const user = useUserStore((state) => state.user);
+  const setUser = useUserStore((state) => state.setUser);
   const { children } = props;
-  const { user } = useUser();
+  const router = useRouter();
+
+  console.log('[AppContentLayout] user:', user, 'privilege:', privilege);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 
   const handleMouseEnter = () => {
@@ -139,12 +144,12 @@ export default function AppContentLayoutComponent(
                     </h3>
                   </div>
                 </Link>
-                {privilege !== "B1" && (
-                  <Link href="/portal/eventos/analytics" onClick={handleLinkClick}>
-                    <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
-                      <MdOutlineAnalytics className="text-2xl text-gray-600 group-hover:text-white" />
-                      <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
-                        Gráficos
+                {privilege === "A1" && (
+                  <Link href="/portal/eventos/admin" onClick={handleLinkClick}>
+                    <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-red-700 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
+                      <FaUserShield className="text-2xl text-red-600 group-hover:text-white" />
+                      <h3 className="text-base text-red-600 group-hover:text-white font-semibold">
+                        Admin
                       </h3>
                     </div>
                   </Link>
@@ -155,18 +160,21 @@ export default function AppContentLayoutComponent(
           {/* Botón de logout fijo */}
           <div className="absolute bottom-0 left-0 w-full p-6 bg-white border-t border-gray-200">
             <p className="text-left text-gray-800 font-bold mb-5 break-words">
-              {user.name}
+              {user?.name || user?.email}
             </p>
-            <a
-              href="/api/auth/logout"
-              className="flex justify-start items-center gap-4 pl-5 border border-gray-200 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg"
-              onClick={handleLinkClick}
+            <button
+              onClick={async () => {
+                await logoutApi().catch(() => {});
+                setUser(null);
+                router.push("/auth/login");
+              }}
+              className="flex w-full justify-start items-center gap-4 pl-5 border border-gray-200 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg"
             >
               <MdOutlineLogout className="text-2xl text-gray-600 group-hover:text-white" />
               <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
                 Logout
               </h3>
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -185,6 +193,10 @@ export default function AppContentLayoutComponent(
         }`}
         onClick={handleMouseLeave}
       />
+      {/* Notification bell - fixed top right */}
+      <div className="fixed top-3 right-4 z-40">
+        <NotificationBell />
+      </div>
       <main className="flex-1 p-6 lg:ml-2 bg-white">{children}</main>
     </div>
   )}
@@ -193,6 +205,7 @@ export default function AppContentLayoutComponent(
       © 2025 - Galpón 3 - Todos los derechos reservados
     </footer>
   )}
+  {!user && <>{children}</>}
 </div>
   );
 }

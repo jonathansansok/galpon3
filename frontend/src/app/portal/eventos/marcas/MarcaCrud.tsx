@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import Swal from "sweetalert2";
-import "sweetalert2/dist/sweetalert2.min.css";
+import { toast } from "react-toastify";
 import MarcaTable from "./MarcaTable";
 import SelectMarca from "./SelectMarca";
 import TableModelos from "./TableModelos";
@@ -58,25 +57,36 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
   };
 
   const handleCreateMarca = () => {
+    const marcaInput = document.getElementById("marca-label-input");
     if (newMarca.value.trim() && newMarca.label.trim()) {
+      marcaInput?.classList.remove("border-red-500", "ring-1", "ring-red-500");
+      marcaInput?.classList.add("border-gray-300");
       onCreate({ value: newMarca.value, label: newMarca.label });
       setNewMarca({ value: "", label: "" });
     } else {
-      Swal.fire(
-        "Error",
-        "Los campos 'value' y 'label' son obligatorios.",
-        "error"
-      );
+      toast.error("El nombre de la marca es obligatorio");
+      marcaInput?.classList.remove("border-gray-300");
+      marcaInput?.classList.add("border-red-500", "ring-1", "ring-red-500");
+      marcaInput?.scrollIntoView({ behavior: "smooth", block: "center" });
+      marcaInput?.focus();
     }
   };
 
   const handleCreateModelo = () => {
+    const modeloInput = document.getElementById("modelo-label-input");
     if (newModelo.label.trim() && newModelo.value.trim() && newModelo.marcaId) {
+      modeloInput?.classList.remove("border-red-500", "ring-1", "ring-red-500");
+      modeloInput?.classList.add("border-gray-300");
       onCreateModelo(newModelo);
-      setNewModelo({ ...newModelo, label: "", value: "" }); // Solo reinicia label y value
-      fetchModelos(); // Recargar la lista de modelos
+      setNewModelo({ ...newModelo, label: "", value: "" });
+      fetchModelos();
     } else {
-      Swal.fire("Error", "Todos los campos son obligatorios.", "error");
+      if (!newModelo.marcaId) toast.error("Debe seleccionar una marca");
+      if (!newModelo.label.trim()) toast.error("El nombre del modelo es obligatorio");
+      modeloInput?.classList.remove("border-gray-300");
+      modeloInput?.classList.add("border-red-500", "ring-1", "ring-red-500");
+      modeloInput?.scrollIntoView({ behavior: "smooth", block: "center" });
+      modeloInput?.focus();
     }
   };
 
@@ -116,6 +126,7 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
         <div className="flex flex-col md:flex-row gap-4">
           {/* Campo visible para "Etiqueta visible" */}
           <input
+            id="marca-label-input"
             type="text"
             placeholder="Etiqueta visible"
             value={newMarca.label}
@@ -123,7 +134,7 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
               const label = e.target.value;
               setNewMarca({ label, value: generateValueFromLabel(label) });
             }}
-            className="border rounded px-4 py-2 w-full md:w-1/2"
+            className="border border-gray-300 rounded px-4 py-2 w-full md:w-1/2"
           />
 
           {/* Campo oculto para "Valor (value)" */}
@@ -162,6 +173,7 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
             }
           />
           <input
+            id="modelo-label-input"
             type="text"
             placeholder="Etiqueta visible del modelo"
             value={newModelo.label}
@@ -173,7 +185,7 @@ const MarcaCrud: React.FC<MarcaCrudProps> = ({
                 value: generateValueFromLabel(label),
               });
             }}
-            className="border rounded px-4 py-2 w-full md:w-1/2"
+            className="border border-gray-300 rounded px-4 py-2 w-full md:w-1/2"
           />
         </div>
         <button

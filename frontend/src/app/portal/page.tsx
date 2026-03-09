@@ -10,7 +10,7 @@ export default function PortalPage() {
         className={buttonVariants()}
         style={{ marginTop: "20px" }}
       >
-        Internos
+        Clientes
       </Link>
       <Link
         href="/portal/eventos"
@@ -18,27 +18,6 @@ export default function PortalPage() {
         style={{ marginTop: "20px" }}
       >
         Eventos
-      </Link>
-      <Link
-        href="/portal/eventos/establecimientos"
-        className={buttonVariants()}
-        style={{ marginTop: "20px" }}
-      >
-        Busqueda por Establecimientos
-      </Link>
-     {/*  <Link
-        href="/portal/eventos/redes"
-        className={buttonVariants()}
-        style={{ marginTop: "20px" }}
-      >
-        Redes
-      </Link> */}
-      <Link
-        href="/portal/eventos/analytics"
-        className={buttonVariants()}
-        style={{ marginTop: "20px" }}
-      >
-        Gráficos de datos
       </Link>
     </div>
   );

@@ -181,10 +181,26 @@ const MovilesAnexados: React.FC<MovilesAnexadosProps> = ({
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-2">{movil.patente || "N/A"}</td>
-                    <td className="px-4 py-2">{movil.marca || "N/A"}</td>
-                    <td className="px-4 py-2">{movil.modelo || "N/A"}</td>
-                    <td className="px-4 py-2">{movil.anio || "N/A"}</td>
+                    <td className="p-0">
+                      <a href={`/portal/eventos/temas/${movil.id}/edit`} className="block px-4 py-2" style={{ color: "inherit", textDecoration: "none" }}>
+                        {movil.patente || "N/A"}
+                      </a>
+                    </td>
+                    <td className="p-0">
+                      <a href={`/portal/eventos/temas/${movil.id}/edit`} className="block px-4 py-2" style={{ color: "inherit", textDecoration: "none" }}>
+                        {movil.marca || "N/A"}
+                      </a>
+                    </td>
+                    <td className="p-0">
+                      <a href={`/portal/eventos/temas/${movil.id}/edit`} className="block px-4 py-2" style={{ color: "inherit", textDecoration: "none" }}>
+                        {movil.modelo || "N/A"}
+                      </a>
+                    </td>
+                    <td className="p-0">
+                      <a href={`/portal/eventos/temas/${movil.id}/edit`} className="block px-4 py-2" style={{ color: "inherit", textDecoration: "none" }}>
+                        {movil.anio || "N/A"}
+                      </a>
+                    </td>
                   </tr>
                 ) : null;
               })}

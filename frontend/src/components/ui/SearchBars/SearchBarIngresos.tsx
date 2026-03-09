@@ -1,19 +1,21 @@
 //frontend\src\components\ui\SearchBars\SearchBarIngresos.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Alert } from "@/components/ui/alert";
 import { InputFieldSimple } from "@/components/ui/inputs/InputFieldSimple";
 
+const STORAGE_KEY = "searchBar_ingresos";
+
 interface SearchBarProps {
-  onSearch: (queries: { 
-    generalQuery: string; 
-    apellido: string; 
-    nombres: string; 
-    lpu: string; 
-    lpuProv: string; 
-    telefono: string; // Agregado
-    emailCliente: string; // Agregado
+  onSearch: (queries: {
+    generalQuery: string;
+    apellido: string;
+    nombres: string;
+    lpu: string;
+    lpuProv: string;
+    telefono: string;
+    emailCliente: string;
   }) => void;
 }
 
@@ -23,13 +25,39 @@ export function SearchBar({ onSearch }: SearchBarProps) {
   const [nombres, setNombres] = useState("");
   const [lpu, setLpu] = useState("");
   const [lpuProv, setLpuProv] = useState("");
-  const [telefono, setTelefono] = useState(""); // Agregado
-  const [emailCliente, setEmailCliente] = useState(""); // Agregado
+  const [telefono, setTelefono] = useState("");
+  const [emailCliente, setEmailCliente] = useState("");
   const [loading, setLoading] = useState(false);
+  const hasRestoredRef = useRef(false);
+
+  // Restaurar filtros de sessionStorage al montar
+  useEffect(() => {
+    if (hasRestoredRef.current) return;
+    hasRestoredRef.current = true;
+    try {
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.generalQuery) setGeneralQuery(parsed.generalQuery);
+        if (parsed.apellido) setApellido(parsed.apellido);
+        if (parsed.nombres) setNombres(parsed.nombres);
+        if (parsed.lpu) setLpu(parsed.lpu);
+        if (parsed.lpuProv) setLpuProv(parsed.lpuProv);
+        if (parsed.telefono) setTelefono(parsed.telefono);
+        if (parsed.emailCliente) setEmailCliente(parsed.emailCliente);
+        // Auto-ejecutar búsqueda si hay filtros guardados
+        const hasFilter = Object.values(parsed).some((v: unknown) => typeof v === "string" && v.length >= 3);
+        if (hasFilter) {
+          onSearch(parsed);
+        }
+      }
+    } catch (e) {
+      // Ignorar errores de sessionStorage
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Evitar que se ingresen llaves o corchetes
     if (/[{}\[\]]/.test(value)) {
       Alert.error({
         title: 'Caracter no permitido',
@@ -56,10 +84,12 @@ export function SearchBar({ onSearch }: SearchBarProps) {
       });
       return;
     }
-  
+
     const searchParams = { generalQuery, apellido, nombres, lpu, lpuProv, telefono, emailCliente };
-    console.log("Parámetros de búsqueda enviados:", searchParams); // Agregado
-  
+
+    // Guardar en sessionStorage
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(searchParams));
+
     setLoading(true);
     await onSearch(searchParams);
     setLoading(false);
@@ -109,13 +139,22 @@ export function SearchBar({ onSearch }: SearchBarProps) {
         label="Buscar por Email Cliente" // Agregado
         placeholder="" // Agregado
       />
-      <div className="md:col-span-2 flex justify-start">
+      <div className="md:col-span-2 flex justify-start gap-2">
         <button
           onClick={handleSearchClick}
           className={`mt-2 px-4 py-2 rounded-lg ${loading ? 'bg-green-500' : 'bg-blue-500'} text-white`}
           disabled={loading}
         >
           {loading ? 'Buscando...' : 'Buscar'}
+        </button>
+        <button
+          onClick={() => {
+            setGeneralQuery(""); setApellido(""); setNombres(""); setLpu(""); setLpuProv(""); setTelefono(""); setEmailCliente("");
+            sessionStorage.removeItem(STORAGE_KEY);
+          }}
+          className="mt-2 px-4 py-2 rounded-lg bg-gray-400 text-white"
+        >
+          Limpiar filtros
         </button>
       </div>
     </div>

@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import Modal from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import MovilesTable from "./MovilesTable";
 import { SearchBarMoviles } from "@/components/ui/SearchBars/SearchBarMoviles";
 

@@ -8,7 +8,9 @@ export class CsrfMiddleware implements NestMiddleware {
   constructor(private readonly csrfService: CsrfService) {}
 
   use(req: Request, res: Response, next: NextFunction) {
-    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+    const isAuthRoute = req.originalUrl.startsWith('/api/auth/');
+    const isNotificationRoute = req.originalUrl.startsWith('/api/notifications/');
+    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method) && !isAuthRoute && !isNotificationRoute) {
       if (!this.csrfService.validateToken(req)) {
         return res.status(403).json({ message: 'Invalid CSRF token' });
       }

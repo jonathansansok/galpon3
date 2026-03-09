@@ -1,15 +1,20 @@
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
+  const defaultPassword = await bcrypt.hash('admin123', 10);
+
   // Usuario con privilegio A1
   await prisma.users.upsert({
     where: { email: 'jonasans2@live.com.ar' },
     update: {},
     create: {
       email: 'jonasans2@live.com.ar',
-      privilege: 'A1', // Puede hacer de todo
+      password: defaultPassword,
+      name: 'Admin',
+      privilege: 'A1',
       internosinvolucrado: null,
     },
   });
@@ -20,7 +25,9 @@ async function main() {
     update: {},
     create: {
       email: 'jsanso407@gmail.com',
-      privilege: null, // Sin privilegios especiales
+      password: defaultPassword,
+      name: 'Usuario',
+      privilege: null,
       internosinvolucrado: null,
     },
   });

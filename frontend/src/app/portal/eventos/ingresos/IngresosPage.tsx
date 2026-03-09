@@ -239,6 +239,8 @@ export default function IngresosPage() {
           onRowClick={handleRowClick}
           onEditClick={handleEditClick}
           onViewClick={handleViewClick}
+          getEditUrl={(id) => `/portal/eventos/ingresos/${id}/edit`}
+          getViewUrl={(id) => `/portal/eventos/ingresos/${id}`}
         />
       </div>
     </div>

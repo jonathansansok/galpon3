@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { getTemas } from "./Temas.api";
@@ -19,13 +19,92 @@ export default function TemasPage() {
   const [sortColumn, setSortColumn] = useState<keyof Tema | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const router = useRouter();
+  const hasAutoLoadedRef = useRef(false);
+
+  // Auto-cargar datos si hay filtros guardados en sessionStorage
+  useEffect(() => {
+    if (hasAutoLoadedRef.current) return;
+    hasAutoLoadedRef.current = true;
+    try {
+      const saved = sessionStorage.getItem("searchBar_moviles");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const hasFilter = Object.values(parsed).some((v: unknown) => typeof v === "string" && (v as string).length >= 3);
+        if (hasFilter) {
+          handleLoadData();
+        }
+      }
+    } catch (e) {
+      // Ignorar errores
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const applyFilters = (data: Tema[], queries: {
+    generalQuery: string;
+    patente: string;
+    marca: string;
+    modelo: string;
+    anio: string;
+    color: string;
+    tipoVehic: string;
+    vin: string;
+  }) => {
+    const filtered = data.filter((tema) => {
+      const matchesGeneralQuery =
+        queries.generalQuery &&
+        Object.values(tema).some((value) =>
+          String(value).toLowerCase().includes(queries.generalQuery.toLowerCase())
+        );
+      const matchesPatente =
+        queries.patente &&
+        tema.patente?.toLowerCase().includes(queries.patente.toLowerCase());
+      const matchesMarca =
+        queries.marca &&
+        tema.marca?.toLowerCase().includes(queries.marca.toLowerCase());
+      const matchesModelo =
+        queries.modelo &&
+        tema.modelo?.toLowerCase().includes(queries.modelo.toLowerCase());
+      const matchesAnio =
+        queries.anio &&
+        tema.anio?.toLowerCase().includes(queries.anio.toLowerCase());
+      const matchesColor =
+        queries.color &&
+        tema.color?.toLowerCase().includes(queries.color.toLowerCase());
+      const matchesTipoVehic =
+        queries.tipoVehic &&
+        tema.tipoVehic?.toLowerCase().includes(queries.tipoVehic.toLowerCase());
+      const matchesVin =
+        queries.vin &&
+        tema.vin?.toLowerCase().includes(queries.vin.toLowerCase());
+
+      return (
+        matchesGeneralQuery || matchesPatente || matchesMarca || matchesModelo ||
+        matchesAnio || matchesColor || matchesTipoVehic || matchesVin
+      );
+    });
+    return filtered.length > 0 ? filtered : data;
+  };
 
   const handleLoadData = async () => {
     try {
       const data = await getTemas();
       const formattedData = Array.isArray(data) ? data : [];
       setTemas(formattedData);
-      setSearchResults(formattedData); // Inicialmente, los resultados son todos los datos
+
+      // Aplicar filtros guardados automáticamente después de cargar
+      try {
+        const saved = sessionStorage.getItem("searchBar_moviles");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          const hasFilter = Object.values(parsed).some((v: unknown) => typeof v === "string" && (v as string).length >= 3);
+          if (hasFilter) {
+            setSearchResults(applyFilters(formattedData, parsed));
+            return;
+          }
+        }
+      } catch (e) { /* ignorar */ }
+
+      setSearchResults(formattedData);
     } catch (error) {
       console.error("Error al obtener temas:", error);
       setTemas([]);
@@ -43,56 +122,7 @@ export default function TemasPage() {
     tipoVehic: string;
     vin: string;
   }) => {
-    const filtered = temas.filter((tema) => {
-      const matchesGeneralQuery =
-        queries.generalQuery &&
-        Object.values(tema).some((value) =>
-          String(value).toLowerCase().includes(queries.generalQuery.toLowerCase())
-        );
-
-      const matchesPatente =
-        queries.patente &&
-        tema.patente?.toLowerCase().includes(queries.patente.toLowerCase());
-
-      const matchesMarca =
-        queries.marca &&
-        tema.marca?.toLowerCase().includes(queries.marca.toLowerCase());
-
-      const matchesModelo =
-        queries.modelo &&
-        tema.modelo?.toLowerCase().includes(queries.modelo.toLowerCase());
-
-      const matchesAnio =
-        queries.anio &&
-        tema.anio?.toLowerCase().includes(queries.anio.toLowerCase());
-
-      const matchesColor =
-        queries.color &&
-        tema.color?.toLowerCase().includes(queries.color.toLowerCase());
-
-      const matchesTipoVehic =
-        queries.tipoVehic &&
-        tema.tipoVehic
-          ?.toLowerCase()
-          .includes(queries.tipoVehic.toLowerCase());
-
-      const matchesVin =
-        queries.vin &&
-        tema.vin?.toLowerCase().includes(queries.vin.toLowerCase());
-
-      return (
-        matchesGeneralQuery ||
-        matchesPatente ||
-        matchesMarca ||
-        matchesModelo ||
-        matchesAnio ||
-        matchesColor ||
-        matchesTipoVehic ||
-        matchesVin
-      );
-    });
-
-    setSearchResults(filtered.length > 0 ? filtered : temas); // Si no hay coincidencias, mostrar todos los datos
+    setSearchResults(applyFilters(temas, queries));
   };
 
   const handleRowClick = (id: string) => {
@@ -180,6 +210,8 @@ export default function TemasPage() {
           onRowClick={handleRowClick}
           onEditClick={handleEditClick}
           onViewClick={handleRowClick}
+          getEditUrl={(id) => `/portal/eventos/temas/${id}/edit`}
+          getViewUrl={(id) => `/portal/eventos/temas/${id}`}
           hasPDFs={(item) =>
             [
               item.pdf1,

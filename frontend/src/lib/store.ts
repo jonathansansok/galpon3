@@ -1,6 +1,6 @@
 //frontend\src\lib\store.ts
 import { create } from "zustand";
-import { Auth0User } from "@/lib/types";
+import { AppUser } from "@/lib/types";
 
 interface PresupuestoState {
   idMovil: number | null;
@@ -38,11 +38,11 @@ interface Location {
 }
 
 interface UserState {
-  user: Auth0User | null;
+  user: AppUser | null;
   privilege: string | null;
   comp: string | null; // Agregar propiedad comp
   locations: Location[];
-  setUser: (user: Auth0User | null) => void;
+  setUser: (user: AppUser | null) => void;
   setPrivilege: (privilege: string | null) => void;
   setComp: (comp: string | null) => void; // Agregar función setComp
   setLocations: (locations: Location[]) => void;

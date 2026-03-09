@@ -20,11 +20,8 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const isDev = process.env.NODE_ENV !== 'production';
-  const auth0Domain = new URL(process.env.AUTH0_ISSUER_BASE_URL || '').origin;
-  const frontendUrl = new URL(
-    process.env.AUTH0_BASE_URL || 'http://localhost:3000',
-  ).origin;
-  const imageDomain = process.env.NEXT_PUBLIC_IMAGE_DOMAIN || 'localhost'; // Puedes ajustar según tu configuración
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const imageDomain = process.env.NEXT_PUBLIC_IMAGE_DOMAIN || 'localhost';
 
   app.use(
     helmet({
@@ -37,17 +34,15 @@ async function bootstrap() {
             "'self'",
             isDev ? "'unsafe-eval'" : null,
             'cdn.jsdelivr.net',
-            'https://cdn.auth0.com',
           ].filter(Boolean),
           styleSrc: ["'self'", "'unsafe-inline'", 'cdn.jsdelivr.net'],
           imgSrc: [
             "'self'",
             'data:',
-            'https://cdn.auth0.com',
             `${imageDomain}:3900`,
           ],
-          connectSrc: ["'self'", auth0Domain, frontendUrl],
-          frameSrc: ["'self'", auth0Domain],
+          connectSrc: ["'self'", frontendUrl],
+          frameSrc: ["'self'"],
         },
       },
     }),
@@ -71,67 +66,8 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'src', 'ingresos', 'uploads'), {
     prefix: '/ingresos/uploads/',
   });
-
-  app.useStaticAssets(
-    join(__dirname, '..', 'src', 'manifestaciones', 'uploads'),
-    {
-      prefix: '/manifestaciones/uploads/',
-    },
-  );
-  app.useStaticAssets(
-    join(__dirname, '..', 'src', 'manifestaciones2', 'uploads'),
-    {
-      prefix: '/manifestaciones2/uploads/',
-    },
-  );
-  app.useStaticAssets(join(__dirname, '..', 'src', 'agresiones', 'uploads'), {
-    prefix: '/agresiones/uploads/',
-  });
-  app.useStaticAssets(join(__dirname, '..', 'src', 'atentados', 'uploads'), {
-    prefix: '/atentados/uploads/',
-  });
-  app.useStaticAssets(join(__dirname, '..', 'src', 'egresos', 'uploads'), {
-    prefix: '/egresos/uploads/',
-  });
-  app.useStaticAssets(join(__dirname, '..', 'src', 'elementos', 'uploads'), {
-    prefix: '/elementos/uploads/',
-  });
-  app.useStaticAssets(join(__dirname, '..', 'src', 'extramuros', 'uploads'), {
-    prefix: '/extramuros/uploads/',
-  });
-  app.useStaticAssets(join(__dirname, '..', 'src', 'habeas', 'uploads'), {
-    prefix: '/habeas/uploads/',
-  });
-  app.useStaticAssets(join(__dirname, '..', 'src', 'huelgas', 'uploads'), {
-    prefix: '/huelgas/uploads/',
-  });
-  app.useStaticAssets(join(__dirname, '..', 'src', 'impactos', 'uploads'), {
-    prefix: '/impactos/uploads/',
-  });
-  app.useStaticAssets(join(__dirname, '..', 'src', 'preingresos', 'uploads'), {
-    prefix: '/preingresos/uploads/',
-  });
-  app.useStaticAssets(join(__dirname, '..', 'src', 'prevenciones', 'uploads'), {
-    prefix: '/prevenciones/uploads/',
-  });
-  app.useStaticAssets(
-    join(__dirname, '..', 'src', 'procedimientos', 'uploads'),
-    {
-      prefix: '/procedimientos/uploads/',
-    },
-  );
-  app.useStaticAssets(join(__dirname, '..', 'src', 'sumarios', 'uploads'), {
-    prefix: '/sumarios/uploads/',
-  });
-
-  app.useStaticAssets(join(__dirname, '..', 'src', 'reqexts', 'uploads'), {
-    prefix: '/reqexts/uploads/',
-  });
   app.useStaticAssets(join(__dirname, '..', 'src', 'temas', 'uploads'), {
     prefix: '/temas/uploads/',
-  });
-  app.useStaticAssets(join(__dirname, '..', 'src', 'traslados', 'uploads'), {
-    prefix: '/traslados/uploads/',
   });
   app.useStaticAssets(join(__dirname, '..', 'src', 'presupuestos', 'uploads'), {
     prefix: '/presupuestos/uploads/',

@@ -1,7 +1,7 @@
 //frontend\src\app\portal\eventos\presupuestos\PresupuestosPage.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { getPresupuestos, getMovilById, getPresupuestosWithMovilData } from "./Presupuestos.api";
@@ -20,23 +20,94 @@ export default function PresupuestosPage() {
   const [sortColumn, setSortColumn] = useState<keyof Presupuesto | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const router = useRouter();
+  const hasAutoLoadedRef = useRef(false);
+
+  // Auto-cargar datos si hay filtros guardados en sessionStorage
+  useEffect(() => {
+    if (hasAutoLoadedRef.current) return;
+    hasAutoLoadedRef.current = true;
+    try {
+      const saved = sessionStorage.getItem("searchBar_presupuestos");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const hasFilter = Object.values(parsed).some((v: unknown) => typeof v === "string" && (v as string).length >= 3);
+        if (hasFilter) {
+          handleLoadData();
+        }
+      }
+    } catch (e) {
+      // Ignorar errores
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const applyFilters = (data: Presupuesto[], queries: {
+    generalQuery: string;
+    monto: string;
+    estado: string;
+    observaciones: string;
+    movilId: string;
+    patente: string;
+  }) => {
+    const filtered = data.filter((presupuesto) => {
+      const matchesGeneralQuery =
+        queries.generalQuery &&
+        Object.values(presupuesto).some((value) =>
+          String(value).toLowerCase().includes(queries.generalQuery.toLowerCase())
+        );
+      const matchesMonto =
+        queries.monto &&
+        String(presupuesto.monto || "").toLowerCase().includes(queries.monto.toLowerCase());
+      const matchesEstado =
+        queries.estado &&
+        presupuesto.estado?.toLowerCase().includes(queries.estado.toLowerCase());
+      const matchesObservaciones =
+        queries.observaciones &&
+        presupuesto.observaciones?.toLowerCase().includes(queries.observaciones.toLowerCase());
+      const matchesMovilId =
+        queries.movilId &&
+        String(presupuesto.movilId || "").toLowerCase().includes(queries.movilId.toLowerCase());
+      const matchesPatente =
+        queries.patente &&
+        presupuesto.patente?.toLowerCase().includes(queries.patente.toLowerCase());
+
+      return (
+        matchesGeneralQuery || matchesMonto || matchesEstado ||
+        matchesObservaciones || matchesMovilId || matchesPatente
+      );
+    });
+    return filtered;
+  };
 
   const handleLoadData = async () => {
     try {
       const presupuestos = await getPresupuestosWithMovilData();
-  
-      // Obtener datos adicionales de los móviles
+
       const presupuestosConMovil = await Promise.all(
         presupuestos.map(async (presupuesto: Presupuesto) => {
           if (presupuesto.movilId) {
             const movil = await getMovilById(presupuesto.movilId);
-            return { ...presupuesto, ...movil }; // Combina los datos del presupuesto y del móvil
+            return { ...presupuesto, ...movil };
           }
           return presupuesto;
         })
       );
-  
+
       setPresupuestos(presupuestosConMovil);
+
+      // Aplicar filtros guardados automáticamente después de cargar
+      try {
+        const saved = sessionStorage.getItem("searchBar_presupuestos");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          const hasFilter = Object.values(parsed).some((v: unknown) => typeof v === "string" && (v as string).length >= 3);
+          if (hasFilter) {
+            const filtered = applyFilters(presupuestosConMovil, parsed);
+            setSearchResults(filtered.map((item) => ({ item, matches: [] })));
+            return;
+          }
+        }
+      } catch (e) { /* ignorar */ }
+
       setSearchResults(
         presupuestosConMovil.map((item) => ({ item, matches: [] }))
       );
@@ -55,51 +126,9 @@ export default function PresupuestosPage() {
     movilId: string;
     patente: string;
   }) => {
-    const filtered = presupuestos.filter((presupuesto) => {
-      const matchesGeneralQuery =
-        queries.generalQuery &&
-        Object.values(presupuesto).some((value) =>
-          String(value).toLowerCase().includes(queries.generalQuery.toLowerCase())
-        );
-  
-        const matchesMonto =
-        queries.monto &&
-        String(presupuesto.monto || "")
-          .toLowerCase()
-          .includes(queries.monto.toLowerCase());
-  
-      const matchesEstado =
-        queries.estado &&
-        presupuesto.estado?.toLowerCase().includes(queries.estado.toLowerCase());
-  
-      const matchesObservaciones =
-        queries.observaciones &&
-        presupuesto.observaciones
-          ?.toLowerCase()
-          .includes(queries.observaciones.toLowerCase());
-  
-          const matchesMovilId =
-          queries.movilId &&
-          String(presupuesto.movilId || "")
-            .toLowerCase()
-            .includes(queries.movilId.toLowerCase());
-  
-      const matchesPatente =
-        queries.patente &&
-        presupuesto.patente?.toLowerCase().includes(queries.patente.toLowerCase());
-  
-      return (
-        matchesGeneralQuery ||
-        matchesMonto ||
-        matchesEstado ||
-        matchesObservaciones ||
-        matchesMovilId ||
-        matchesPatente
-      );
-    });
-  
+    const filtered = applyFilters(presupuestos, queries);
     setSearchResults(
-      filtered.map((item) => ({ item, matches: [] })) // Convertir a SearchResult[]
+      filtered.map((item) => ({ item, matches: [] }))
     );
   };
 
@@ -192,6 +221,8 @@ export default function PresupuestosPage() {
           onRowClick={handleRowClick}
           onEditClick={handleEditClick}
           onViewClick={handleRowClick}
+          getEditUrl={(id) => `/portal/eventos/presupuestos/${id}/edit`}
+          getViewUrl={(id) => `/portal/eventos/presupuestos/${id}`}
           hasPDFs={(item) =>
             [
               item.pdf1,

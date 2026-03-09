@@ -1,35 +1,17 @@
 "use client";
-import { useUser } from "@auth0/nextjs-auth0/client";
 import { useUserStore } from "@/lib/store";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function HomePage() {
-  const { user, error, isLoading } = useUser(); // Usuario desde Auth0
+  const user = useUserStore((state) => state.user);
   const privilege = useUserStore((state) => state.privilege);
-  const comp = useUserStore((state) => state.comp); // Obtener comp desde Zustand
+  const comp = useUserStore((state) => state.comp);
   const router = useRouter();
 
   const handleNavigate = () => {
     router.push("/portal/eventos/");
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-blue-900">
-        <p className="text-white">Cargando...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p>Error: {error.message}</p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex justify-center items-center min-h-screen flex-col w-full mt-0">

@@ -113,16 +113,36 @@ const MovilesTable: React.FC<MovilesTableProps> = ({
                 selectedMoviles.includes(movil.id) ? "bg-green-100" : "bg-white"
               } hover:bg-green-50`}
             >
-              <td className="border border-gray-300 px-4 py-2">
-                {new Date(movil.createdAt).toLocaleString()}
+              <td className="border border-gray-300 p-0">
+                <a href={`/portal/eventos/temas/${movil.id}/edit`} onClick={(e) => { e.preventDefault(); toggleSelection(movil.id); }} className="block px-4 py-2" style={{ color: "inherit", textDecoration: "none" }}>
+                  {new Date(movil.createdAt).toLocaleString()}
+                </a>
               </td>
-              <td className="border border-gray-300 px-4 py-2">
-                {new Date(movil.updatedAt).toLocaleString()}
+              <td className="border border-gray-300 p-0">
+                <a href={`/portal/eventos/temas/${movil.id}/edit`} onClick={(e) => { e.preventDefault(); toggleSelection(movil.id); }} className="block px-4 py-2" style={{ color: "inherit", textDecoration: "none" }}>
+                  {new Date(movil.updatedAt).toLocaleString()}
+                </a>
               </td>
-              <td className="border border-gray-300 px-4 py-2">{movil.patente || "N/A"}</td>
-              <td className="border border-gray-300 px-4 py-2">{movil.marca || "N/A"}</td>
-              <td className="border border-gray-300 px-4 py-2">{movil.modelo || "N/A"}</td>
-              <td className="border border-gray-300 px-4 py-2">{movil.anio || "N/A"}</td>
+              <td className="border border-gray-300 p-0">
+                <a href={`/portal/eventos/temas/${movil.id}/edit`} onClick={(e) => { e.preventDefault(); toggleSelection(movil.id); }} className="block px-4 py-2" style={{ color: "inherit", textDecoration: "none" }}>
+                  {movil.patente || "N/A"}
+                </a>
+              </td>
+              <td className="border border-gray-300 p-0">
+                <a href={`/portal/eventos/temas/${movil.id}/edit`} onClick={(e) => { e.preventDefault(); toggleSelection(movil.id); }} className="block px-4 py-2" style={{ color: "inherit", textDecoration: "none" }}>
+                  {movil.marca || "N/A"}
+                </a>
+              </td>
+              <td className="border border-gray-300 p-0">
+                <a href={`/portal/eventos/temas/${movil.id}/edit`} onClick={(e) => { e.preventDefault(); toggleSelection(movil.id); }} className="block px-4 py-2" style={{ color: "inherit", textDecoration: "none" }}>
+                  {movil.modelo || "N/A"}
+                </a>
+              </td>
+              <td className="border border-gray-300 p-0">
+                <a href={`/portal/eventos/temas/${movil.id}/edit`} onClick={(e) => { e.preventDefault(); toggleSelection(movil.id); }} className="block px-4 py-2" style={{ color: "inherit", textDecoration: "none" }}>
+                  {movil.anio || "N/A"}
+                </a>
+              </td>
               <td className="border border-gray-300 px-4 py-2">
                 {movil.imagen ? (
                   <Image

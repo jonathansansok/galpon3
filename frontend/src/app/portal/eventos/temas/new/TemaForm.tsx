@@ -19,6 +19,7 @@ import { useState, useEffect } from "react";
 import FechaHoraEvento from "@/components/ui/FechaHoraEvento";
 import { useUserStore } from "@/lib/store"; // Importar el store de Zustand
 import { ShowTemas, showCancelAlert } from "../../../../utils/alertUtils"; // Importa las funciones
+import { validateAndNotify, clearFieldErrors, handleBackendErrors } from "../../../../utils/formValidation";
 import ClienteAsociado from "@/components/ui/ClienteAsociado";
 import PhotosEvModal from "@/components/ui/MultimediaModals/PhotosEvModal";
 import PdfModal from "@/components/ui/MultimediaModals/PdfModal";
@@ -411,9 +412,17 @@ export function TemaForm({ tema }: { tema: any }) {
     fechaHora: "Fecha y hora de evento",
   };
 
-  const requiredFields = ["", ""];
+  const temaValidationRules = {
+    patente: { required: true, label: "Patente" },
+  };
+
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     console.log("[DEBUG] Valor de anio antes de parsear:", anio);
+
+    // Validar con toast + scroll + red borders
+    clearFieldErrors();
+    const { valid } = validateAndNotify(data, temaValidationRules);
+    if (!valid) return;
 
     const confirmation = await Alert.confirm({
       title: "¿Estás seguro?",
@@ -521,22 +530,18 @@ export function TemaForm({ tema }: { tema: any }) {
         );
 
         if (response.success) {
-          window.location.href = "/portal/eventos/temas"; // Forzar recarga completa del navegador
+          clearFieldErrors();
+          window.location.href = "/portal/eventos/temas";
         } else {
           console.error(
             "[ERROR] Error al crear o actualizar tema:",
             response.error
           );
-          ShowTemas(false, "Error", response.error);
+          handleBackendErrors(response);
         }
       } catch (error) {
         console.error("[EXCEPTION] Error inesperado:", error);
-        ShowTemas(
-          false,
-          "Error inesperado",
-          error instanceof Error ? error.message : "Error desconocido",
-          clienteAsociado || {} // Pasar un objeto vacío si no hay cliente
-        );
+        handleBackendErrors({ message: error instanceof Error ? error.message : "Error desconocido" });
       } finally {
         setIsSubmitting(false);
       }

@@ -85,16 +85,14 @@ export default function EventosPage() {
         >
           Trabajos realizados
         </Link>
-        {/* Enlaces visibles solo para usuarios que no son B1 */}
-        {privilege !== "B1" && (
-          <>
-            <Link
-              href="/portal/eventos/analytics"
-              className="bg-blue-500 text-white shadow-md rounded-lg p-4 text-center font-semibold hover:bg-blue-600 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
-            >
-              Gráficos
-            </Link>
-          </>
+
+        {privilege === "A1" && (
+          <Link
+            href="/portal/eventos/admin"
+            className="bg-red-600 text-white shadow-md rounded-lg p-4 text-center font-semibold hover:bg-red-700 transition duration-300 flex items-center justify-center transform hover:scale-105 active:animate-shake"
+          >
+            Admin
+          </Link>
         )}
       </div>
     </div>
