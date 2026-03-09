@@ -29,7 +29,9 @@ export class AuthService {
     const payload = {
       sub: user.id,
       email: user.email,
-      name: user.name,
+      nombre: user.nombre,
+      apellido: user.apellido,
+      telefono: user.telefono,
       privilege: user.privilege,
       comp: user.comp,
     };
@@ -47,14 +49,22 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
+        nombre: user.nombre,
+        apellido: user.apellido,
+        telefono: user.telefono,
         privilege: user.privilege,
         comp: user.comp,
       },
     };
   }
 
-  async register(email: string, password: string, name?: string) {
+  async register(
+    email: string,
+    password: string,
+    nombre?: string,
+    apellido?: string,
+    telefono?: string,
+  ) {
     const existing = await this.usersService.findByEmail(email);
     if (existing) {
       throw new ConflictException('El email ya está registrado');
@@ -64,7 +74,9 @@ export class AuthService {
     const user = await this.usersService.createUser({
       email,
       password: hashedPassword,
-      name,
+      nombre,
+      apellido,
+      telefono,
     });
 
     const { password: _, ...result } = user;

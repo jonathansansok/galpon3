@@ -95,7 +95,7 @@ function AppContentLayoutComponent(props: MainLayoutComponentProps) {
                 <div className="my-4">
                   <p className="text-left text-gray-800 font-bold">Usuario</p>
                   <p className="text-left text-gray-800 font-bold mb-5 break-words">
-                    {user?.name || user?.email}
+                    {[user?.nombre, user?.apellido].filter(Boolean).join(" ") || user?.email}
                   </p>
                   <button
                     onClick={async () => {

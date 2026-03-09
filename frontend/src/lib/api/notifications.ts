@@ -9,7 +9,7 @@ export interface AuditNotification {
   userId: number;
   readBy: number[];
   createdAt: string;
-  user: { id: number; name: string | null; email: string };
+  user: { id: number; nombre: string | null; apellido: string | null; email: string };
 }
 
 export async function getRecentNotifications(since?: string): Promise<AuditNotification[]> {

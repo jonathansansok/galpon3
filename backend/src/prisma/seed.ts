@@ -13,7 +13,8 @@ async function main() {
     create: {
       email: 'jonasans2@live.com.ar',
       password: defaultPassword,
-      name: 'Admin',
+      nombre: 'Admin',
+      apellido: '',
       privilege: 'A1',
       internosinvolucrado: null,
     },
@@ -26,7 +27,8 @@ async function main() {
     create: {
       email: 'jsanso407@gmail.com',
       password: defaultPassword,
-      name: 'Usuario',
+      nombre: 'Usuario',
+      apellido: '',
       privilege: null,
       internosinvolucrado: null,
     },

@@ -202,7 +202,7 @@ export default function NotificationBell() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-800 leading-snug">
                       <span className="font-semibold">
-                        {n.user?.email || n.user?.name || "Usuario"}
+                        {n.user?.email || [n.user?.nombre, n.user?.apellido].filter(Boolean).join(" ") || "Usuario"}
                       </span>{" "}
                       <span className={`font-medium ${config.color}`}>
                         {config.label.toLowerCase()}

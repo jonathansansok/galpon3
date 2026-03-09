@@ -160,7 +160,7 @@ export default function AppContentLayoutComponent(
           {/* Botón de logout fijo */}
           <div className="absolute bottom-0 left-0 w-full p-6 bg-white border-t border-gray-200">
             <p className="text-left text-gray-800 font-bold mb-5 break-words">
-              {user?.name || user?.email}
+              {[user?.nombre, user?.apellido].filter(Boolean).join(" ") || user?.email}
             </p>
             <button
               onClick={async () => {

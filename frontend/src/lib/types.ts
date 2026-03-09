@@ -2,7 +2,9 @@
 export interface AppUser {
     id: number;
     email: string;
-    name?: string | null;
+    nombre?: string | null;
+    apellido?: string | null;
+    telefono?: string | null;
     privilege?: string | null;
     comp?: string | null;
     [key: string]: any;

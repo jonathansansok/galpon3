@@ -40,7 +40,15 @@ export class UsersController {
   async updateUser(
     @Request() req,
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: { name?: string; email?: string; privilege?: string; comp?: string },
+    @Body()
+    body: {
+      nombre?: string;
+      apellido?: string;
+      telefono?: string;
+      email?: string;
+      privilege?: string;
+      comp?: string;
+    },
   ) {
     if (req.user.privilege !== 'A1') {
       throw new ForbiddenException('Solo administradores');

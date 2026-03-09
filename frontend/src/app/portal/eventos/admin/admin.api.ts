@@ -22,7 +22,14 @@ export async function getUsers() {
 
 export async function updateUser(
   id: number,
-  data: { name?: string; email?: string; privilege?: string; comp?: string },
+  data: {
+    nombre?: string;
+    apellido?: string;
+    telefono?: string;
+    email?: string;
+    privilege?: string;
+    comp?: string;
+  },
 ) {
   const csrfToken = getCsrfTokenFromCookies();
   const res = await fetch(`${BACKEND_URL}/api/users/${id}`, {

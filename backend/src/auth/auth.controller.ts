@@ -32,7 +32,9 @@ export class AuthController {
     return this.authService.register(
       registerDto.email,
       registerDto.password,
-      registerDto.name,
+      registerDto.nombre,
+      registerDto.apellido,
+      registerDto.telefono,
     );
   }
 

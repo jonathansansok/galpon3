@@ -18,12 +18,20 @@ export class UsersService {
     });
   }
 
-  async createUser(data: { email: string; password: string; name?: string }) {
+  async createUser(data: {
+    email: string;
+    password: string;
+    nombre?: string;
+    apellido?: string;
+    telefono?: string;
+  }) {
     return this.prisma.users.create({
       data: {
         email: data.email,
         password: data.password,
-        name: data.name,
+        nombre: data.nombre,
+        apellido: data.apellido,
+        telefono: data.telefono,
       },
     });
   }
@@ -69,7 +77,9 @@ export class UsersService {
       select: {
         id: true,
         email: true,
-        name: true,
+        nombre: true,
+        apellido: true,
+        telefono: true,
         privilege: true,
         comp: true,
         createdAt: true,
@@ -81,7 +91,14 @@ export class UsersService {
 
   async updateUser(
     userId: number,
-    data: { name?: string; email?: string; privilege?: string; comp?: string },
+    data: {
+      nombre?: string;
+      apellido?: string;
+      telefono?: string;
+      email?: string;
+      privilege?: string;
+      comp?: string;
+    },
   ) {
     return this.prisma.users.update({
       where: { id: userId },
@@ -89,7 +106,9 @@ export class UsersService {
       select: {
         id: true,
         email: true,
-        name: true,
+        nombre: true,
+        apellido: true,
+        telefono: true,
         privilege: true,
         comp: true,
         createdAt: true,

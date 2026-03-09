@@ -22,7 +22,7 @@ export class NotificationsService {
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        include: { user: { select: { id: true, name: true, email: true } } },
+        include: { user: { select: { id: true, nombre: true, apellido: true, email: true } } },
       }),
       this.prisma.auditLog.count(),
     ]);
@@ -35,7 +35,7 @@ export class NotificationsService {
       where,
       orderBy: { createdAt: 'desc' },
       take: 50,
-      include: { user: { select: { id: true, name: true, email: true } } },
+      include: { user: { select: { id: true, nombre: true, apellido: true, email: true } } },
     });
   }
 
