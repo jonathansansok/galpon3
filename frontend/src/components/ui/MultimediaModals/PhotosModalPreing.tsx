@@ -1,908 +1,293 @@
-//frontend\src\components\ui\MultimediaModals\PhotosModal.tsx
+'use client';
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import ProfileImageCropper from "@/components/ui/ProfileImageCropper";
-import Collapse from "@/components/ui/Collapse";
+import ImageCropper from "@/components/ui/ImageCropper";
 import Image from "next/image";
+import { formatFileSize, dataUriSizeBytes } from "@/lib/imageCompression";
+
+const IMAGE_FIELDS = [
+  "imagen",
+  "imagenDer",
+  "imagenIz",
+  "imagenDact",
+  "imagenSen1",
+  "imagenSen2",
+  "imagenSen3",
+  "imagenSen4",
+  "imagenSen5",
+  "imagenSen6",
+];
+
+const IMAGE_LABELS = [
+  "Fotografía rostro",
+  "Fotografía perfil derecho",
+  "Fotografía perfil izquierdo",
+  "Fotografía dactilar",
+  "Señas part.-tatuajes 1",
+  "Señas part.-tatuajes 2",
+  "Señas part.-tatuajes 3",
+  "Señas part.-tatuajes 4",
+  "Señas part.-tatuajes 5",
+  "Señas part.-tatuajes 6",
+];
 
 interface PhotosModalProps {
   isOpen: boolean;
   onClose: () => void;
   imagen: string | null;
-  setImagen: (imagen: string | null) => void;
+  setImagen: (v: string | null) => void;
   imagenDer: string | null;
-  setImagenDer: (imagenDer: string | null) => void;
+  setImagenDer: (v: string | null) => void;
   imagenIz: string | null;
-  setImagenIz: (imagenIz: string | null) => void;
+  setImagenIz: (v: string | null) => void;
   imagenDact: string | null;
-  setImagenDact: (imagenDact: string | null) => void;
+  setImagenDact: (v: string | null) => void;
   imagenSen1: string | null;
-  setImagenSen1: (imagenSen1: string | null) => void;
+  setImagenSen1: (v: string | null) => void;
   imagenSen2: string | null;
-  setImagenSen2: (imagenSen2: string | null) => void;
+  setImagenSen2: (v: string | null) => void;
   imagenSen3: string | null;
-  setImagenSen3: (imagenSen3: string | null) => void;
+  setImagenSen3: (v: string | null) => void;
   imagenSen4: string | null;
-  setImagenSen4: (imagenSen4: string | null) => void;
+  setImagenSen4: (v: string | null) => void;
   imagenSen5: string | null;
-  setImagenSen5: (imagenSen5: string | null) => void;
+  setImagenSen5: (v: string | null) => void;
   imagenSen6: string | null;
-  setImagenSen6: (imagenSen6: string | null) => void;
+  setImagenSen6: (v: string | null) => void;
   getImageUrl: (imagePath: string) => string;
   generateFileName: (type: string) => string;
 }
 
-const PhotosModalPreing: React.FC<PhotosModalProps> = ({
-  isOpen,
-  onClose,
-  imagen,
-  setImagen,
-  imagenDer,
-  setImagenDer,
-  imagenIz,
-  setImagenIz,
-  imagenDact,
-  setImagenDact,
-  imagenSen1,
-  setImagenSen1,
-  imagenSen2,
-  setImagenSen2,
-  imagenSen3,
-  setImagenSen3,
-  imagenSen4,
-  setImagenSen4,
-  imagenSen5,
-  setImagenSen5,
-  imagenSen6,
-  setImagenSen6,
-  getImageUrl,
-  generateFileName,
-}) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalOpenDer, setIsModalOpenDer] = useState(false);
-  const [isModalOpenIz, setIsModalOpenIz] = useState(false);
-  const [isModalOpenDact, setIsModalOpenDact] = useState(false);
-  const [isModalOpenSen1, setIsModalOpenSen1] = useState(false);
-  const [isModalOpenSen2, setIsModalOpenSen2] = useState(false);
-  const [isModalOpenSen3, setIsModalOpenSen3] = useState(false);
-  const [isModalOpenSen4, setIsModalOpenSen4] = useState(false);
-  const [isModalOpenSen5, setIsModalOpenSen5] = useState(false);
-  const [isModalOpenSen6, setIsModalOpenSen6] = useState(false);
+const PhotosModalPreing: React.FC<PhotosModalProps> = (props) => {
+  const { isOpen, onClose, getImageUrl, generateFileName } = props;
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [previewField, setPreviewField] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
+  // Map legacy props to a unified getter/setter
+  const getters: Record<string, string | null> = {
+    imagen: props.imagen,
+    imagenDer: props.imagenDer,
+    imagenIz: props.imagenIz,
+    imagenDact: props.imagenDact,
+    imagenSen1: props.imagenSen1,
+    imagenSen2: props.imagenSen2,
+    imagenSen3: props.imagenSen3,
+    imagenSen4: props.imagenSen4,
+    imagenSen5: props.imagenSen5,
+    imagenSen6: props.imagenSen6,
+  };
+
+  const setters: Record<string, (v: string | null) => void> = {
+    imagen: props.setImagen,
+    imagenDer: props.setImagenDer,
+    imagenIz: props.setImagenIz,
+    imagenDact: props.setImagenDact,
+    imagenSen1: props.setImagenSen1,
+    imagenSen2: props.setImagenSen2,
+    imagenSen3: props.setImagenSen3,
+    imagenSen4: props.setImagenSen4,
+    imagenSen5: props.setImagenSen5,
+    imagenSen6: props.setImagenSen6,
+  };
+
+  const loadedCount = IMAGE_FIELDS.filter((f) => getters[f]).length;
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md flex justify-center items-center z-50 mt-0 !m-0">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full h-full max-w-screen-lg max-h-screen-lg relative grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex flex-col z-50">
+      {/* Header */}
+      <div className="sticky top-0 bg-white/90 backdrop-blur border-b border-slate-200 px-6 py-4 flex items-center justify-between z-10 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
+            <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-slate-800">Fotografías Pre-Ingreso</h2>
+            <p className="text-sm text-slate-500">
+              {loadedCount} de {IMAGE_FIELDS.length} cargadas
+            </p>
+          </div>
+        </div>
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-0 right-0 px-4 py-2 bg-pink-500 text-white rounded-lg"
+          className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center text-slate-500 transition-all"
         >
-          Cerrar
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
+      </div>
 
-        {/* Fotografía rostro */}
-        <div className="mt-4 flex-1 min-w-full sm:min-w-0 sm:w-full">
-          <Button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg mb-2"
-          >
-            Editar Fotografía rostro
-          </Button>
-          {isModalOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 mt-0 !m-0">
-              <div className="bg-white p-6 rounded-lg shadow-lg w-100">
-                <h2 className="text-xl font-semibold mb-4">Recortar Imagen</h2>
-                <ProfileImageCropper
-                  onImageCropped={(croppedImage: string) => {
-                    setImagen(croppedImage);
-                    setIsModalOpen(false);
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="mt-4 mr-7 px-4 py-2 bg-red-500 text-white rounded-lg"
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          )}
+      {/* Grid */}
+      <div className="flex-1 overflow-y-auto bg-slate-50 p-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 max-w-[1800px] mx-auto">
+          {IMAGE_FIELDS.map((field, index) => {
+            const label = IMAGE_LABELS[index];
+            const value = getters[field];
+            const hasImage = !!value;
+            const isNew = value?.startsWith("data:");
 
-          <Collapse title="Ver fotografía rostro">
-            {imagen && (
-              <div className="mt-4">
-                {imagen.startsWith("data:") ? (
-                  <Image
-                    src={imagen}
-                    alt="Imagen recortada"
-                    className="rounded-lg"
-                    width={350}
-                    height={350}
-                    quality={100} // Asegura la mejor calidad posible
-                  />
-                ) : (
-                  <>
-                    <a
-                      href={getImageUrl(imagen)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+            return (
+              <div
+                key={field}
+                className="group bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md hover:border-slate-300 transition-all overflow-hidden"
+              >
+                <div className="relative aspect-square bg-slate-100 overflow-hidden">
+                  {hasImage ? (
+                    <>
                       <Image
-                        src={getImageUrl(imagen)}
-                        alt="Imagen recortada"
-                        className="rounded-lg"
-                        width={350}
-                        height={350}
-                        quality={100} // Asegura la mejor calidad posible
+                        src={isNew ? value! : getImageUrl(value!)}
+                        alt={label}
+                        fill
+                        className="object-cover"
+                        quality={80}
+                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
                       />
-                    </a>
-                    <a
-                      href={getImageUrl(imagen)}
-                      download={generateFileName("rostro")}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                        <button
+                          type="button"
+                          onClick={() => setEditingField(field)}
+                          className="w-10 h-10 rounded-full bg-white/90 text-slate-700 hover:bg-indigo-500 hover:text-white flex items-center justify-center transition-all shadow-lg"
+                          title="Editar"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPreviewField(field)}
+                          className="w-10 h-10 rounded-full bg-white/90 text-slate-700 hover:bg-indigo-500 hover:text-white flex items-center justify-center transition-all shadow-lg"
+                          title="Ver"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        </button>
+                        {!isNew && (
+                          <a
+                            href={getImageUrl(value!)}
+                            download={generateFileName(label.replace(/\s+/g, "_"))}
+                            className="w-10 h-10 rounded-full bg-white/90 text-slate-700 hover:bg-emerald-500 hover:text-white flex items-center justify-center transition-all shadow-lg"
+                            title="Descargar"
+                          >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                          </a>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setters[field](null)}
+                          className="w-10 h-10 rounded-full bg-white/90 text-slate-700 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all shadow-lg"
+                          title="Eliminar"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                          </svg>
+                        </button>
+                      </div>
+                      <div className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${
+                        isNew ? "bg-emerald-500 text-white" : "bg-indigo-500 text-white"
+                      }`}>
+                        {isNew ? "Nueva" : "Guardada"}
+                      </div>
+                      {isNew && (
+                        <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/50 text-white">
+                          {formatFileSize(dataUriSizeBytes(value!))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setEditingField(field)}
+                      className="w-full h-full flex flex-col items-center justify-center text-slate-400 hover:text-indigo-500 hover:bg-indigo-50/50 transition-all"
                     >
-                      <button
-                        type="button"
-                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      >
-                        Descargar fotografía rostro
-                      </button>
-                    </a>
-                  </>
-                )}
-              </div>
-            )}
-          </Collapse>
-        </div>
+                      <svg className="w-10 h-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                      </svg>
+                      <span className="text-xs font-medium">Agregar</span>
+                    </button>
+                  )}
+                </div>
 
-        {/* Fotografía perfil derecho */}
-        <div className="mt-4 flex-1 min-w-full sm:min-w-0 sm:w-full">
-          <Button
-            type="button"
-            onClick={() => setIsModalOpenDer(true)}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg mb-2"
-          >
-            Editar Fotografía perfil derecho
-          </Button>
-          {isModalOpenDer && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 mt-0 !m-0">
-              <div className="bg-white p-6 rounded-lg shadow-lg w-100">
-                <h2 className="text-xl font-semibold mb-4">Recortar Imagen</h2>
-                <ProfileImageCropper
-                  onImageCropped={(croppedImage: string) => {
-                    setImagenDer(croppedImage);
-                    setIsModalOpenDer(false);
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpenDer(false)}
-                  className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg"
-                >
-                  Cerrar
-                </button>
+                <div className="px-3 py-2.5 border-t border-slate-100">
+                  <p className="text-xs font-semibold text-slate-700 truncate">{label}</p>
+                </div>
               </div>
-            </div>
-          )}
-
-          <Collapse title="Ver Fotografía perfil derecho">
-            {imagenDer && (
-              <div className="mt-4">
-                {imagenDer.startsWith("data:") ? (
-                  <Image
-                    src={imagenDer}
-                    alt="Imagen derecha recortada"
-                    className="rounded-lg"
-                    width={350}
-                    height={350}
-                    quality={100} // Asegura la mejor calidad posible
-                  />
-                ) : (
-                  <>
-                    <a
-                      href={getImageUrl(imagenDer)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Image
-                        src={getImageUrl(imagenDer)}
-                        alt="Imagen derecha recortada"
-                        className="rounded-lg"
-                        width={350}
-                        height={350}
-                        quality={100} // Asegura la mejor calidad posible
-                      />
-                    </a>
-                    <a
-                      href={getImageUrl(imagenDer)}
-                      download={generateFileName("derecha")}
-                    >
-                      <button
-                        type="button"
-                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      >
-                        Descargar fotografía perfil derecho
-                      </button>
-                    </a>
-                  </>
-                )}
-              </div>
-            )}
-          </Collapse>
-        </div>
-
-        {/* Fotografía perfil izquierdo */}
-        <div className="mt-4 flex-1 min-w-full sm:min-w-0 sm:w-full">
-          <Button
-            type="button"
-            onClick={() => setIsModalOpenIz(true)}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg mb-2"
-          >
-            Editar Fotografía perfil izquierdo
-          </Button>
-          {isModalOpenIz && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 mt-0 !m-0">
-              <div className="bg-white p-6 rounded-lg shadow-lg w-100">
-                <h2 className="text-xl font-semibold mb-4">Recortar Imagen</h2>
-                <ProfileImageCropper
-                  onImageCropped={(croppedImage: string) => {
-                    setImagenIz(croppedImage);
-                    setIsModalOpenIz(false);
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpenIz(false)}
-                  className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg"
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          )}
-
-          <Collapse title="Ver Fotografía perfil izquierdo">
-            {imagenIz && (
-              <div className="mt-4">
-                {imagenIz.startsWith("data:") ? (
-                  <Image
-                    src={imagenIz}
-                    alt="Imagen izquierda recortada"
-                    className="rounded-lg"
-                    width={350}
-                    height={350}
-                    quality={100} // Asegura la mejor calidad posible
-                  />
-                ) : (
-                  <>
-                    <a
-                      href={getImageUrl(imagenIz)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Image
-                        src={getImageUrl(imagenIz)}
-                        alt="Imagen izquierda recortada"
-                        className="rounded-lg"
-                        width={350}
-                        height={350}
-                        quality={100} // Asegura la mejor calidad posible
-                      />
-                    </a>
-                    <a
-                      href={getImageUrl(imagenIz)}
-                      download={generateFileName("izquierda")}
-                    >
-                      <button
-                        type="button"
-                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      >
-                        Descargar fotografía perfil izquierdo
-                      </button>
-                    </a>
-                  </>
-                )}
-              </div>
-            )}
-          </Collapse>
-        </div>
-
-        {/* Fotografía dactilar */}
-        <div className="mt-4 flex-1 min-w-full sm:min-w-0 sm:w-full">
-          <Button
-            type="button"
-            onClick={() => setIsModalOpenDact(true)}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg mb-2"
-          >
-            Editar FICHA dactilar
-          </Button>
-          {isModalOpenDact && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 mt-0 !m-0">
-              <div className="bg-white p-6 rounded-lg shadow-lg w-100">
-                <h2 className="text-xl font-semibold mb-4">Subir Imagen</h2>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setImagenDact(reader.result as string);
-                        setIsModalOpenDact(false);
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpenDact(false)}
-                  className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg"
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          )}
-
-          <Collapse title="Ver Fotografía dactilar">
-            {imagenDact && (
-              <div className="mt-4">
-                {imagenDact.startsWith("data:") ? (
-                  <Image
-                    src={imagenDact}
-                    alt="Imagen dactilar recortada"
-                    className="rounded-lg"
-                    width={350}
-                    height={350}
-                    quality={100} // Asegura la mejor calidad posible
-                  />
-                ) : (
-                  <>
-                    <a
-                      href={getImageUrl(imagenDact)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Image
-                        src={getImageUrl(imagenDact)}
-                        alt="Imagen dactilar recortada"
-                        className="rounded-lg"
-                        width={350}
-                        height={350}
-                        quality={100} // Asegura la mejor calidad posible
-                      />
-                    </a>
-                    <a
-                      href={getImageUrl(imagenDact)}
-                      download={generateFileName("dactilar")}
-                    >
-                      <button
-                        type="button"
-                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      >
-                        Descargar Ficha dactilar
-                      </button>
-                    </a>
-                  </>
-                )}
-              </div>
-            )}
-          </Collapse>
-        </div>
-
-        {/* Fotos de señas part.-tatuajes 1 */}
-        <div className="mt-4 flex-1 min-w-full sm:min-w-0 sm:w-full">
-          <Button
-            type="button"
-            onClick={() => setIsModalOpenSen1(true)}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg mb-2"
-          >
-            Editar Fotos de señas part.-tatuajes 1
-          </Button>
-          {isModalOpenSen1 && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 mt-0 !m-0">
-              <div className="bg-white p-6 rounded-lg shadow-lg w-100">
-                <h2 className="text-xl font-semibold mb-4">Subir Imagen</h2>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setImagenSen1(reader.result as string);
-                        setIsModalOpenSen1(false);
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpenSen1(false)}
-                  className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg"
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          )}
-
-          <Collapse title="Ver Fotos de señas part.-tatuajes 1">
-            {imagenSen1 && (
-              <div className="mt-4">
-                {imagenSen1.startsWith("data:") ? (
-                  <Image
-                    src={imagenSen1}
-                    alt="Imagen señas 1"
-                    className="rounded-lg"
-                    width={350}
-                    height={350}
-                    quality={100} // Asegura la mejor calidad posible
-                  />
-                ) : (
-                  <>
-                    <a
-                      href={getImageUrl(imagenSen1)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Image
-                        src={getImageUrl(imagenSen1)}
-                        alt="Imagen señas 1"
-                        className="rounded-lg"
-                        width={350}
-                        height={350}
-                        quality={100} // Asegura la mejor calidad posible
-                      />
-                    </a>
-                    <a
-                      href={getImageUrl(imagenSen1)}
-                      download={generateFileName("señas1")}
-                    >
-                      <button
-                        type="button"
-                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      >
-                        Descargar Fotos de señas part.-tatuajes 1
-                      </button>
-                    </a>
-                  </>
-                )}
-              </div>
-            )}
-          </Collapse>
-        </div>
-
-        {/* Fotos de señas part.-tatuajes 2 */}
-        <div className="mt-4 flex-1 min-w-full sm:min-w-0 sm:w-full">
-          <Button
-            type="button"
-            onClick={() => setIsModalOpenSen2(true)}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg mb-2"
-          >
-            Editar Fotos de señas part.-tatuajes 2
-          </Button>
-          {isModalOpenSen2 && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 mt-0 !m-0">
-              <div className="bg-white p-6 rounded-lg shadow-lg w-100">
-                <h2 className="text-xl font-semibold mb-4">Subir Imagen</h2>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setImagenSen2(reader.result as string);
-                        setIsModalOpenSen2(false);
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpenSen2(false)}
-                  className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg"
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          )}
-
-          <Collapse title="Ver Fotos de señas part.-tatuajes 2">
-            {imagenSen2 && (
-              <div className="mt-4">
-                {imagenSen2.startsWith("data:") ? (
-                  <Image
-                    src={imagenSen2}
-                    alt="Imagen señas 2"
-                    className="rounded-lg"
-                    width={350}
-                    height={350}
-                    quality={100} // Asegura la mejor calidad posible
-                  />
-                ) : (
-                  <>
-                    <a
-                      href={getImageUrl(imagenSen2)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Image
-                        src={getImageUrl(imagenSen2)}
-                        alt="Imagen señas 2"
-                        className="rounded-lg"
-                        width={350}
-                        height={350}
-                        quality={100} // Asegura la mejor calidad posible
-                      />
-                    </a>
-                    <a
-                      href={getImageUrl(imagenSen2)}
-                      download={generateFileName("señas2")}
-                    >
-                      <button
-                        type="button"
-                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      >
-                        Descargar Fotos de señas part.-tatuajes 2
-                      </button>
-                    </a>
-                  </>
-                )}
-              </div>
-            )}
-          </Collapse>
-        </div>
-        {/* Fotos de señas part.-tatuajes 3 */}
-        <div className="mt-4 flex-1 min-w-full sm:min-w-0 sm:w-full">
-          <Button
-            type="button"
-            onClick={() => setIsModalOpenSen3(true)}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg mb-2"
-          >
-            Editar Fotos de señas part.-tatuajes 3
-          </Button>
-          {isModalOpenSen3 && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 mt-0 !m-0">
-              <div className="bg-white p-6 rounded-lg shadow-lg w-100">
-                <h2 className="text-xl font-semibold mb-4">Subir Imagen</h2>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setImagenSen3(reader.result as string);
-                        setIsModalOpenSen3(false);
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpenSen3(false)}
-                  className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg"
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          )}
-
-          <Collapse title="Ver Fotos de señas part.-tatuajes 3">
-            {imagenSen3 && (
-              <div className="mt-4">
-                {imagenSen3.startsWith("data:") ? (
-                  <Image
-                    src={imagenSen3}
-                    alt="Imagen señas 3"
-                    className="rounded-lg"
-                    width={350}
-                    height={350}
-                    quality={100} // Asegura la mejor calidad posible
-                  />
-                ) : (
-                  <>
-                    <a
-                      href={getImageUrl(imagenSen3)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Image
-                        src={getImageUrl(imagenSen3)}
-                        alt="Imagen señas 3"
-                        className="rounded-lg"
-                        width={350}
-                        height={350}
-                        quality={100} // Asegura la mejor calidad posible
-                      />
-                    </a>
-                    <a
-                      href={getImageUrl(imagenSen3)}
-                      download={generateFileName("señas3")}
-                    >
-                      <button
-                        type="button"
-                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      >
-                        Descargar Fotos de señas part.-tatuajes 3
-                      </button>
-                    </a>
-                  </>
-                )}
-              </div>
-            )}
-          </Collapse>
-        </div>
-
-        {/* Fotos de señas part.-tatuajes 4 */}
-        <div className="mt-4 flex-1 min-w-full sm:min-w-0 sm:w-full">
-          <Button
-            type="button"
-            onClick={() => setIsModalOpenSen4(true)}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg mb-2"
-          >
-            Editar Fotos de señas part.-tatuajes 4
-          </Button>
-          {isModalOpenSen4 && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 mt-0 !m-0">
-              <div className="bg-white p-6 rounded-lg shadow-lg w-100">
-                <h2 className="text-xl font-semibold mb-4">Subir Imagen</h2>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setImagenSen4(reader.result as string);
-                        setIsModalOpenSen4(false);
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpenSen4(false)}
-                  className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg"
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          )}
-
-          <Collapse title="Ver Fotos de señas part.-tatuajes 4">
-            {imagenSen4 && (
-              <div className="mt-4">
-                {imagenSen4.startsWith("data:") ? (
-                  <Image
-                    src={imagenSen4}
-                    alt="Imagen señas 4"
-                    className="rounded-lg"
-                    width={350}
-                    height={350}
-                    quality={100} // Asegura la mejor calidad posible
-                  />
-                ) : (
-                  <>
-                    <a
-                      href={getImageUrl(imagenSen4)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Image
-                        src={getImageUrl(imagenSen4)}
-                        alt="Imagen señas 4"
-                        className="rounded-lg"
-                        width={350}
-                        height={350}
-                        quality={100} // Asegura la mejor calidad posible
-                      />
-                    </a>
-                    <a
-                      href={getImageUrl(imagenSen4)}
-                      download={generateFileName("señas4")}
-                    >
-                      <button
-                        type="button"
-                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      >
-                        Descargar Fotos de señas part.-tatuajes 4
-                      </button>
-                    </a>
-                  </>
-                )}
-              </div>
-            )}
-          </Collapse>
-        </div>
-        {/* Fotos de señas part.-tatuajes 5 */}
-        <div className="mt-4 flex-1 min-w-full sm:min-w-0 sm:w-full">
-          <Button
-            type="button"
-            onClick={() => setIsModalOpenSen5(true)}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg mb-2"
-          >
-            Editar Fotos de señas part.-tatuajes 5
-          </Button>
-          {isModalOpenSen5 && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 mt-0 !m-0">
-              <div className="bg-white p-6 rounded-lg shadow-lg w-100">
-                <h2 className="text-xl font-semibold mb-4">Subir Imagen</h2>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setImagenSen5(reader.result as string);
-                        setIsModalOpenSen5(false);
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpenSen5(false)}
-                  className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg"
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          )}
-
-          <Collapse title="Ver Fotos de señas part.-tatuajes 5">
-            {imagenSen5 && (
-              <div className="mt-4">
-                {imagenSen5.startsWith("data:") ? (
-                  <Image
-                    src={imagenSen5}
-                    alt="Imagen señas 5"
-                    className="rounded-lg"
-                    width={350}
-                    height={350}
-                    quality={100} // Asegura la mejor calidad posible
-                  />
-                ) : (
-                  <>
-                    <a
-                      href={getImageUrl(imagenSen5)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Image
-                        src={getImageUrl(imagenSen5)}
-                        alt="Imagen señas 5"
-                        className="rounded-lg"
-                        width={350}
-                        height={350}
-                        quality={100} // Asegura la mejor calidad posible
-                      />
-                    </a>
-                    <a
-                      href={getImageUrl(imagenSen5)}
-                      download={generateFileName("señas5")}
-                    >
-                      <button
-                        type="button"
-                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      >
-                        Descargar Fotos de señas part.-tatuajes 5
-                      </button>
-                    </a>
-                  </>
-                )}
-              </div>
-            )}
-          </Collapse>
-        </div>
-
-        {/* Fotos de señas part.-tatuajes 6 */}
-        <div className="mt-4 flex-1 min-w-full sm:min-w-0 sm:w-full">
-          <Button
-            type="button"
-            onClick={() => setIsModalOpenSen6(true)}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg mb-2"
-          >
-            Editar Fotos de señas part.-tatuajes 6
-          </Button>
-          {isModalOpenSen6 && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 mt-0 !m-0">
-              <div className="bg-white p-6 rounded-lg shadow-lg w-100">
-                <h2 className="text-xl font-semibold mb-4">Subir Imagen</h2>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setImagenSen6(reader.result as string);
-                        setIsModalOpenSen6(false);
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpenSen6(false)}
-                  className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg"
-                >
-                  Cerrar
-                </button>
-              </div>
-            </div>
-          )}
-
-          <Collapse title="Ver Fotos de señas part.-tatuajes 6">
-            {imagenSen6 && (
-              <div className="mt-4">
-                {imagenSen6.startsWith("data:") ? (
-                  <Image
-                    src={imagenSen6}
-                    alt="Imagen señas 6"
-                    className="rounded-lg"
-                    width={350}
-                    height={350}
-                    quality={100} // Asegura la mejor calidad posible
-                  />
-                ) : (
-                  <>
-                    <a
-                      href={getImageUrl(imagenSen6)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Image
-                        src={getImageUrl(imagenSen6)}
-                        alt="Imagen señas 6"
-                        className="rounded-lg"
-                        width={350}
-                        height={350}
-                        quality={100} // Asegura la mejor calidad posible
-                      />
-                    </a>
-                    <a
-                      href={getImageUrl(imagenSen6)}
-                      download={generateFileName("señas6")}
-                    >
-                      <button
-                        type="button"
-                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      >
-                        Descargar Fotos de señas part.-tatuajes 6
-                      </button>
-                    </a>
-                  </>
-                )}
-              </div>
-            )}
-          </Collapse>
+            );
+          })}
         </div>
       </div>
+
+      {/* Cropper sub-modal */}
+      {editingField && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-slate-800">
+                {IMAGE_LABELS[IMAGE_FIELDS.indexOf(editingField)] || "Editar imagen"}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setEditingField(null)}
+                className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center text-slate-500 transition-all"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <ImageCropper
+              onImageCropped={(croppedImage: string) => {
+                setters[editingField](croppedImage);
+                setEditingField(null);
+              }}
+              onCancel={() => setEditingField(null)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Preview sub-modal */}
+      {previewField && (
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[60] p-4 cursor-pointer"
+          onClick={() => setPreviewField(null)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={() => setPreviewField(null)}
+              className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center text-slate-500 hover:text-rose-600 z-10"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            {(() => {
+              const value = getters[previewField];
+              if (!value) return null;
+              const isNew = value.startsWith("data:");
+              return (
+                <Image
+                  src={isNew ? value : getImageUrl(value)}
+                  alt={IMAGE_LABELS[IMAGE_FIELDS.indexOf(previewField)] || "Preview"}
+                  className="rounded-2xl shadow-2xl object-contain"
+                  width={800}
+                  height={800}
+                  quality={100}
+                />
+              );
+            })()}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

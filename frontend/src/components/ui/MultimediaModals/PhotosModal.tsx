@@ -1,10 +1,9 @@
-//frontend\src\components\ui\MultimediaModals\PhotosModal.tsx
+'use client';
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import ProfileImageCropper from "@/components/ui/ProfileImageCropper";
-import Collapse from "@/components/ui/Collapse";
+import ImageCropper from "@/components/ui/ImageCropper";
 import Image from "next/image";
 import { IMAGE_FIELDS } from "@/app/utils/useFileFields";
+import { formatFileSize, dataUriSizeBytes } from "@/lib/imageCompression";
 
 const IMAGE_LABELS = [
   "Fotografía rostro",
@@ -18,9 +17,6 @@ const IMAGE_LABELS = [
   "Fotografía señas 5",
   "Fotografía señas 6",
 ];
-
-// First 4 images use ProfileImageCropper, rest use simple file input
-const CROPPER_FIELDS = new Set(IMAGE_FIELDS.slice(0, 4));
 
 interface PhotosModalProps {
   isOpen: boolean;
@@ -39,149 +35,243 @@ const PhotosModal: React.FC<PhotosModalProps> = ({
   getFileUrl,
   imagenesHistorial = {},
 }) => {
-  const [openUpload, setOpenUpload] = useState<string | null>(null);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [previewField, setPreviewField] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md flex justify-center items-center z-50 mt-0 !m-0">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full h-full max-w-screen-lg max-h-screen-lg relative grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex flex-col z-50">
+      {/* Header */}
+      <div className="sticky top-0 bg-white/90 backdrop-blur border-b border-slate-200 px-6 py-4 flex items-center justify-between z-10 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
+            <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-slate-800">Fotografías</h2>
+            <p className="text-sm text-slate-500">
+              {IMAGE_FIELDS.filter((f) => files[f]).length} de {IMAGE_FIELDS.length} cargadas
+            </p>
+          </div>
+        </div>
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-0 right-0 px-4 py-2 bg-pink-500 text-white rounded-lg"
+          className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center text-slate-500 transition-all"
         >
-          Cerrar
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
+      </div>
 
-        {IMAGE_FIELDS.map((field, index) => {
-          const label = IMAGE_LABELS[index];
-          const value = files[field];
-          const useCropper = CROPPER_FIELDS.has(field);
-          const historial = imagenesHistorial[field] || [];
+      {/* Grid */}
+      <div className="flex-1 overflow-y-auto bg-slate-50 p-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 max-w-[1800px] mx-auto">
+          {IMAGE_FIELDS.map((field, index) => {
+            const label = IMAGE_LABELS[index];
+            const value = files[field];
+            const historial = imagenesHistorial[field] || [];
+            const hasImage = !!value;
+            const isNew = value?.startsWith("data:");
 
-          return (
-            <div key={field} className="mt-4 flex-1 min-w-full sm:min-w-0 sm:w-full">
-              <Button
-                type="button"
-                onClick={() => setOpenUpload(field)}
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg mb-2"
+            return (
+              <div
+                key={field}
+                className="group bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md hover:border-slate-300 transition-all overflow-hidden"
               >
-                Editar {label}
-              </Button>
-
-              {openUpload === field && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 mt-0 !m-0">
-                  <div className="bg-white p-6 rounded-lg shadow-lg w-100">
-                    {useCropper ? (
-                      <>
-                        <h2 className="text-xl font-semibold mb-4">Recortar Imagen</h2>
-                        <ProfileImageCropper
-                          onImageCropped={(croppedImage: string) => {
-                            console.log("multimedia", "PhotosModal crop", { field });
-                            setFile(field, croppedImage);
-                            setOpenUpload(null);
-                          }}
-                        />
-                      </>
-                    ) : (
-                      <>
-                        <h2 className="text-xl font-semibold mb-4">Subir Imagen</h2>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const f = e.target.files?.[0];
-                            if (f) {
-                              const reader = new FileReader();
-                              reader.onloadend = () => {
-                                console.log("multimedia", "PhotosModal upload", { field });
-                                setFile(field, reader.result as string);
-                                setOpenUpload(null);
-                              };
-                              reader.readAsDataURL(f);
-                            }
-                          }}
-                        />
-                      </>
-                    )}
+                {/* Image area */}
+                <div className="relative aspect-square bg-slate-100 overflow-hidden">
+                  {hasImage ? (
+                    <>
+                      <Image
+                        src={isNew ? value! : getFileUrl(value!)}
+                        alt={label}
+                        fill
+                        className="object-cover"
+                        quality={80}
+                        sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
+                      />
+                      {/* Overlay on hover */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                        <button
+                          type="button"
+                          onClick={() => setEditingField(field)}
+                          className="w-10 h-10 rounded-full bg-white/90 text-slate-700 hover:bg-indigo-500 hover:text-white flex items-center justify-center transition-all shadow-lg"
+                          title="Editar"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPreviewField(field)}
+                          className="w-10 h-10 rounded-full bg-white/90 text-slate-700 hover:bg-indigo-500 hover:text-white flex items-center justify-center transition-all shadow-lg"
+                          title="Ver"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        </button>
+                        {!isNew && (
+                          <a
+                            href={getFileUrl(value!)}
+                            download={`${label.replace(/\s+/g, "_")}.png`}
+                            className="w-10 h-10 rounded-full bg-white/90 text-slate-700 hover:bg-emerald-500 hover:text-white flex items-center justify-center transition-all shadow-lg"
+                            title="Descargar"
+                          >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                          </a>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setFile(field, null)}
+                          className="w-10 h-10 rounded-full bg-white/90 text-slate-700 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all shadow-lg"
+                          title="Eliminar"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                          </svg>
+                        </button>
+                      </div>
+                      {/* Status badge */}
+                      <div className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${
+                        isNew ? "bg-emerald-500 text-white" : "bg-indigo-500 text-white"
+                      }`}>
+                        {isNew ? "Nueva" : "Guardada"}
+                      </div>
+                      {/* Size badge for new images */}
+                      {isNew && (
+                        <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/50 text-white">
+                          {formatFileSize(dataUriSizeBytes(value!))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
                     <button
                       type="button"
-                      onClick={() => setOpenUpload(null)}
-                      className="mt-4 mr-7 px-4 py-2 bg-red-500 text-white rounded-lg"
+                      onClick={() => setEditingField(field)}
+                      className="w-full h-full flex flex-col items-center justify-center text-slate-400 hover:text-indigo-500 hover:bg-indigo-50/50 transition-all"
                     >
-                      Cerrar
+                      <svg className="w-10 h-10 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                      </svg>
+                      <span className="text-xs font-medium">Agregar</span>
                     </button>
-                  </div>
+                  )}
                 </div>
-              )}
 
-              <Collapse title={`Ver ${label}`} isOpenByDefault={!!value}>
-                {value && (
-                  <div className="mt-4">
-                    {value.startsWith("data:") ? (
-                      <Image
-                        src={value}
-                        alt={label}
-                        className="rounded-lg"
-                        width={350}
-                        height={350}
-                        quality={100}
-                      />
-                    ) : (
-                      <>
-                        <a
-                          href={getFileUrl(value)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Image
-                            src={getFileUrl(value)}
-                            alt={label}
-                            className="rounded-lg"
-                            width={350}
-                            height={350}
-                            quality={100}
-                          />
-                        </a>
-                        <a
-                          href={getFileUrl(value)}
-                          download={`Documento_${label.replace(/\s+/g, "_")}.png`}
-                        >
-                          <button
-                            type="button"
-                            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                          >
-                            Descargar {label}
-                          </button>
-                        </a>
-                      </>
-                    )}
-                  </div>
-                )}
-              </Collapse>
-
-              {historial.length > 0 && (
-                <Collapse title={`Historial ${label}`}>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
-                    {historial.map((img, i) => (
-                      <Image
-                        key={i}
-                        src={getFileUrl(img)}
-                        alt={`${label} historial ${i + 1}`}
-                        className="rounded-lg"
-                        width={150}
-                        height={150}
-                        quality={80}
-                      />
-                    ))}
-                  </div>
-                </Collapse>
-              )}
-            </div>
-          );
-        })}
+                {/* Label */}
+                <div className="px-3 py-2.5 border-t border-slate-100">
+                  <p className="text-xs font-semibold text-slate-700 truncate">{label}</p>
+                  {historial.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setPreviewField(`historial_${field}`)}
+                      className="text-[10px] text-indigo-500 hover:text-indigo-700 font-medium mt-0.5"
+                    >
+                      Ver historial ({historial.length})
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
+
+      {/* Cropper sub-modal */}
+      {editingField && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-slate-800">
+                {IMAGE_LABELS[IMAGE_FIELDS.indexOf(editingField)] || "Editar imagen"}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setEditingField(null)}
+                className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center text-slate-500 transition-all"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <ImageCropper
+              onImageCropped={(croppedImage: string) => {
+                console.log("multimedia", "PhotosModal crop", { field: editingField });
+                setFile(editingField, croppedImage);
+                setEditingField(null);
+              }}
+              onCancel={() => setEditingField(null)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Preview sub-modal */}
+      {previewField && (
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[60] p-4 cursor-pointer"
+          onClick={() => setPreviewField(null)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={() => setPreviewField(null)}
+              className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white shadow-lg flex items-center justify-center text-slate-500 hover:text-rose-600 z-10"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            {previewField.startsWith("historial_") ? (
+              <div className="bg-white rounded-2xl p-6 max-h-[85vh] overflow-y-auto">
+                <h3 className="text-lg font-bold text-slate-800 mb-4">
+                  Historial - {IMAGE_LABELS[IMAGE_FIELDS.indexOf(previewField.replace("historial_", ""))]}
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {(imagenesHistorial[previewField.replace("historial_", "")] || []).map((img, i) => (
+                    <Image
+                      key={i}
+                      src={getFileUrl(img)}
+                      alt={`Historial ${i + 1}`}
+                      className="rounded-xl object-cover"
+                      width={300}
+                      height={300}
+                      quality={80}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              (() => {
+                const value = files[previewField];
+                if (!value) return null;
+                const isNew = value.startsWith("data:");
+                return (
+                  <Image
+                    src={isNew ? value : getFileUrl(value)}
+                    alt={IMAGE_LABELS[IMAGE_FIELDS.indexOf(previewField)] || "Preview"}
+                    className="rounded-2xl shadow-2xl object-contain"
+                    width={800}
+                    height={800}
+                    quality={100}
+                  />
+                );
+              })()
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
