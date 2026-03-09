@@ -1,6 +1,7 @@
 // frontend/src/types/Tema.ts
 export interface Tema {
   id: number;
+  uuid?: string;
   createdAt: Date;
   updatedAt: Date;
   fechaHora?: Date;

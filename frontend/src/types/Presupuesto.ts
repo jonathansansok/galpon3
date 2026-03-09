@@ -1,6 +1,7 @@
 // frontend/src/types/Presupuesto.ts
 export interface Presupuesto {
   id: number;
+  uuid?: string;
   createdAt: string;
   updatedAt: string;
   movilId: string | null;

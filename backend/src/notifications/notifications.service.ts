@@ -9,6 +9,7 @@ export class NotificationsService {
     action: string;
     entity: string;
     entityId?: number;
+    entityUuid?: string;
     detail?: string;
     userId: number;
   }) {

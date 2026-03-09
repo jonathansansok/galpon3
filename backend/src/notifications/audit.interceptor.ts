@@ -81,12 +81,16 @@ export class AuditInterceptor implements NestInterceptor {
             detail = `Registro #${entityId} eliminado`;
           }
 
+          const resultUuid =
+            responseData?.uuid || responseData?.data?.uuid || null;
+
           // Fire and forget - don't block the response
           this.notificationsService
             .create({
               action,
               entity,
               entityId: entityId || responseData?.id || null,
+              entityUuid: resultUuid,
               detail: detail || null,
               userId,
             })

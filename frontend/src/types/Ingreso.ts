@@ -1,6 +1,7 @@
 // frontend/src/types/Ingreso.ts archivo de types para cada uno
 export interface Ingreso {
   id: number;
+  uuid?: string;
   apellido: string;
   nombres: string;
   alias?: string;

@@ -13,6 +13,7 @@ datasource db {
 
 model Ingresos {
   id                        Int       @id @default(autoincrement()) // Clave primaria autoincremental
+  uuid                      String    @unique @default(uuid()) @db.VarChar(36)
   lpu                       String?   @db.VarChar(50) // Puede cambiar
   identificadorUnico        String?   @unique @db.VarChar(255) // Clave única adicional
   createdAt                 DateTime? @default(now()) // TIMESTAMP con valor por defecto
@@ -103,6 +104,7 @@ model Ingresos {
 
 model Temas {
   id                  Int       @id @default(autoincrement())
+  uuid                String    @unique @default(uuid()) @db.VarChar(36)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   fechaHora           DateTime?
@@ -149,6 +151,7 @@ model Temas {
 
 model Presupuestos {
   id            Int      @id @default(autoincrement())
+  uuid          String   @unique @default(uuid()) @db.VarChar(36)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   movilId       String?
@@ -182,6 +185,7 @@ model Presupuestos {
 
 model Marcas {
   id                  Int      @id @default(autoincrement())
+  uuid                String   @unique @default(uuid()) @db.VarChar(36)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
   value               String   @db.VarChar(500)
@@ -193,6 +197,7 @@ model Marcas {
 
 model Modelo {
   id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid()) @db.VarChar(36)
   label     String   @db.VarChar(500)
   value     String   @db.VarChar(500)
   marcaId   Int      // Relación con la marca
@@ -203,6 +208,7 @@ model Modelo {
 
 model Users {
   id                  Int        @id @default(autoincrement())
+  uuid                String     @unique @default(uuid()) @db.VarChar(36)
   email               String     @unique
   password            String     @db.VarChar(255)
   nombre              String?    @db.VarChar(255)
@@ -220,10 +226,12 @@ model Users {
 }
 
 model AuditLog {
-  id        Int      @id @default(autoincrement())
-  action    String   @db.VarChar(10) // CREATE, UPDATE, DELETE
-  entity    String   @db.VarChar(100) // e.g. "Ingresos", "Temas"
-  entityId  Int?
+  id         Int      @id @default(autoincrement())
+  uuid       String   @unique @default(uuid()) @db.VarChar(36)
+  action     String   @db.VarChar(10) // CREATE, UPDATE, DELETE
+  entity     String   @db.VarChar(100) // e.g. "Ingresos", "Temas"
+  entityId   Int?
+  entityUuid String?  @db.VarChar(36)
   detail    String?  @db.Text
   userId    Int?
   user      Users?   @relation(fields: [userId], references: [id], onDelete: SetNull)

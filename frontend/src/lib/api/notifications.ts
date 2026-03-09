@@ -5,6 +5,7 @@ export interface AuditNotification {
   action: 'CREATE' | 'UPDATE' | 'DELETE';
   entity: string;
   entityId: number | null;
+  entityUuid: string | null;
   detail: string | null;
   userId: number;
   readBy: number[];
