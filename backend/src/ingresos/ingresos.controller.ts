@@ -106,10 +106,7 @@ export class IngresosController {
 
       // Validar y procesar los archivos
       if (files && Array.isArray(files)) {
-        console.log(
-          '[POST] Archivos recibidos:',
-          files.map((file) => file.originalname),
-        );
+        console.log('multimedia', 'archivos recibidos POST ingresos', files?.map(f => ({ name: f.originalname, size: f.size })));
         files.forEach((file) => {
           if (file.size > 4 * 1024 * 1024) {
             throw new HttpException(
@@ -287,6 +284,10 @@ export class IngresosController {
 
       validateRequest(req);
       console.log('Token CSRF válido');
+
+      if (files && Array.isArray(files)) {
+        console.log('multimedia', 'archivos recibidos PATCH ingresos', files?.map(f => ({ name: f.originalname, size: f.size })));
+      }
 
       const result = await this.ingresosService.update(
         id,

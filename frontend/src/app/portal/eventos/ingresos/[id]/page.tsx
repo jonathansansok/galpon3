@@ -7,6 +7,7 @@ import EventList from "@/components/InternoId/EvsDisponYSeleccionados";
 import IngresoInfo from "@/components/InternoId/FichaTecnicaYFoto";
 import EventosSearch from "@/components/eventossearch/EventosSearch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getUploadUrl } from "@/app/utils/multimediaUrl";
 
 interface Props {
   params: {
@@ -151,94 +152,96 @@ const ProductDetailPage = ({ params }: Props) => {
     return <div>Cargando...</div>;
   }
 
+  console.log("multimedia", "detailPage render", { module: "ingresos", id });
+
   const words = [
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.word1}`,
+      src: getUploadUrl("ingresos", ingreso.word1),
       title: "Word 1",
     },
   ];
 
   const pdfs = [
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf1}`,
+      src: getUploadUrl("ingresos", ingreso.pdf1),
       title: "PDF 1",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf2}`,
+      src: getUploadUrl("ingresos", ingreso.pdf2),
       title: "PDF 2",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf3}`,
+      src: getUploadUrl("ingresos", ingreso.pdf3),
       title: "PDF 3",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf4}`,
+      src: getUploadUrl("ingresos", ingreso.pdf4),
       title: "PDF 4",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf5}`,
+      src: getUploadUrl("ingresos", ingreso.pdf5),
       title: "PDF 5",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf6}`,
+      src: getUploadUrl("ingresos", ingreso.pdf6),
       title: "PDF 6",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf7}`,
+      src: getUploadUrl("ingresos", ingreso.pdf7),
       title: "PDF 7",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf8}`,
+      src: getUploadUrl("ingresos", ingreso.pdf8),
       title: "PDF 8",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf9}`,
+      src: getUploadUrl("ingresos", ingreso.pdf9),
       title: "PDF 9",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf10}`,
+      src: getUploadUrl("ingresos", ingreso.pdf10),
       title: "PDF 10",
     },
   ];
   const images = [
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagen}`,
+      src: getUploadUrl("ingresos", ingreso.imagen),
       title: "Imagen frontal",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenDer}`,
+      src: getUploadUrl("ingresos", ingreso.imagenDer),
       title: "Imagen derecha del ingreso",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenIz}`,
+      src: getUploadUrl("ingresos", ingreso.imagenIz),
       title: "Imagen izquierda del ingreso",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenDact}`,
+      src: getUploadUrl("ingresos", ingreso.imagenDact),
       title: "Imagen dactilar del ingreso",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenSen1}`,
+      src: getUploadUrl("ingresos", ingreso.imagenSen1),
       title: "Imagen seña 1 del ingreso",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenSen2}`,
+      src: getUploadUrl("ingresos", ingreso.imagenSen2),
       title: "Imagen seña 2 del ingreso",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenSen3}`,
+      src: getUploadUrl("ingresos", ingreso.imagenSen3),
       title: "Imagen seña 3 del ingreso",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenSen4}`,
+      src: getUploadUrl("ingresos", ingreso.imagenSen4),
       title: "Imagen seña 4 del ingreso",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenSen5}`,
+      src: getUploadUrl("ingresos", ingreso.imagenSen5),
       title: "Imagen seña 5 del ingreso",
     },
     {
-      src: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenSen6}`,
+      src: getUploadUrl("ingresos", ingreso.imagenSen6),
       title: "Imagen seña 6 del ingreso",
     },
   ];

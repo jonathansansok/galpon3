@@ -13,7 +13,11 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   app.enableCors({
-    origin: ['http://192.168.250.220', 'http://localhost:3000'],
+    origin: [
+      'http://192.168.250.220',
+      'http://localhost:3000',
+      process.env.FRONTEND_URL,
+    ].filter(Boolean),
     credentials: true,
   });
 
@@ -60,9 +64,6 @@ async function bootstrap() {
   // Otros middlewares y configuraciones
   app.useGlobalPipes(new ValidationPipe());
 
-  app.useStaticAssets(join(__dirname, '..', 'src', 'uploads'), {
-    prefix: '/uploads/',
-  });
   app.useStaticAssets(join(__dirname, '..', 'src', 'ingresos', 'uploads'), {
     prefix: '/ingresos/uploads/',
   });

@@ -24,6 +24,7 @@ import ClienteAsociado from "@/components/ui/ClienteAsociado";
 import PhotosEvModal from "@/components/ui/MultimediaModals/PhotosEvModal";
 import PdfModal from "@/components/ui/MultimediaModals/PdfModal";
 import WordModal from "@/components/ui/MultimediaModals/WordModal";
+import { useFileFields, ALL_FILE_FIELDS } from "@/app/utils/useFileFields";
 
 interface FormValues {
   [key: string]: string;
@@ -181,112 +182,7 @@ export function TemaForm({ tema }: { tema: any }) {
     tema?.observacion || ""
   );
 
-  const [imagen, setImagen] = useState<string | null>(
-    tema?.imagen
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.imagen}`
-      : null
-  );
-
-  const [imagenDer, setImagenDer] = useState<string | null>(
-    tema?.imagenDer
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.imagenDer}`
-      : null
-  );
-  const [imagenIz, setImagenIz] = useState<string | null>(
-    tema?.imagenIz
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.imagenIz}`
-      : null
-  );
-  const [imagenDact, setImagenDact] = useState<string | null>(
-    tema?.imagenDact
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.imagenDact}`
-      : null
-  );
-  const [imagenSen1, setImagenSen1] = useState<string | null>(
-    tema?.imagenSen1
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.imagenSen1}`
-      : null
-  );
-  const [imagenSen2, setImagenSen2] = useState<string | null>(
-    tema?.imagenSen2
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.imagenSen2}`
-      : null
-  );
-  const [imagenSen3, setImagenSen3] = useState<string | null>(
-    tema?.imagenSen3
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.imagenSen3}`
-      : null
-  );
-  const [imagenSen4, setImagenSen4] = useState<string | null>(
-    tema?.imagenSen4
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.imagenSen4}`
-      : null
-  );
-  const [imagenSen5, setImagenSen5] = useState<string | null>(
-    tema?.imagenSen5
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.imagenSen5}`
-      : null
-  );
-  const [imagenSen6, setImagenSen6] = useState<string | null>(
-    tema?.imagenSen6
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.imagenSen6}`
-      : null
-  );
-  const [pdf1, setPdf1] = useState<string | null>(
-    tema?.pdf1
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.pdf1}`
-      : null
-  );
-  const [pdf2, setPdf2] = useState<string | null>(
-    tema?.pdf2
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.pdf2}`
-      : null
-  );
-  const [pdf3, setPdf3] = useState<string | null>(
-    tema?.pdf3
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.pdf3}`
-      : null
-  );
-  const [pdf4, setPdf4] = useState<string | null>(
-    tema?.pdf4
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.pdf4}`
-      : null
-  );
-  const [pdf5, setPdf5] = useState<string | null>(
-    tema?.pdf5
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.pdf5}`
-      : null
-  );
-  const [pdf6, setPdf6] = useState<string | null>(
-    tema?.pdf6
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.pdf6}`
-      : null
-  );
-  const [pdf7, setPdf7] = useState<string | null>(
-    tema?.pdf7
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.pdf7}`
-      : null
-  );
-  const [pdf8, setPdf8] = useState<string | null>(
-    tema?.pdf8
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.pdf8}`
-      : null
-  );
-  const [pdf9, setPdf9] = useState<string | null>(
-    tema?.pdf9
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.pdf9}`
-      : null
-  );
-  const [pdf10, setPdf10] = useState<string | null>(
-    tema?.pdf10
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.pdf10}`
-      : null
-  );
-  const [word1, setWord1] = useState<string | null>(
-    tema?.word1
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema.word1}`
-      : null
-  );
+  const { files, setFile, getFileUrl } = useFileFields("temas", tema);
   const [selectedInternos, setSelectedInternos] = useState<Interno[]>(() => {
     try {
       if (tema?.internosinvolucrado) {
@@ -299,10 +195,6 @@ export function TemaForm({ tema }: { tema: any }) {
   });
   const [anio, setAnio] = useState<string>(tema?.anio?.toString() || "");
   const nombres = watch("establecimiento");
-
-  const generateFileName = (type: string) => {
-    return `Documento_${type}.png`.replace(/\s+/g, "_");
-  };
 
   const validateEmptyFields = () => {
     const fieldsToValidate = [
@@ -323,16 +215,7 @@ export function TemaForm({ tema }: { tema: any }) {
     return fieldsToValidate.some((field) => !field || field.trim() === "");
   };
   const [isPhotosOpen, setIsPhotosOpen] = useState(false);
-  const getImageUrl = (imagePath: string): string => {
-    return `/api/temas/uploads/${imagePath.split("/").pop()}`;
-  };
-
   const [isPdfOpen, setIsPdfOpen] = useState(false);
-  // Definir la función getPdfUrl
-  const getPdfUrl = (pdfPath: string) => {
-    return `/api/temas/uploads/${pdfPath.split("/").pop()}`;
-  };
-
   const [isWordOpen, setIsWordOpen] = useState(false);
 
   const user = useUserStore((state) => state.user);
@@ -473,6 +356,7 @@ export function TemaForm({ tema }: { tema: any }) {
           const uniqueFileName = `${key}-${Date.now()}-${Math.floor(
             Math.random() * 1000000
           )}.${extension}`;
+          console.log("multimedia", "processFile", { key, extension, uniqueFileName });
           const response = await fetch(file);
           const blob = await response.blob();
           formData.append("files", blob, uniqueFileName);
@@ -480,29 +364,15 @@ export function TemaForm({ tema }: { tema: any }) {
         }
       };
 
-      await Promise.all([
-        processFile(imagen, "imagen", "png"),
-        processFile(imagenDer, "imagenDer", "png"),
-        processFile(imagenIz, "imagenIz", "png"),
-        processFile(imagenDact, "imagenDact", "png"),
-        processFile(imagenSen1, "imagenSen1", "png"),
-        processFile(imagenSen2, "imagenSen2", "png"),
-        processFile(imagenSen3, "imagenSen3", "png"),
-        processFile(imagenSen4, "imagenSen4", "png"),
-        processFile(imagenSen5, "imagenSen5", "png"),
-        processFile(imagenSen6, "imagenSen6", "png"),
-        processFile(pdf1, "pdf1", "pdf"),
-        processFile(pdf2, "pdf2", "pdf"),
-        processFile(pdf3, "pdf3", "pdf"),
-        processFile(pdf4, "pdf4", "pdf"),
-        processFile(pdf5, "pdf5", "pdf"),
-        processFile(pdf6, "pdf6", "pdf"),
-        processFile(pdf7, "pdf7", "pdf"),
-        processFile(pdf8, "pdf8", "pdf"),
-        processFile(pdf9, "pdf9", "pdf"),
-        processFile(pdf10, "pdf10", "pdf"),
-        processFile(word1, "word1", "docx"),
-      ]);
+      const fileCount = ALL_FILE_FIELDS.filter((f) => files[f]?.startsWith("data:")).length;
+      console.log("multimedia", "TemaForm submit", { fileCount });
+
+      await Promise.all(
+        ALL_FILE_FIELDS.map((field) => {
+          const ext = field.startsWith("pdf") ? "pdf" : field.startsWith("word") ? "docx" : "png";
+          return processFile(files[field], field, ext);
+        })
+      );
 
       try {
         let response;
@@ -614,28 +484,9 @@ export function TemaForm({ tema }: { tema: any }) {
         <PhotosEvModal
           isOpen={isPhotosOpen}
           onClose={() => setIsPhotosOpen(false)}
-          imagen={imagen}
-          setImagen={setImagen}
-          imagenDer={imagenDer}
-          setImagenDer={setImagenDer}
-          imagenIz={imagenIz}
-          setImagenIz={setImagenIz}
-          imagenDact={imagenDact}
-          setImagenDact={setImagenDact}
-          imagenSen1={imagenSen1}
-          setImagenSen1={setImagenSen1}
-          imagenSen2={imagenSen2}
-          setImagenSen2={setImagenSen2}
-          imagenSen3={imagenSen3}
-          setImagenSen3={setImagenSen3}
-          imagenSen4={imagenSen4}
-          setImagenSen4={setImagenSen4}
-          imagenSen5={imagenSen5}
-          setImagenSen5={setImagenSen5}
-          imagenSen6={imagenSen6}
-          setImagenSen6={setImagenSen6}
-          getImageUrl={getImageUrl}
-          generateFileName={generateFileName}
+          files={files}
+          setFile={setFile}
+          getFileUrl={getFileUrl}
         />
 
         <Button
@@ -648,27 +499,9 @@ export function TemaForm({ tema }: { tema: any }) {
         <PdfModal
           isOpen={isPdfOpen}
           onClose={() => setIsPdfOpen(false)}
-          pdf1={pdf1}
-          setPdf1={setPdf1}
-          pdf2={pdf2}
-          setPdf2={setPdf2}
-          pdf3={pdf3}
-          setPdf3={setPdf3}
-          pdf4={pdf4}
-          setPdf4={setPdf4}
-          pdf5={pdf5}
-          setPdf5={setPdf5}
-          pdf6={pdf6}
-          setPdf6={setPdf6}
-          pdf7={pdf7}
-          setPdf7={setPdf7}
-          pdf8={pdf8}
-          setPdf8={setPdf8}
-          pdf9={pdf9}
-          setPdf9={setPdf9}
-          pdf10={pdf10}
-          setPdf10={setPdf10}
-          getPdfUrl={getPdfUrl}
+          files={files}
+          setFile={setFile}
+          getFileUrl={getFileUrl}
         />
         <Button
           type="button"
@@ -680,8 +513,8 @@ export function TemaForm({ tema }: { tema: any }) {
         <WordModal
           isOpen={isWordOpen}
           onClose={() => setIsWordOpen(false)}
-          word1={word1}
-          setWord1={setWord1}
+          files={files}
+          setFile={setFile}
         />
 
         <InputField

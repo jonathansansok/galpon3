@@ -86,7 +86,7 @@ export class TemasController {
 
       // Validar y procesar los archivos
       if (files && Array.isArray(files)) {
-        console.log('[POST] Archivos recibidos:', files);
+        console.log('multimedia', 'archivos recibidos POST temas', files?.map(f => ({ name: f.originalname, size: f.size })));
         files.forEach((file) => {
           if (file.size > 4 * 1024 * 1024) {
             throw new HttpException(
@@ -166,6 +166,7 @@ export class TemasController {
 
       // Procesar los archivos
       if (files && Array.isArray(files)) {
+        console.log('multimedia', 'archivos recibidos PATCH temas', files?.map(f => ({ name: f.originalname, size: f.size })));
         files.forEach((file) => {
           if (file.size > 4 * 1024 * 1024) {
             throw new HttpException(

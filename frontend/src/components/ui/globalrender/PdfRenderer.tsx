@@ -12,6 +12,7 @@ const PdfRenderer: React.FC<PdfRendererProps> = ({
   pdfLabel,
   pdfUrl,
 }) => {
+  console.log("multimedia", "PdfRenderer", { pdfKey, pdfUrl });
   const [visiblePdf, setVisiblePdf] = useState<string | null>(null);
 
   const handleDownload = async () => {

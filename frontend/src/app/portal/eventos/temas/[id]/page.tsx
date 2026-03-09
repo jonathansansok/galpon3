@@ -10,6 +10,7 @@ import PdfRenderer from "@/components/ui/globalrender/PdfRenderer";
 import ImageRenderer from "@/components/ui/globalrender/ImageRenderer";
 import WordRenderer from "@/components/ui/globalrender/WordRenderer";
 import DownloadWordButton from "@/components/ui/globalrender/DownloadWordButton";
+import { getUploadUrl } from "@/app/utils/multimediaUrl";
 import { formatDateTime } from "@/app/utils/formatData";
 import { Alert } from "@/components/ui/alert";
 import { useUserStore } from "@/lib/store";
@@ -62,12 +63,8 @@ const TemaDetailPage: React.FC<Props> = ({ params }) => {
     return <div className="flex justify-center items-center h-screen">Cargando...</div>;
   }
 
-  const pdfUrl = (pdfKey: string) =>
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema[pdfKey]}`;
-  const imageUrl = (imageKey: string) =>
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema[imageKey]}`;
-  const wordUrl = (wordKey: string) =>
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/${tema[wordKey]}`;
+  console.log("multimedia", "detailPage render", { module: "temas", id });
+  const fileUrl = (key: string) => getUploadUrl("temas", tema[key]);
 
   const cardContent = `
     Fecha y Hora: ${formatDateTime(tema.fechaHora)}
@@ -131,7 +128,7 @@ const TemaDetailPage: React.FC<Props> = ({ params }) => {
                   key={key}
                   pdfKey={key}
                   pdfLabel={`PDF ${index + 1}`}
-                  pdfUrl={pdfUrl(key)}
+                  pdfUrl={fileUrl(key)!}
                 />
               ) : null
             )}
@@ -154,7 +151,7 @@ const TemaDetailPage: React.FC<Props> = ({ params }) => {
                   key={key}
                   imageKey={key}
                   imageLabel={key.replace("imagen", "Imagen ")}
-                  imageUrl={imageUrl(key)}
+                  imageUrl={fileUrl(key)!}
                 />
               ) : null
             )}
@@ -166,7 +163,7 @@ const TemaDetailPage: React.FC<Props> = ({ params }) => {
                   key={key}
                   wordKey={key}
                   wordLabel={`Word ${key.replace("word", "")}`}
-                  wordUrl={wordUrl(key)}
+                  wordUrl={fileUrl(key)!}
                 />
               ) : null
             )}

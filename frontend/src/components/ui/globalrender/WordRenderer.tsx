@@ -9,6 +9,7 @@ interface WordRendererProps {
 }
 
 const WordRenderer: React.FC<WordRendererProps> = ({ wordKey, wordLabel, wordUrl }) => {
+  console.log("multimedia", "WordRenderer", { wordKey, wordUrl });
   const handleDownload = () => {
     saveAs(wordUrl, wordLabel);
   };

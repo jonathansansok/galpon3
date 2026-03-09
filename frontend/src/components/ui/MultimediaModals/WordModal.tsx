@@ -1,26 +1,27 @@
 // frontend/src/components/ui/MultimediaModals/WordModal.tsx
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import Collapse from "@/components/ui/Collapse";
 
 interface WordModalProps {
   isOpen: boolean;
   onClose: () => void;
-  word1: string | null;
-  setWord1: (word1: string | null) => void;
+  files: Record<string, string | null>;
+  setFile: (field: string, value: string | null) => void;
 }
 
 const WordModal: React.FC<WordModalProps> = ({
   isOpen,
   onClose,
-  word1,
-  setWord1,
+  files,
+  setFile,
 }) => {
-  const onWord1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onWordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => setWord1(reader.result as string);
+      reader.onloadend = () => {
+        console.log("multimedia", "WordModal upload", { field: "word1" });
+        setFile("word1", reader.result as string);
+      };
       reader.readAsDataURL(file);
     }
   };
@@ -38,12 +39,12 @@ const WordModal: React.FC<WordModalProps> = ({
           Cerrar
         </button>
         <div className="mt-4 flex-1 min-w-full sm:min-w-0 sm:flex-1 gap-4">
-          <input className="mb-4" type="file" accept=".doc,.docx" onChange={onWord1Change} />
-          {word1 && (
+          <input className="mb-4" type="file" accept=".doc,.docx" onChange={onWordChange} />
+          {files.word1 && (
             <Collapse title="Word">
               <div className="flex space-x-1">
                 <a
-                  href={word1}
+                  href={files.word1}
                   target="_blank"
                   rel="noopener noreferrer"
                   download

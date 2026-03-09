@@ -9,6 +9,7 @@ import PdfRenderer from "@/components/ui/globalrender/PdfRenderer";
 import ImageRenderer from "@/components/ui/globalrender/ImageRenderer";
 import WordRenderer from "@/components/ui/globalrender/WordRenderer";
 import DownloadWordButton from "@/components/ui/globalrender/DownloadWordButton";
+import { getUploadUrl } from "@/app/utils/multimediaUrl";
 import { formatDateTime } from "@/app/utils/formatData";
 import { Alert } from "@/components/ui/alert";
 import { useUserStore } from "@/lib/store";
@@ -61,12 +62,8 @@ const PresupuestoDetailPage: React.FC<Props> = ({ params }) => {
     return <div className="flex justify-center items-center h-screen">Cargando...</div>;
   }
 
-  const pdfUrl = (pdfKey: string) =>
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/presupuestos/uploads/${presupuesto[pdfKey]}`;
-  const imageUrl = (imageKey: string) =>
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/presupuestos/uploads/${presupuesto[imageKey]}`;
-  const wordUrl = (wordKey: string) =>
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/presupuestos/uploads/${presupuesto[wordKey]}`;
+  console.log("multimedia", "detailPage render", { module: "presupuestos", id });
+  const fileUrl = (key: string) => getUploadUrl("presupuestos", presupuesto[key]);
 
   const cardContent = `
     Monto: ${presupuesto.monto || "No especificado"}
@@ -112,7 +109,7 @@ const PresupuestoDetailPage: React.FC<Props> = ({ params }) => {
                   key={key}
                   pdfKey={key}
                   pdfLabel={`PDF ${index + 1}`}
-                  pdfUrl={pdfUrl(key)}
+                  pdfUrl={fileUrl(key)!}
                 />
               ) : null
             )}
@@ -135,7 +132,7 @@ const PresupuestoDetailPage: React.FC<Props> = ({ params }) => {
                   key={key}
                   imageKey={key}
                   imageLabel={key.replace("imagen", "Imagen ")}
-                  imageUrl={imageUrl(key)}
+                  imageUrl={fileUrl(key)!}
                 />
               ) : null
             )}
@@ -147,7 +144,7 @@ const PresupuestoDetailPage: React.FC<Props> = ({ params }) => {
                   key={key}
                   wordKey={key}
                   wordLabel={`Word ${key.replace("word", "")}`}
-                  wordUrl={wordUrl(key)}
+                  wordUrl={fileUrl(key)!}
                 />
               ) : null
             )}

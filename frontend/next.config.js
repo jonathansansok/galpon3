@@ -2,10 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  compiler: {
-    removeConsole: process.env.NODE_ENV === "production",
-  },
-
   swcMinify: true,
 
   env: {
@@ -27,26 +23,6 @@ const nextConfig = {
         pathname: "/**/uploads/**",
       },
     ],
-  },
-  async rewrites() {
-    return [
-      {
-        source: "/api/uploads/:path*",
-        destination: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/:path*`,
-      },
-      {
-        source: "/api/pdfs/:path*",
-        destination: `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/:path*`,
-      },
-      {
-        source: "/api/temas/uploads/:path*",
-        destination: `${process.env.NEXT_PUBLIC_BACKEND_URL}/temas/uploads/:path*`,
-      },
-      {
-        source: "/api/presupuestos/uploads/:path*",
-        destination: `${process.env.NEXT_PUBLIC_BACKEND_URL}/presupuestos/uploads/:path*`,
-      },
-    ];
   },
 };
 

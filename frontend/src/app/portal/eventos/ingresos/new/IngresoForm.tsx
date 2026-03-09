@@ -11,6 +11,7 @@ import { validateAndNotify, clearFieldErrors, handleBackendErrors } from "../../
 import PhotosModal from "@/components/ui/MultimediaModals/PhotosModal";
 import PdfModal from "@/components/ui/MultimediaModals/PdfModal";
 import WordModal from "@/components/ui/MultimediaModals/WordModal";
+import { useFileFields, ALL_FILE_FIELDS } from "@/app/utils/useFileFields";
 import Textarea from "@/components/ui/Textarea";
 import { useForm, SubmitHandler } from "react-hook-form";
 import WatermarkBackground from "@/components/WatermarkBackground";
@@ -178,111 +179,7 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
   const [condicion, setCondicion] = useState<string>(ingreso?.condicion || "");
   const [resumen, setResumen] = useState<string>(ingreso?.resumen || "");
   const [provincia, setProvincia] = useState<string>(ingreso?.provincia || "");
-  const [imagen, setImagen] = useState<string | null>(
-    ingreso?.imagen
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagen}`
-      : null
-  );
-  const [imagenDer, setImagenDer] = useState<string | null>(
-    ingreso?.imagenDer
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenDer}`
-      : null
-  );
-  const [imagenIz, setImagenIz] = useState<string | null>(
-    ingreso?.imagenIz
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenIz}`
-      : null
-  );
-  const [imagenDact, setImagenDact] = useState<string | null>(
-    ingreso?.imagenDact
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenDact}`
-      : null
-  );
-  const [imagenSen1, setImagenSen1] = useState<string | null>(
-    ingreso?.imagenSen1
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenSen1}`
-      : null
-  );
-  const [imagenSen2, setImagenSen2] = useState<string | null>(
-    ingreso?.imagenSen2
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenSen2}`
-      : null
-  );
-  const [imagenSen3, setImagenSen3] = useState<string | null>(
-    ingreso?.imagenSen3
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenSen3}`
-      : null
-  );
-  const [imagenSen4, setImagenSen4] = useState<string | null>(
-    ingreso?.imagenSen4
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenSen4}`
-      : null
-  );
-  const [imagenSen5, setImagenSen5] = useState<string | null>(
-    ingreso?.imagenSen5
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenSen5}`
-      : null
-  );
-  const [imagenSen6, setImagenSen6] = useState<string | null>(
-    ingreso?.imagenSen6
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.imagenSen6}`
-      : null
-  );
-  const [pdf1, setPdf1] = useState<string | null>(
-    ingreso?.pdf1
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf1}`
-      : null
-  );
-  const [pdf2, setPdf2] = useState<string | null>(
-    ingreso?.pdf2
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf2}`
-      : null
-  );
-  const [pdf3, setPdf3] = useState<string | null>(
-    ingreso?.pdf3
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf3}`
-      : null
-  );
-  const [pdf4, setPdf4] = useState<string | null>(
-    ingreso?.pdf4
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf4}`
-      : null
-  );
-  const [pdf5, setPdf5] = useState<string | null>(
-    ingreso?.pdf5
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf5}`
-      : null
-  );
-  const [pdf6, setPdf6] = useState<string | null>(
-    ingreso?.pdf6
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf6}`
-      : null
-  );
-  const [pdf7, setPdf7] = useState<string | null>(
-    ingreso?.pdf7
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf7}`
-      : null
-  );
-  const [pdf8, setPdf8] = useState<string | null>(
-    ingreso?.pdf8
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf8}`
-      : null
-  );
-  const [pdf9, setPdf9] = useState<string | null>(
-    ingreso?.pdf9
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf9}`
-      : null
-  );
-  const [pdf10, setPdf10] = useState<string | null>(
-    ingreso?.pdf10
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.pdf10}`
-      : null
-  );
-  const [word1, setWord1] = useState<string | null>(
-    ingreso?.word1
-      ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/ingresos/uploads/${ingreso.word1}`
-      : null
-  );
+  const { files, setFile, getFileUrl } = useFileFields("ingresos", ingreso);
 
   const [imagenesHistorial, setImagenesHistorial] = useState<{
     [key: string]: string[];
@@ -292,23 +189,8 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
   const telefono = watch("telefono");
   const email = watch("emailCliente");
   const nDoc = watch("numeroDni");
-  const generateFileName = (type: string) => {
-    return `${apellido}_${nombres}_Telefono:${telefono}_Nº D.n.i.: ${nDoc}_Email:${email}_ ${type}.png`.replace(
-      /\s+/g,
-      "_"
-    );
-  };
   const [isPhotosOpen, setIsPhotosOpen] = useState(false);
-  const getImageUrl = (imagePath: string): string => {
-    return `/api/uploads/${imagePath.split("/").pop()}`;
-  };
-
   const [isPdfOpen, setIsPdfOpen] = useState(false);
-  // Definir la función getPdfUrl
-  const getPdfUrl = (pdfPath: string) => {
-    return `/api/uploads/${pdfPath.split("/").pop()}`;
-  };
-
   const [isWordOpen, setIsWordOpen] = useState(false);
 
   const [isMapaModalOpen, setIsMapaModalOpen] = useState(false);
@@ -447,6 +329,7 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
           const uniqueFileName = `${key}-${Date.now()}-${Math.floor(
             Math.random() * 1000000
           )}.${extension}`;
+          console.log("multimedia", "processFile", { key, extension, uniqueFileName });
           const response = await fetch(file);
           const blob = await response.blob();
           formData.append("files", blob, uniqueFileName);
@@ -454,29 +337,15 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
         }
       };
 
-      await Promise.all([
-        processFile(imagen, "imagen", "png"),
-        processFile(imagenDer, "imagenDer", "png"),
-        processFile(imagenIz, "imagenIz", "png"),
-        processFile(imagenDact, "imagenDact", "png"),
-        processFile(imagenSen1, "imagenSen1", "png"),
-        processFile(imagenSen2, "imagenSen2", "png"),
-        processFile(imagenSen3, "imagenSen3", "png"),
-        processFile(imagenSen4, "imagenSen4", "png"),
-        processFile(imagenSen5, "imagenSen5", "png"),
-        processFile(imagenSen6, "imagenSen6", "png"),
-        processFile(pdf1, "pdf1", "pdf"),
-        processFile(pdf2, "pdf2", "pdf"),
-        processFile(pdf3, "pdf3", "pdf"),
-        processFile(pdf4, "pdf4", "pdf"),
-        processFile(pdf5, "pdf5", "pdf"),
-        processFile(pdf6, "pdf6", "pdf"),
-        processFile(pdf7, "pdf7", "pdf"),
-        processFile(pdf8, "pdf8", "pdf"),
-        processFile(pdf9, "pdf9", "pdf"),
-        processFile(pdf10, "pdf10", "pdf"),
-        processFile(word1, "word1", "docx"),
-      ]);
+      const fileCount = ALL_FILE_FIELDS.filter((f) => files[f]?.startsWith("data:")).length;
+      console.log("multimedia", "IngresoForm submit", { fileCount });
+
+      await Promise.all(
+        ALL_FILE_FIELDS.map((field) => {
+          const ext = field.startsWith("pdf") ? "pdf" : field.startsWith("word") ? "docx" : "png";
+          return processFile(files[field], field, ext);
+        })
+      );
 
       console.log("[DEBUG] Payload enviado al backend:");
       Object.entries(payload).forEach(([key, value]) => {
@@ -503,7 +372,7 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
 
         if (esAlerta !== "No") {
           const historialEgresos = ingreso.historialEgresos || [];
-          generatePDF(payload, imagen, historialEgresos);
+          generatePDF(payload, files.imagen, historialEgresos);
         }
         router.push("/portal/eventos/ingresos");
       } else {
@@ -572,29 +441,10 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
         <PhotosModal
           isOpen={isPhotosOpen}
           onClose={() => setIsPhotosOpen(false)}
-          imagen={imagen}
-          setImagen={setImagen}
-          imagenDer={imagenDer}
-          setImagenDer={setImagenDer}
-          imagenIz={imagenIz}
-          setImagenIz={setImagenIz}
-          imagenDact={imagenDact}
-          setImagenDact={setImagenDact}
-          imagenSen1={imagenSen1}
-          setImagenSen1={setImagenSen1}
-          imagenSen2={imagenSen2}
-          setImagenSen2={setImagenSen2}
-          imagenSen3={imagenSen3}
-          setImagenSen3={setImagenSen3}
-          imagenSen4={imagenSen4}
-          setImagenSen4={setImagenSen4}
-          imagenSen5={imagenSen5}
-          setImagenSen5={setImagenSen5}
-          imagenSen6={imagenSen6}
-          setImagenSen6={setImagenSen6}
-          getImageUrl={getImageUrl}
-          generateFileName={generateFileName}
-          imagenesHistorial={imagenesHistorial} // Asegúrate de pasar esta prop
+          files={files}
+          setFile={setFile}
+          getFileUrl={getFileUrl}
+          imagenesHistorial={imagenesHistorial}
         />
         <Button
           type="button"
@@ -606,27 +456,9 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
         <PdfModal
           isOpen={isPdfOpen}
           onClose={() => setIsPdfOpen(false)}
-          pdf1={pdf1}
-          setPdf1={setPdf1}
-          pdf2={pdf2}
-          setPdf2={setPdf2}
-          pdf3={pdf3}
-          setPdf3={setPdf3}
-          pdf4={pdf4}
-          setPdf4={setPdf4}
-          pdf5={pdf5}
-          setPdf5={setPdf5}
-          pdf6={pdf6}
-          setPdf6={setPdf6}
-          pdf7={pdf7}
-          setPdf7={setPdf7}
-          pdf8={pdf8}
-          setPdf8={setPdf8}
-          pdf9={pdf9}
-          setPdf9={setPdf9}
-          pdf10={pdf10}
-          setPdf10={setPdf10}
-          getPdfUrl={getPdfUrl}
+          files={files}
+          setFile={setFile}
+          getFileUrl={getFileUrl}
         />
         <Button
           type="button"
@@ -638,8 +470,8 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
         <WordModal
           isOpen={isWordOpen}
           onClose={() => setIsWordOpen(false)}
-          word1={word1}
-          setWord1={setWord1}
+          files={files}
+          setFile={setFile}
         />
         <InputField
           register={register}

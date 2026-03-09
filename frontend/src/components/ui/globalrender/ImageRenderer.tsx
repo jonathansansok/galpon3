@@ -12,6 +12,7 @@ interface ImageRendererProps {
 }
 
 const ImageRenderer: React.FC<ImageRendererProps> = ({ imageKey, imageLabel, imageUrl }) => {
+  console.log("multimedia", "ImageRenderer", { imageKey, imageUrl });
   const [visibleImage, setVisibleImage] = useState<string | null>(null);
 
   const handleDownload = () => {

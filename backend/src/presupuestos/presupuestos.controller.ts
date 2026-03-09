@@ -109,7 +109,7 @@ export class PresupuestosController {
 
       // Validar y procesar los archivos
       if (files && Array.isArray(files)) {
-        console.log('[POST] Archivos recibidos:', files);
+        console.log('multimedia', 'archivos recibidos POST presupuestos', files?.map(f => ({ name: f.originalname, size: f.size })));
         files.forEach((file) => {
           if (file.size > 4 * 1024 * 1024) {
             throw new HttpException(
@@ -271,7 +271,7 @@ export class PresupuestosController {
 
       // Procesar archivos multimedia
       if (files && Array.isArray(files)) {
-        console.log('[PATCH] Archivos recibidos:', files);
+        console.log('multimedia', 'archivos recibidos PATCH presupuestos', files?.map(f => ({ name: f.originalname, size: f.size })));
         files.forEach((file) => {
           if (file.size > 4 * 1024 * 1024) {
             throw new HttpException(
