@@ -1,7 +1,7 @@
 //frontend\src\app\portal\eventos\turnos\TurnosPage.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { getTurnosWithPresupuestoData, getPlazaAvailability } from "./Turnos.api";
@@ -9,6 +9,8 @@ import { Turno, TurnoSearchResult } from "@/types/Turno";
 import { useRouter } from "next/navigation";
 import TableMoviles from "@/components/eventossearch/TableMoviles";
 import DateTimeFormatter from "@/components/eventossearch/DateTimeFormatter";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { SearchBarTurnos } from "@/components/ui/SearchBars/SearchBarTurnos";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +37,7 @@ export default function TurnosPage() {
   const [sortColumn, setSortColumn] = useState<keyof Turno | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const router = useRouter();
+  const hasAutoLoadedRef = useRef(false);
 
   // Disponibilidad
   const [fechaInicio, setFechaInicio] = useState("");
@@ -42,11 +45,87 @@ export default function TurnosPage() {
   const [availability, setAvailability] = useState<Record<number, any[]> | null>(null);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
 
+  // Auto-cargar datos si hay filtros guardados en sessionStorage
+  useEffect(() => {
+    if (hasAutoLoadedRef.current) return;
+    hasAutoLoadedRef.current = true;
+    try {
+      const saved = sessionStorage.getItem("searchBar_turnos");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const hasFilter = Object.values(parsed).some((v: unknown) => typeof v === "string" && (v as string).length >= 3);
+        if (hasFilter) {
+          handleLoadData();
+        }
+      }
+    } catch (e) {
+      // Ignorar errores
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const applyFilters = (data: Turno[], queries: {
+    generalQuery: string;
+    plaza: string;
+    estado: string;
+    patente: string;
+    vehiculo: string;
+    monto: string;
+    observaciones: string;
+  }) => {
+    const filtered = data.filter((turno) => {
+      const matchesGeneralQuery =
+        queries.generalQuery &&
+        Object.values(turno).some((value) =>
+          String(value).toLowerCase().includes(queries.generalQuery.toLowerCase())
+        );
+      const matchesPlaza =
+        queries.plaza &&
+        String(turno.plaza || "").toLowerCase().includes(queries.plaza.toLowerCase());
+      const matchesEstado =
+        queries.estado &&
+        turno.estado?.toLowerCase().includes(queries.estado.toLowerCase());
+      const matchesPatente =
+        queries.patente &&
+        (turno.patente || "").toLowerCase().includes(queries.patente.toLowerCase());
+      const matchesVehiculo =
+        queries.vehiculo &&
+        (turno.marca || "").toLowerCase().includes(queries.vehiculo.toLowerCase());
+      const matchesMonto =
+        queries.monto &&
+        String(turno.monto || "").toLowerCase().includes(queries.monto.toLowerCase());
+      const matchesObservaciones =
+        queries.observaciones &&
+        (turno.observaciones || "").toLowerCase().includes(queries.observaciones.toLowerCase());
+
+      return (
+        matchesGeneralQuery || matchesPlaza || matchesEstado ||
+        matchesPatente || matchesVehiculo || matchesMonto || matchesObservaciones
+      );
+    });
+    return filtered;
+  };
+
   const handleLoadData = async () => {
     try {
       console.log("[turnos] Cargando historial...");
       const data = await getTurnosWithPresupuestoData();
       setTurnos(data);
+
+      // Aplicar filtros guardados automáticamente después de cargar
+      try {
+        const saved = sessionStorage.getItem("searchBar_turnos");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          const hasFilter = Object.values(parsed).some((v: unknown) => typeof v === "string" && (v as string).length >= 3);
+          if (hasFilter) {
+            setSearchTerms(Object.values(parsed).filter((v: unknown) => typeof v === "string" && (v as string).length > 0) as string[]);
+            const filtered = applyFilters(data, parsed);
+            setSearchResults(filtered.map((item) => ({ item, matches: [] })));
+            return;
+          }
+        }
+      } catch (e) { /* ignorar */ }
+
       setSearchResults(data.map((item: Turno) => ({ item, matches: [] })));
     } catch (error) {
       console.error("[turnos] Error al cargar datos:", error);
@@ -69,19 +148,20 @@ export default function TurnosPage() {
     }
   };
 
-  const handleSearch = (query: string) => {
-    if (!query || query.length < 3) {
-      setSearchResults(turnos.map((item) => ({ item, matches: [] })));
-      setSearchTerms([]);
-      return;
-    }
-    setSearchTerms([query]);
-    const filtered = turnos.filter((turno) =>
-      Object.values(turno).some((value) =>
-        String(value).toLowerCase().includes(query.toLowerCase())
-      )
+  const handleSearch = (queries: {
+    generalQuery: string;
+    plaza: string;
+    estado: string;
+    patente: string;
+    vehiculo: string;
+    monto: string;
+    observaciones: string;
+  }) => {
+    setSearchTerms(Object.values(queries).filter((v) => v.length > 0));
+    const filtered = applyFilters(turnos, queries);
+    setSearchResults(
+      filtered.map((item) => ({ item, matches: [] }))
     );
-    setSearchResults(filtered.map((item) => ({ item, matches: [] })));
   };
 
   const handleRowClick = (id: string) => {
@@ -156,43 +236,62 @@ export default function TurnosPage() {
     <div className="flex justify-start items-start flex-col w-full px-4 py-6">
       <h1 className="text-4xl font-bold mb-4">Turnos del Taller</h1>
 
-      <div className="flex gap-3 mb-5 flex-wrap">
-        <Link
-          href="/portal/eventos/turnos/new"
-          className={buttonVariants()}
-        >
-          Agregar Turno
-        </Link>
+      <Link
+        href="/portal/eventos/turnos/new"
+        className={buttonVariants()}
+        style={{ marginBottom: "20px" }}
+      >
+        Agregar Turno
+      </Link>
 
-        <button
-          onClick={handleLoadData}
-          className={buttonVariants({ variant: "outline" })}
-        >
-          Cargar historial
-        </button>
-      </div>
+      <button
+        onClick={handleLoadData}
+        className={buttonVariants({ variant: "outline" })}
+        style={{ marginBottom: "20px" }}
+      >
+        Cargar historial
+      </button>
+
+      <ExportButton<Turno>
+        data={searchResults.map((result) => result.item)}
+        fileName="Turnos"
+      />
 
       {/* Panel de disponibilidad de plazas */}
       <div className="w-full bg-white rounded-lg shadow p-4 mb-6">
         <h2 className="text-xl font-semibold mb-3">Disponibilidad de Plazas</h2>
         <div className="flex gap-4 items-end mb-4 flex-wrap">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha/Hora Inicio</label>
+          <div className="relative">
             <input
               type="datetime-local"
+              id="fechaInicio"
               value={fechaInicio}
               onChange={(e) => setFechaInicio(e.target.value)}
-              className="border rounded px-3 py-2"
+              className="block px-2.5 pb-1.5 pt-3 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+              placeholder=" "
             />
+            <label
+              htmlFor="fechaInicio"
+              className="absolute text-sm text-gray-500 duration-300 transform -translate-y-3 scale-75 top-1 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-1 peer-focus:scale-75 peer-focus:-translate-y-3 start-1"
+            >
+              Fecha/Hora Inicio
+            </label>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha/Hora Fin</label>
+          <div className="relative">
             <input
               type="datetime-local"
+              id="fechaFin"
               value={fechaFin}
               onChange={(e) => setFechaFin(e.target.value)}
-              className="border rounded px-3 py-2"
+              className="block px-2.5 pb-1.5 pt-3 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+              placeholder=" "
             />
+            <label
+              htmlFor="fechaFin"
+              className="absolute text-sm text-gray-500 duration-300 transform -translate-y-3 scale-75 top-1 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-1 peer-focus:scale-75 peer-focus:-translate-y-3 start-1"
+            >
+              Fecha/Hora Fin
+            </label>
           </div>
           <button
             onClick={handleCheckAvailability}
@@ -238,15 +337,7 @@ export default function TurnosPage() {
         )}
       </div>
 
-      {/* Buscador simple */}
-      <div className="w-full mb-4">
-        <input
-          type="text"
-          placeholder="Buscar turnos (mín. 3 caracteres)..."
-          onChange={(e) => handleSearch(e.target.value)}
-          className="border rounded px-3 py-2 w-full max-w-md"
-        />
-      </div>
+      <SearchBarTurnos onSearch={handleSearch} />
 
       {searchResults.length > 0 ? (
         <TableMoviles
@@ -263,7 +354,7 @@ export default function TurnosPage() {
           searchTerms={searchTerms}
         />
       ) : (
-        <p>No hay datos disponibles. Presione &quot;Cargar historial&quot; para ver los turnos.</p>
+        <p>No hay datos disponibles.</p>
       )}
     </div>
   );

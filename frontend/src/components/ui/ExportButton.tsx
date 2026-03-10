@@ -6,6 +6,7 @@ import { exportToExcel } from "@/app/utils/exportToExcel";
 import { Ingreso } from "@/types/Ingreso"; // Importa la interfaz Ingreso
 import { Tema } from "@/types/Tema"; // Importa la interfaz Ingreso
 import { Presupuesto } from "@/types/Presupuesto"; // Importa la interfaz Ingreso
+import { Turno } from "@/types/Turno";
 interface ExportButtonProps<T> {
   data: T[];
   fileName: string;
@@ -18,6 +19,7 @@ export function ExportButton<
     | Ingreso
     | Tema
     | Presupuesto
+    | Turno
    
 >({ data, fileName, onClick }: ExportButtonProps<T>) {
   const handleExport = () => {

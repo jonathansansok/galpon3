@@ -87,7 +87,7 @@ export default function PresupuestosPage() {
         presupuestos.map(async (presupuesto: Presupuesto) => {
           if (presupuesto.movilId) {
             const movil = await getMovilById(presupuesto.movilId);
-            return { ...presupuesto, ...movil };
+            return { ...movil, ...presupuesto };
           }
           return presupuesto;
         })
