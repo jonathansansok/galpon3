@@ -256,3 +256,13 @@ model Turnos {
   estado                   String    @default("Programado")
   observaciones            String?   @db.Text
 }
+
+model Piezas {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid()) @db.VarChar(36)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  nombre    String   @db.VarChar(255)
+  medida    String?  @db.VarChar(255)
+  detalle   String?  @db.Text
+}

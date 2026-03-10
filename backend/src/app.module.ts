@@ -10,6 +10,7 @@ import { ConfigModule } from './config/config.module';
 import { TemasModule } from './temas/temas.module';
 import { PresupuestosModule } from './presupuestos/presupuestos.module';
 import { TurnosModule } from './turnos/turnos.module';
+import { PiezasModule } from './piezas/piezas.module';
 import { AuthModule } from './auth/auth.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AuditInterceptor } from './notifications/audit.interceptor';
@@ -27,6 +28,7 @@ import { CsrfMiddleware } from './csrf/csrf.middleware';
     TemasModule,
     PresupuestosModule,
     TurnosModule,
+    PiezasModule,
     AuthModule,
     NotificationsModule,
   ],
