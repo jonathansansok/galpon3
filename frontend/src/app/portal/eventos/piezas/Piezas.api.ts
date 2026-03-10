@@ -9,9 +9,7 @@ function getCsrfTokenFromCookies(): string {
 
 export async function getPiezas() {
   try {
-    const csrfToken = getCsrfTokenFromCookies();
     const res = await fetch(`${BACKEND_URL}/api/piezas`, {
-      headers: { "csrf-token": csrfToken },
       credentials: "include",
     });
     if (!res.ok) throw new Error("Error al obtener piezas");
@@ -24,9 +22,7 @@ export async function getPiezas() {
 
 export async function getPieza(id: string) {
   try {
-    const csrfToken = getCsrfTokenFromCookies();
     const res = await fetch(`${BACKEND_URL}/api/piezas/${id}`, {
-      headers: { "csrf-token": csrfToken },
       credentials: "include",
     });
     if (!res.ok) throw new Error("Error al obtener pieza");

@@ -1,6 +1,6 @@
 //frontend\src\components\ui\PinturaTable.tsx
 import React, { useState } from "react";
-import { FaTrash, FaPlus, FaSync, FaEdit } from "react-icons/fa";
+import { FaTrash, FaPlus, FaSync, FaEdit, FaCheck, FaPencilAlt } from "react-icons/fa";
 import Link from "next/link";
 import { Pieza } from "@/types/Pieza";
 import { Parte } from "@/types/Parte";
@@ -54,13 +54,16 @@ export default function PinturaTable({
   piezasDB = [],
   partesDB = [],
   onRefreshPiezas,
+  initialRows = [],
 }: {
   onRowsChange: (rows: PinturaRow[]) => void;
   piezasDB?: Pieza[];
   partesDB?: Parte[];
   onRefreshPiezas?: () => void;
+  initialRows?: PinturaRow[];
 }) {
-  const [rows, setRows] = useState<PinturaRow[]>([]);
+  const [rows, setRows] = useState<PinturaRow[]>(initialRows);
+  const [editingRowId, setEditingRowId] = useState<number | null>(null);
   const [newRow, setNewRow] = useState<PinturaRow>({
     id: 0,
     parte: "",
@@ -72,12 +75,13 @@ export default function PinturaTable({
     costo: 0,
   });
 
-  // Filtrar piezas DB: solo tipo pintura y que coincidan con la parte seleccionada
-  const piezasDBFiltradas = piezasDB.filter((p) => {
-    if (p.tipo !== "pintura") return false;
-    if (!newRow.parte) return false;
-    if (!p.parte) return true;
-    return p.parte.nombre === newRow.parte;
+  // Filtrar piezas DB: solo tipo pintura
+  const piezasDBPintura = piezasDB.filter((p) => p.tipo === "pintura");
+
+  // Helper: obtener piezas DB filtradas por parte
+  const getPiezasForParte = (parteNombre: string) => ({
+    conParte: piezasDBPintura.filter((p) => p.parte && p.parte.nombre === parteNombre),
+    sinParte: piezasDBPintura.filter((p) => !p.parte && !p.parteId),
   });
 
   // Partes DB que no estan en las hardcoded
@@ -89,7 +93,7 @@ export default function PinturaTable({
   const getCostoPorPano = (piezaNombre: string): number => {
     const hardcoded = piezasConValores[piezaNombre as PiezaKey];
     if (hardcoded) return hardcoded.costoPorPano;
-    const dbPieza = piezasDBFiltradas.find((p) => p.nombre === piezaNombre);
+    const dbPieza = piezasDBPintura.find((p) => p.nombre === piezaNombre);
     if (dbPieza) return dbPieza.costoPorPano || 0;
     return 0;
   };
@@ -156,7 +160,7 @@ export default function PinturaTable({
       return;
     }
     // Buscar en piezas DB
-    const dbPieza = piezasDBFiltradas.find((p) => p.nombre === pieza);
+    const dbPieza = piezasDBPintura.find((p) => p.nombre === pieza);
     if (dbPieza) {
       const panos = dbPieza.panos || 0;
       const costoPorPano = dbPieza.costoPorPano || 0;
@@ -167,6 +171,34 @@ export default function PinturaTable({
     }
     // Sin valores
     setNewRow({ ...newRow, piezas: pieza, horas: 0, costo: 0 });
+  };
+
+  const handleEditParteChange = (rowId: number, val: string) => {
+    const newRows = rows.map((row) =>
+      row.id === rowId ? { ...row, parte: val, piezas: "", horas: 0, costo: 0 } : row
+    );
+    updateRows(newRows);
+  };
+
+  const handleEditPiezaChange = (rowId: number, pieza: string) => {
+    const row = rows.find((r) => r.id === rowId);
+    if (!row) return;
+    const hardcoded = piezasConValores[pieza as PiezaKey];
+    if (hardcoded) {
+      const horas = hardcoded.panos * 6;
+      const costo = calcularCostoPintura(hardcoded.costoPorPano, hardcoded.panos, row.tipoPintura);
+      updateRows(rows.map((r) => r.id === rowId ? { ...r, piezas: pieza, horas, costo } : r));
+      return;
+    }
+    const dbPieza = piezasDBPintura.find((p) => p.nombre === pieza);
+    if (dbPieza) {
+      const panos = dbPieza.panos || 0;
+      const horas = panos * 6;
+      const costo = calcularCostoPintura(dbPieza.costoPorPano || 0, panos, row.tipoPintura);
+      updateRows(rows.map((r) => r.id === rowId ? { ...r, piezas: pieza, horas, costo } : r));
+      return;
+    }
+    handleEditRow(rowId, "piezas", pieza);
   };
 
   return (
@@ -185,6 +217,9 @@ export default function PinturaTable({
               <th className="py-3 px-2 text-left text-sm font-semibold uppercase tracking-wider w-[80px]">
                 Panos
               </th>
+              <th className="py-3 px-2 text-left text-sm font-semibold uppercase tracking-wider w-[100px]">
+                Costo
+              </th>
               <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
                 Pintar o difuminar
               </th>
@@ -200,10 +235,70 @@ export default function PinturaTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {rows.map((row) => (
+            {rows.map((row) => {
+              const isEditing = editingRowId === row.id;
+              const { conParte: editPiezasConParte, sinParte: editPiezasSinParte } = getPiezasForParte(row.parte);
+              return (
               <tr key={row.id} className="hover:bg-blue-50">
-                <td className="py-4 px-6 text-sm text-gray-700">{row.parte}</td>
-                <td className="py-4 px-6 text-sm text-gray-700">{row.piezas}</td>
+                <td className="py-4 px-6 text-sm text-gray-700">
+                  {isEditing ? (
+                    <select
+                      value={row.parte}
+                      onChange={(e) => handleEditParteChange(row.id, e.target.value)}
+                      className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Seleccione una parte</option>
+                      {Object.keys(partesPintura).map((parte) => (
+                        <option key={parte} value={parte}>{parte}</option>
+                      ))}
+                      {partesDBExtra.length > 0 && (
+                        <optgroup label="Partes del sistema">
+                          {partesDBExtra.map((p) => (
+                            <option key={`db-parte-${p.id}`} value={p.nombre}>
+                              {p.nombre}{p.abreviatura ? ` (${p.abreviatura})` : ""}
+                            </option>
+                          ))}
+                        </optgroup>
+                      )}
+                    </select>
+                  ) : row.parte}
+                </td>
+                <td className="py-4 px-6 text-sm text-gray-700">
+                  {isEditing ? (
+                    <select
+                      value={row.piezas}
+                      onChange={(e) => handleEditPiezaChange(row.id, e.target.value)}
+                      className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Seleccione una pieza</option>
+                      {partesPintura[row.parte as ParteKey]
+                        ?.slice(1)
+                        .map((pieza) => (
+                          <option key={pieza} value={pieza}>
+                            {pieza} - {piezasConValores[pieza as PiezaKey]?.panos || 0} panos
+                          </option>
+                        ))}
+                      {editPiezasConParte.length > 0 && (
+                        <optgroup label="Piezas del sistema">
+                          {editPiezasConParte.map((p) => (
+                            <option key={`db-${p.id}`} value={p.nombre}>
+                              {p.nombre}{p.panos ? ` - ${p.panos} panos` : ""}{p.medida ? ` (${p.medida})` : ""}
+                            </option>
+                          ))}
+                        </optgroup>
+                      )}
+                      {editPiezasSinParte.length > 0 && (
+                        <optgroup label="Sin parte asignada">
+                          {editPiezasSinParte.map((p) => (
+                            <option key={`db-sp-${p.id}`} value={p.nombre}>
+                              {p.nombre}{p.panos ? ` - ${p.panos} panos` : ""}{p.medida ? ` (${p.medida})` : ""}
+                            </option>
+                          ))}
+                        </optgroup>
+                      )}
+                    </select>
+                  ) : row.piezas}
+                </td>
                 <td className="py-4 px-2 text-sm text-gray-700 w-[80px]">
                   <input
                     type="number"
@@ -213,6 +308,20 @@ export default function PinturaTable({
                       const horas = panos * 6;
                       handleEditRow(row.id, "horas", horas);
                     }}
+                    className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </td>
+                <td className="py-4 px-2 text-sm text-gray-700 w-[100px]">
+                  <input
+                    type="number"
+                    value={row.costo}
+                    onChange={(e) =>
+                      handleEditRow(
+                        row.id,
+                        "costo",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
                     className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </td>
@@ -254,15 +363,36 @@ export default function PinturaTable({
                   />
                 </td>
                 <td className="py-4 px-6 text-sm text-gray-700">
-                  <button
-                    onClick={() => handleDeleteRow(row.id)}
-                    className="text-red-500 hover:text-red-700 transition duration-200"
-                  >
-                    <FaTrash />
-                  </button>
+                  <div className="flex gap-2">
+                    {isEditing ? (
+                      <button
+                        type="button"
+                        onClick={() => setEditingRowId(null)}
+                        className="text-green-500 hover:text-green-700 transition duration-200"
+                      >
+                        <FaCheck />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setEditingRowId(row.id)}
+                        className="text-blue-500 hover:text-blue-700 transition duration-200"
+                      >
+                        <FaPencilAlt />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteRow(row.id)}
+                      className="text-red-500 hover:text-red-700 transition duration-200"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
                 </td>
               </tr>
-            ))}
+              );
+            })}
             {/* Fila de entrada */}
             <tr className="bg-gray-50">
               <td className="py-4 px-6">
@@ -298,23 +428,38 @@ export default function PinturaTable({
                     className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Seleccione una pieza</option>
-                    {partesPintura[newRow.parte as ParteKey]
-                      ?.slice(1)
-                      .map((pieza) => (
-                        <option key={pieza} value={pieza}>
-                          {pieza} -{" "}
-                          {piezasConValores[pieza as PiezaKey]?.panos || 0} panos
-                        </option>
-                      ))}
-                    {piezasDBFiltradas.length > 0 && (
-                      <optgroup label="Piezas del sistema">
-                        {piezasDBFiltradas.map((p) => (
-                          <option key={`db-${p.id}`} value={p.nombre}>
-                            {p.nombre}{p.panos ? ` - ${p.panos} panos` : ""}{p.medida ? ` (${p.medida})` : ""}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
+                    {(() => {
+                      const { conParte: newPiezasConParte, sinParte: newPiezasSinParte } = getPiezasForParte(newRow.parte);
+                      return (
+                        <>
+                          {partesPintura[newRow.parte as ParteKey]
+                            ?.slice(1)
+                            .map((pieza) => (
+                              <option key={pieza} value={pieza}>
+                                {pieza} - {piezasConValores[pieza as PiezaKey]?.panos || 0} panos
+                              </option>
+                            ))}
+                          {newPiezasConParte.length > 0 && (
+                            <optgroup label="Piezas del sistema">
+                              {newPiezasConParte.map((p) => (
+                                <option key={`db-${p.id}`} value={p.nombre}>
+                                  {p.nombre}{p.panos ? ` - ${p.panos} panos` : ""}{p.medida ? ` (${p.medida})` : ""}
+                                </option>
+                              ))}
+                            </optgroup>
+                          )}
+                          {newPiezasSinParte.length > 0 && (
+                            <optgroup label="Sin parte asignada">
+                              {newPiezasSinParte.map((p) => (
+                                <option key={`db-sp-${p.id}`} value={p.nombre}>
+                                  {p.nombre}{p.panos ? ` - ${p.panos} panos` : ""}{p.medida ? ` (${p.medida})` : ""}
+                                </option>
+                              ))}
+                            </optgroup>
+                          )}
+                        </>
+                      );
+                    })()}
                   </select>
                   <button
                     type="button"
@@ -351,6 +496,19 @@ export default function PinturaTable({
                       costo,
                     });
                   }}
+                  className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </td>
+              <td className="py-4 px-2 w-[100px]">
+                <input
+                  type="number"
+                  value={newRow.costo}
+                  onChange={(e) =>
+                    setNewRow({
+                      ...newRow,
+                      costo: parseFloat(e.target.value) || 0,
+                    })
+                  }
                   className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </td>

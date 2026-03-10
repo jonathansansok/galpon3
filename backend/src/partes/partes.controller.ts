@@ -32,11 +32,8 @@ export class PartesController {
 
   @Get()
   @ApiResponse({ status: 200, description: 'Obtener todas las partes' })
-  async findAll(@Req() req: Request) {
+  async findAll() {
     try {
-      console.log('[partes][GET] Token CSRF recibido:', req.headers['csrf-token']);
-      validateRequest(req);
-      console.log('[partes][GET] Token CSRF válido');
       return this.partesService.findAll();
     } catch (error) {
       console.error('[partes][GET] Error al obtener partes:', error.message);
@@ -49,11 +46,8 @@ export class PartesController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Obtener una parte por ID' })
-  async findOne(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+  async findOne(@Param('id', ParseIntPipe) id: number) {
     try {
-      console.log('[partes][GET] Token CSRF recibido:', req.headers['csrf-token']);
-      validateRequest(req);
-      console.log('[partes][GET] Token CSRF válido');
       return this.partesService.findOne(id);
     } catch (error) {
       console.error('[partes][GET] Error al obtener parte:', error.message);

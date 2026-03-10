@@ -181,6 +181,11 @@ model Presupuestos {
   pdf9          String?  @db.VarChar(255)
   pdf10         String?  @db.VarChar(255)
   word1         String?  @db.VarChar(255)
+  tipoTrabajo   String?  @db.VarChar(50)
+  magnitudDanio String?  @db.Text
+  chapaRows     String?  @db.LongText
+  pinturaRows   String?  @db.LongText
+  preciosCyP    String?  @db.Text
 }
 
 model Marcas {
@@ -275,11 +280,11 @@ model Piezas {
   nombre       String   @db.VarChar(255)
   medida       String?  @db.VarChar(255)
   detalle      String?  @db.Text
-  tipo         String   @db.VarChar(20)
+  tipo         String   @default("chapa") @db.VarChar(20)
   parteId      Int?
   parte        Partes?  @relation(fields: [parteId], references: [id])
-  costo        Float?   @default(0)
-  horas        Float?   @default(0)
-  costoPorPano Float?   @default(0)
-  panos        Float?   @default(0)
+  costo        Float    @default(0)
+  horas        Float    @default(0)
+  costoPorPano Float    @default(0)
+  panos        Float    @default(0)
 }

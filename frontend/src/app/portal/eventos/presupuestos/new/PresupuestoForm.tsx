@@ -90,60 +90,77 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [tipoTrabajo, setTipoTrabajo] = useState<string>("Siniestro");
-  const [chapaRows, setChapaRows] = useState<ChapaRow[]>([]);
-  const [pinturaRows, setPinturaRows] = useState<PinturaRow[]>([]);
-  const [materialesChapa, setMaterialesChapa] = useState("");
-  const [materialesPintura, setMaterialesPintura] = useState("");
+  const [tipoTrabajo, setTipoTrabajo] = useState<string>(presupuesto?.tipoTrabajo || "Siniestro");
+  const [chapaRows, setChapaRows] = useState<ChapaRow[]>(() => {
+    try { return presupuesto?.chapaRows ? JSON.parse(presupuesto.chapaRows) : []; }
+    catch { return []; }
+  });
+  const [pinturaRows, setPinturaRows] = useState<PinturaRow[]>(() => {
+    try { return presupuesto?.pinturaRows ? JSON.parse(presupuesto.pinturaRows) : []; }
+    catch { return []; }
+  });
 
   const calculateDiasPanos = (horas: number): number => {
     return Math.floor(horas / 4) + (horas % 4 >= 2 ? 0.5 : 0);
   };
 
-  const [preciosData, setPreciosData] = useState({
-    chapa: { costo: 0, horas: 0, diasPanos: 0, materiales: "" },
-    pintura: { costo: 0, horas: 0, diasPanos: 0, materiales: "" },
+  interface PreciosSection { costo: number; horas: number; diasPanos: number; materiales: string; }
+  interface PreciosData { chapa: PreciosSection; pintura: PreciosSection; }
+  const defaultPrecios: PreciosData = { chapa: { costo: 0, horas: 0, diasPanos: 0, materiales: "" }, pintura: { costo: 0, horas: 0, diasPanos: 0, materiales: "" } };
+  const [preciosData, setPreciosData] = useState<PreciosData>(() => {
+    try { return presupuesto?.preciosCyP ? JSON.parse(presupuesto.preciosCyP) : defaultPrecios; }
+    catch { return defaultPrecios; }
   });
+  const [manualOverride, setManualOverride] = useState(!!presupuesto?.preciosCyP);
 
   const calcularPrecios = useCallback(() => {
     const totalHorasChapa = chapaRows.reduce((sum, r) => sum + r.horas, 0);
     const totalHorasPintura = pinturaRows.reduce((sum, r) => sum + r.horas, 0);
-    setPreciosData({
+    setPreciosData((prev) => ({
       chapa: {
         costo: chapaRows.reduce((sum, r) => sum + r.costo, 0),
         horas: totalHorasChapa,
         diasPanos: calculateDiasPanos(totalHorasChapa),
-        materiales: materialesChapa,
+        materiales: prev.chapa.materiales,
       },
       pintura: {
         costo: pinturaRows.reduce((sum, r) => sum + r.costo, 0),
         horas: totalHorasPintura,
-        diasPanos: calculateDiasPanos(totalHorasPintura),
-        materiales: materialesPintura,
+        diasPanos: totalHorasPintura / 6,
+        materiales: prev.pintura.materiales,
       },
-    });
-  }, [chapaRows, pinturaRows, materialesChapa, materialesPintura]);
+    }));
+  }, [chapaRows, pinturaRows]);
 
-  // Auto-calcular cuando cambian las filas de Chapa/Pintura
+  // Auto-calcular cuando cambian las filas de Chapa/Pintura (solo si no hay override manual)
   useEffect(() => {
-    calcularPrecios();
-  }, [calcularPrecios]);
+    if (!manualOverride) {
+      calcularPrecios();
+    }
+  }, [calcularPrecios, manualOverride]);
 
   const handlePreciosFieldChange = (row: "chapa" | "pintura", field: string, value: number | string) => {
+    setManualOverride(true);
     setPreciosData((prev) => ({
       ...prev,
       [row]: { ...prev[row], [field]: value },
     }));
   };
+
+  const handlePreciosReset = () => {
+    setManualOverride(false);
+    calcularPrecios();
+  };
   // Estado para los checkboxes "Magnitud del Daño"
-  const [magnitudDanio, setMagnitudDanio] = useState<string[]>([]);
+  const [magnitudDanio, setMagnitudDanio] = useState<string[]>(() => {
+    try { return presupuesto?.magnitudDanio ? JSON.parse(presupuesto.magnitudDanio) : []; }
+    catch { return []; }
+  });
   const { files, setFile, getFileUrl } = useFileFields("presupuestos", presupuesto);
   const [isPhotosOpen, setIsPhotosOpen] = useState(false);
   const [isPdfOpen, setIsPdfOpen] = useState(false);
   const [isWordOpen, setIsWordOpen] = useState(false);
 
-  const user = useUserStore((state) => state.user);
-  const setUser = useUserStore((state) => state.setUser);
   useEffect(() => {
     console.log(`ID del móvil recuperado: ${idMovil}`);
     console.log(`Patente recuperada: ${patente}`);
@@ -171,13 +188,17 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
 
     setIsSubmitting(true);
 
-    try {
-      const payload: any = {
+    const payload: any = {
         movilId: data.movilId,
         patente: data.patente,
         monto: data.monto,
         estado: data.estado || "Pendiente",
         observaciones: data.observaciones || "",
+        tipoTrabajo,
+        magnitudDanio: JSON.stringify(magnitudDanio),
+        chapaRows: JSON.stringify(chapaRows),
+        pinturaRows: JSON.stringify(pinturaRows),
+        preciosCyP: JSON.stringify(preciosData),
       };
 
       console.log("[DEBUG] Payload enviado al backend:", payload);
@@ -252,9 +273,6 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
       } finally {
         setIsSubmitting(false);
       }
-    } finally {
-      setIsSubmitting(false); // Desbloquear el botón
-    }
   };
   const goToPresupuestos = () => {
     router.push("/portal/eventos/presupuestos");
@@ -403,15 +421,19 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
       <ChapaYPinturaPage
         onChapaRowsChange={setChapaRows}
         onPinturaRowsChange={setPinturaRows}
+        initialChapaRows={chapaRows}
+        initialPinturaRows={pinturaRows}
       />
       <PreciosCyP
         data={preciosData}
         onMaterialesChange={(row, value) => {
-          if (row === "chapa") setMaterialesChapa(value);
-          else setMaterialesPintura(value);
+          setPreciosData((prev) => ({
+            ...prev,
+            [row]: { ...prev[row], materiales: value },
+          }));
         }}
         onFieldChange={handlePreciosFieldChange}
-        onReset={calcularPrecios}
+        onReset={handlePreciosReset}
       />
       {/* Select de Tipo de Trabajo */}
       <TipoTrabajoSelect

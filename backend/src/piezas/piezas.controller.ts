@@ -32,11 +32,8 @@ export class PiezasController {
 
   @Get()
   @ApiResponse({ status: 200, description: 'Obtener todas las piezas' })
-  async findAll(@Req() req: Request) {
+  async findAll() {
     try {
-      console.log('[piezas][GET] Token CSRF recibido:', req.headers['csrf-token']);
-      validateRequest(req);
-      console.log('[piezas][GET] Token CSRF válido');
       return this.piezasService.findAll();
     } catch (error) {
       console.error('[piezas][GET] Error al obtener piezas:', error.message);
@@ -49,11 +46,8 @@ export class PiezasController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Obtener una pieza por ID' })
-  async findOne(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+  async findOne(@Param('id', ParseIntPipe) id: number) {
     try {
-      console.log('[piezas][GET] Token CSRF recibido:', req.headers['csrf-token']);
-      validateRequest(req);
-      console.log('[piezas][GET] Token CSRF válido');
       return this.piezasService.findOne(id);
     } catch (error) {
       console.error('[piezas][GET] Error al obtener pieza:', error.message);

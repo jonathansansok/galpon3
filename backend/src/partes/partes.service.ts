@@ -31,6 +31,7 @@ export class PartesService {
       console.log('[partes] Solicitud para obtener todas las partes');
       const result = await this.prismaService.partes.findMany({
         orderBy: { nombre: 'asc' },
+        include: { piezas: true },
       });
       console.log('[partes] Partes obtenidas:', result.length);
       return result;
@@ -45,6 +46,7 @@ export class PartesService {
       console.log('[partes] Solicitud para obtener parte con ID:', id);
       const parte = await this.prismaService.partes.findUnique({
         where: { id },
+        include: { piezas: true },
       });
       if (!parte) {
         throw new NotFoundException(`Parte con ID ${id} no encontrada`);

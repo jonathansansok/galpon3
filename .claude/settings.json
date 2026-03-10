@@ -4,7 +4,8 @@
       "Read(//c/repos/galpon3/galpon3/**)",
       "Bash(xargs grep -l \"render.*cell\\\\|cell.*render\")",
       "Bash(npx tsc --noEmit --pretty)",
-      "Bash(xargs grep -l \"Dashboard\")"
+      "Bash(xargs grep -l \"Dashboard\")",
+      "Bash(grep -A 20 \"CREATE TABLE.*[Pp]arts\\\\|CREATE TABLE.*[Pp]iez\" /c/repos/galpon3/galpon3/backend/prisma/migrations/*/migration.sql)"
     ]
   }
 }

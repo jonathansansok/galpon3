@@ -107,4 +107,24 @@ export class CreatePresupuestoDto {
   @IsOptional()
   @IsString()
   word1?: string;
+
+  @IsOptional()
+  @IsString()
+  tipoTrabajo?: string;
+
+  @IsOptional()
+  @IsString()
+  magnitudDanio?: string;
+
+  @IsOptional()
+  @IsString()
+  chapaRows?: string;
+
+  @IsOptional()
+  @IsString()
+  pinturaRows?: string;
+
+  @IsOptional()
+  @IsString()
+  preciosCyP?: string;
 }

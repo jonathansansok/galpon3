@@ -9,9 +9,7 @@ function getCsrfTokenFromCookies(): string {
 
 export async function getPartes() {
   try {
-    const csrfToken = getCsrfTokenFromCookies();
     const res = await fetch(`${BACKEND_URL}/api/partes`, {
-      headers: { "csrf-token": csrfToken },
       credentials: "include",
     });
     if (!res.ok) throw new Error("Error al obtener partes");
@@ -24,9 +22,7 @@ export async function getPartes() {
 
 export async function getParte(id: string) {
   try {
-    const csrfToken = getCsrfTokenFromCookies();
     const res = await fetch(`${BACKEND_URL}/api/partes/${id}`, {
-      headers: { "csrf-token": csrfToken },
       credentials: "include",
     });
     if (!res.ok) throw new Error("Error al obtener parte");

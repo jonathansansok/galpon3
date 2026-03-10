@@ -1,6 +1,6 @@
 //frontend\src\components\ui\ChapaTable.tsx
 import React, { useState } from "react";
-import { FaTrash, FaPlus, FaSync, FaEdit } from "react-icons/fa";
+import { FaTrash, FaPlus, FaSync, FaEdit, FaCheck, FaPencilAlt } from "react-icons/fa";
 import Link from "next/link";
 import { Pieza } from "@/types/Pieza";
 import { Parte } from "@/types/Parte";
@@ -52,13 +52,16 @@ export default function ChapaTable({
   piezasDB = [],
   partesDB = [],
   onRefreshPiezas,
+  initialRows = [],
 }: {
   onRowsChange: (rows: ChapaRow[]) => void;
   piezasDB?: Pieza[];
   partesDB?: Parte[];
   onRefreshPiezas?: () => void;
+  initialRows?: ChapaRow[];
 }) {
-  const [rows, setRows] = useState<ChapaRow[]>([]);
+  const [rows, setRows] = useState<ChapaRow[]>(initialRows);
+  const [editingRowId, setEditingRowId] = useState<number | null>(null);
   const [newRow, setNewRow] = useState<ChapaRow>({
     id: 0,
     parte: "",
@@ -69,12 +72,13 @@ export default function ChapaTable({
     costo: 0,
   });
 
-  // Filtrar piezas DB: solo tipo chapa y que coincidan con la parte seleccionada
-  const piezasDBFiltradas = piezasDB.filter((p) => {
-    if (p.tipo !== "chapa") return false;
-    if (!newRow.parte) return false;
-    if (!p.parte) return true;
-    return p.parte.nombre === newRow.parte;
+  // Filtrar piezas DB: solo tipo chapa
+  const piezasDBChapa = piezasDB.filter((p) => p.tipo === "chapa");
+
+  // Helper: obtener piezas DB filtradas por parte
+  const getPiezasForParte = (parteNombre: string) => ({
+    conParte: piezasDBChapa.filter((p) => p.parte && p.parte.nombre === parteNombre),
+    sinParte: piezasDBChapa.filter((p) => !p.parte && !p.parteId),
   });
 
   // Partes DB que no estan en las hardcoded
@@ -136,7 +140,7 @@ export default function ChapaTable({
       return;
     }
     // Buscar en piezas DB
-    const dbPieza = piezasDBFiltradas.find((p) => p.nombre === val);
+    const dbPieza = piezasDBChapa.find((p) => p.nombre === val);
     if (dbPieza) {
       setNewRow({
         ...newRow,
@@ -148,6 +152,31 @@ export default function ChapaTable({
     }
     // Sin valores
     setNewRow({ ...newRow, piezas: val, horas: 0, costo: 0 });
+  };
+
+  const handleEditParteChange = (rowId: number, val: string) => {
+    const newRows = rows.map((row) =>
+      row.id === rowId ? { ...row, parte: val, piezas: "", horas: 0, costo: 0 } : row
+    );
+    updateRows(newRows);
+  };
+
+  const handleEditPiezaChange = (rowId: number, val: string) => {
+    const hardcoded = piezasConValores[val as PiezaKey];
+    if (hardcoded) {
+      updateRows(rows.map((row) =>
+        row.id === rowId ? { ...row, piezas: val, horas: hardcoded.horas, costo: hardcoded.costo } : row
+      ));
+      return;
+    }
+    const dbPieza = piezasDBChapa.find((p) => p.nombre === val);
+    if (dbPieza) {
+      updateRows(rows.map((row) =>
+        row.id === rowId ? { ...row, piezas: val, horas: dbPieza.horas || 0, costo: dbPieza.costo || 0 } : row
+      ));
+      return;
+    }
+    handleEditRow(rowId, "piezas", val);
   };
 
   return (
@@ -166,6 +195,9 @@ export default function ChapaTable({
               <th className="py-3 px-2 text-left text-sm font-semibold uppercase tracking-wider w-[80px]">
                 Horas
               </th>
+              <th className="py-3 px-2 text-left text-sm font-semibold uppercase tracking-wider w-[100px]">
+                Costo
+              </th>
               <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
                 Accion
               </th>
@@ -178,11 +210,67 @@ export default function ChapaTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {rows.map((row) => (
+            {rows.map((row) => {
+              const isEditing = editingRowId === row.id;
+              const { conParte: editPiezasConParte, sinParte: editPiezasSinParte } = getPiezasForParte(row.parte);
+              return (
               <tr key={row.id} className="hover:bg-gray-100">
-                <td className="py-4 px-6 text-sm text-gray-700">{row.parte}</td>
                 <td className="py-4 px-6 text-sm text-gray-700">
-                  {row.piezas}
+                  {isEditing ? (
+                    <select
+                      value={row.parte}
+                      onChange={(e) => handleEditParteChange(row.id, e.target.value)}
+                      className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Seleccione una parte</option>
+                      {Object.keys(partesChapa).map((parte) => (
+                        <option key={parte} value={parte}>{parte}</option>
+                      ))}
+                      {partesDBExtra.length > 0 && (
+                        <optgroup label="Partes del sistema">
+                          {partesDBExtra.map((p) => (
+                            <option key={`db-parte-${p.id}`} value={p.nombre}>
+                              {p.nombre}{p.abreviatura ? ` (${p.abreviatura})` : ""}
+                            </option>
+                          ))}
+                        </optgroup>
+                      )}
+                    </select>
+                  ) : row.parte}
+                </td>
+                <td className="py-4 px-6 text-sm text-gray-700">
+                  {isEditing ? (
+                    <select
+                      value={row.piezas}
+                      onChange={(e) => handleEditPiezaChange(row.id, e.target.value)}
+                      className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Seleccione una pieza</option>
+                      {partesChapa[row.parte as ParteKey]
+                        ?.slice(1)
+                        .map((pieza) => (
+                          <option key={pieza} value={pieza}>{pieza}</option>
+                        ))}
+                      {editPiezasConParte.length > 0 && (
+                        <optgroup label="Piezas del sistema">
+                          {editPiezasConParte.map((p) => (
+                            <option key={`db-${p.id}`} value={p.nombre}>
+                              {p.nombre}{p.medida ? ` (${p.medida})` : ""}
+                            </option>
+                          ))}
+                        </optgroup>
+                      )}
+                      {editPiezasSinParte.length > 0 && (
+                        <optgroup label="Sin parte asignada">
+                          {editPiezasSinParte.map((p) => (
+                            <option key={`db-sp-${p.id}`} value={p.nombre}>
+                              {p.nombre}{p.medida ? ` (${p.medida})` : ""}
+                            </option>
+                          ))}
+                        </optgroup>
+                      )}
+                    </select>
+                  ) : row.piezas}
                 </td>
                 <td className="py-4 px-2 text-sm text-gray-700 w-[80px]">
                   <input
@@ -192,6 +280,20 @@ export default function ChapaTable({
                       handleEditRow(
                         row.id,
                         "horas",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
+                    className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </td>
+                <td className="py-4 px-2 text-sm text-gray-700 w-[100px]">
+                  <input
+                    type="number"
+                    value={row.costo}
+                    onChange={(e) =>
+                      handleEditRow(
+                        row.id,
+                        "costo",
                         parseFloat(e.target.value) || 0
                       )
                     }
@@ -227,15 +329,36 @@ export default function ChapaTable({
                   />
                 </td>
                 <td className="py-4 px-6 text-sm text-gray-700">
-                  <button
-                    onClick={() => handleDeleteRow(row.id)}
-                    className="text-red-500 hover:text-red-700 transition duration-200"
-                  >
-                    <FaTrash />
-                  </button>
+                  <div className="flex gap-2">
+                    {isEditing ? (
+                      <button
+                        type="button"
+                        onClick={() => setEditingRowId(null)}
+                        className="text-green-500 hover:text-green-700 transition duration-200"
+                      >
+                        <FaCheck />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setEditingRowId(row.id)}
+                        className="text-blue-500 hover:text-blue-700 transition duration-200"
+                      >
+                        <FaPencilAlt />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteRow(row.id)}
+                      className="text-red-500 hover:text-red-700 transition duration-200"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
                 </td>
               </tr>
-            ))}
+              );
+            })}
             <tr className="bg-gray-50">
               <td className="py-4 px-6">
                 <select
@@ -270,22 +393,38 @@ export default function ChapaTable({
                     className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Seleccione una pieza</option>
-                    {partesChapa[newRow.parte as ParteKey]
-                      ?.slice(1)
-                      .map((pieza) => (
-                        <option key={pieza} value={pieza}>
-                          {pieza}
-                        </option>
-                      ))}
-                    {piezasDBFiltradas.length > 0 && (
-                      <optgroup label="Piezas del sistema">
-                        {piezasDBFiltradas.map((p) => (
-                          <option key={`db-${p.id}`} value={p.nombre}>
-                            {p.nombre}{p.medida ? ` (${p.medida})` : ""}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
+                    {(() => {
+                      const { conParte: newPiezasConParte, sinParte: newPiezasSinParte } = getPiezasForParte(newRow.parte);
+                      return (
+                        <>
+                          {partesChapa[newRow.parte as ParteKey]
+                            ?.slice(1)
+                            .map((pieza) => (
+                              <option key={pieza} value={pieza}>
+                                {pieza}
+                              </option>
+                            ))}
+                          {newPiezasConParte.length > 0 && (
+                            <optgroup label="Piezas del sistema">
+                              {newPiezasConParte.map((p) => (
+                                <option key={`db-${p.id}`} value={p.nombre}>
+                                  {p.nombre}{p.medida ? ` (${p.medida})` : ""}
+                                </option>
+                              ))}
+                            </optgroup>
+                          )}
+                          {newPiezasSinParte.length > 0 && (
+                            <optgroup label="Sin parte asignada">
+                              {newPiezasSinParte.map((p) => (
+                                <option key={`db-sp-${p.id}`} value={p.nombre}>
+                                  {p.nombre}{p.medida ? ` (${p.medida})` : ""}
+                                </option>
+                              ))}
+                            </optgroup>
+                          )}
+                        </>
+                      );
+                    })()}
                   </select>
                   <button
                     type="button"
@@ -314,6 +453,19 @@ export default function ChapaTable({
                     setNewRow({
                       ...newRow,
                       horas: parseFloat(e.target.value) || 0,
+                    })
+                  }
+                  className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </td>
+              <td className="py-4 px-2 w-[100px]">
+                <input
+                  type="number"
+                  value={newRow.costo}
+                  onChange={(e) =>
+                    setNewRow({
+                      ...newRow,
+                      costo: parseFloat(e.target.value) || 0,
                     })
                   }
                   className="border border-gray-300 rounded-lg px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
