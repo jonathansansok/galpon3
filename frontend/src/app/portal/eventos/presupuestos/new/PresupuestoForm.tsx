@@ -10,13 +10,14 @@ import WatermarkBackground from "@/components/WatermarkBackground";
 import { createPresupuesto, updatePresupuesto } from "../Presupuestos.api";
 import { useParams, useRouter } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import PhotosEvModal from "@/components/ui/MultimediaModals/PhotosEvModal";
 import PdfModal from "@/components/ui/MultimediaModals/PdfModal";
 import WordModal from "@/components/ui/MultimediaModals/WordModal";
 import { useFileFields, ALL_FILE_FIELDS } from "@/app/utils/useFileFields";
 import ChapaYPinturaPage from "@/components/ui/ChapaYPinturaPage";
-//import ChapaPinturaTable from "@/components/ui/ChapaPinturaTable";
+import { ChapaRow } from "@/components/ui/ChapaTable";
+import { PinturaRow } from "@/components/ui/PinturaTable";
 import PreciosCyP from "@/components/ui/PreciosCyP";
 import TipoTrabajoSelect from "@/components/ui/TipoTrabajoSelect";
 import MagnitudDanioCheckbox from "@/components/ui/MagnitudDanioCheckbox";
@@ -90,50 +91,33 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [tipoTrabajo, setTipoTrabajo] = useState<string>("Siniestro");
-  const [preciosData, setPreciosData] = useState({
-    chapa: {
-      costo: 0,
-      horas: 0,
-      diasPanos: 0,
-      materiales: "",
-    },
-    pintura: {
-      costo: 0,
-      horas: 0,
-      diasPanos: 0,
-      materiales: "",
-    },
-  });
+  const [chapaRows, setChapaRows] = useState<ChapaRow[]>([]);
+  const [pinturaRows, setPinturaRows] = useState<PinturaRow[]>([]);
+  const [materialesChapa, setMaterialesChapa] = useState("");
+  const [materialesPintura, setMaterialesPintura] = useState("");
 
-  const onUpdateChapa = (costo: number, horas: number, diasPanos: number) => {
-    setPreciosData((prev) => {
-      const updatedRow = { ...prev.chapa };
-
-      updatedRow.costo += costo;
-      updatedRow.horas += horas;
-      updatedRow.diasPanos += diasPanos;
-
-      return {
-        ...prev,
-        chapa: updatedRow,
-      };
-    });
+  const calculateDiasPanos = (horas: number): number => {
+    return Math.floor(horas / 4) + (horas % 4 >= 2 ? 0.5 : 0);
   };
 
-  const onUpdatePintura = (costo: number, horas: number, diasPanos: number) => {
-    setPreciosData((prev) => {
-      const updatedRow = { ...prev.pintura };
-
-      updatedRow.costo += costo;
-      updatedRow.horas += horas;
-      updatedRow.diasPanos += diasPanos;
-
-      return {
-        ...prev,
-        pintura: updatedRow,
-      };
-    });
-  };
+  const preciosData = useMemo(() => {
+    const totalHorasChapa = chapaRows.reduce((sum, r) => sum + r.horas, 0);
+    const totalHorasPintura = pinturaRows.reduce((sum, r) => sum + r.horas, 0);
+    return {
+      chapa: {
+        costo: chapaRows.reduce((sum, r) => sum + r.costo, 0),
+        horas: totalHorasChapa,
+        diasPanos: calculateDiasPanos(totalHorasChapa),
+        materiales: materialesChapa,
+      },
+      pintura: {
+        costo: pinturaRows.reduce((sum, r) => sum + r.costo, 0),
+        horas: totalHorasPintura,
+        diasPanos: calculateDiasPanos(totalHorasPintura),
+        materiales: materialesPintura,
+      },
+    };
+  }, [chapaRows, pinturaRows, materialesChapa, materialesPintura]);
   // Estado para los checkboxes "Magnitud del Daño"
   const [magnitudDanio, setMagnitudDanio] = useState<string[]>([]);
   const { files, setFile, getFileUrl } = useFileFields("presupuestos", presupuesto);
@@ -400,34 +384,14 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
       </div>
 
       <ChapaYPinturaPage
-        onUpdateChapa={(costo, horas, diasPanos) =>
-          onUpdateChapa(costo, horas, diasPanos)
-        }
-        onUpdatePintura={(costo, horas, diasPanos) =>
-          onUpdatePintura(costo, horas, diasPanos)
-        }
+        onChapaRowsChange={setChapaRows}
+        onPinturaRowsChange={setPinturaRows}
       />
       <PreciosCyP
         data={preciosData}
-        onUpdate={(row, field, value) => {
-          const diasPanos =
-            field === "horas"
-              ? Math.floor(value / 4) + (value % 4 >= 2 ? 0.5 : 0)
-              : 0;
-
-          if (row === "chapa") {
-            onUpdateChapa(
-              field === "costo" ? value : 0,
-              field === "horas" ? value : 0,
-              diasPanos
-            );
-          } else if (row === "pintura") {
-            onUpdatePintura(
-              field === "costo" ? value : 0,
-              field === "horas" ? value : 0,
-              diasPanos
-            );
-          }
+        onMaterialesChange={(row, value) => {
+          if (row === "chapa") setMaterialesChapa(value);
+          else setMaterialesPintura(value);
         }}
       />
       {/* Select de Tipo de Trabajo */}

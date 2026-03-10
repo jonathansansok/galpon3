@@ -89,6 +89,7 @@ export default function AppContentLayoutComponent(
                   { href: "/portal/eventos/ingresosok", label: "Ingresos", icon: <FaCheckCircle className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                   { href: "/portal/eventos/marcas", label: "Marcas/Modelos", icon: <FaCar className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                   { href: "/portal/eventos/piezas", label: "Piezas", icon: <FaCogs className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
+                  { href: "/portal/eventos/partes", label: "Partes", icon: <FaCogs className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                   { href: "/portal/eventos/realizados", label: "Trabajos realizados", icon: <FaWrench className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                 ].filter((item) => !privilege || item.roles.includes(privilege)).map((item) => (
                   <Link key={item.href} href={item.href} onClick={handleLinkClick}>

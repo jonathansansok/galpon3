@@ -257,12 +257,29 @@ model Turnos {
   observaciones            String?   @db.Text
 }
 
+model Partes {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique @default(uuid()) @db.VarChar(36)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  nombre      String   @db.VarChar(255)
+  abreviatura String?  @db.VarChar(20)
+  piezas      Piezas[]
+}
+
 model Piezas {
-  id        Int      @id @default(autoincrement())
-  uuid      String   @unique @default(uuid()) @db.VarChar(36)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  nombre    String   @db.VarChar(255)
-  medida    String?  @db.VarChar(255)
-  detalle   String?  @db.Text
+  id           Int      @id @default(autoincrement())
+  uuid         String   @unique @default(uuid()) @db.VarChar(36)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  nombre       String   @db.VarChar(255)
+  medida       String?  @db.VarChar(255)
+  detalle      String?  @db.Text
+  tipo         String   @db.VarChar(20)
+  parteId      Int?
+  parte        Partes?  @relation(fields: [parteId], references: [id])
+  costo        Float?   @default(0)
+  horas        Float?   @default(0)
+  costoPorPano Float?   @default(0)
+  panos        Float?   @default(0)
 }

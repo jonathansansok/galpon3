@@ -2,16 +2,24 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { createPieza, updatePieza, getPieza } from "../Piezas.api";
+import { getPartes } from "../../partes/Partes.api";
 import { useParams, useRouter } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
 import { useState, useEffect } from "react";
+import { Parte } from "@/types/Parte";
 
 interface FormValues {
   nombre: string;
   medida: string;
   detalle: string;
+  tipo: string;
+  parteId: string;
+  costo: string;
+  horas: string;
+  costoPorPano: string;
+  panos: string;
 }
 
 const floatingInputClass =
@@ -23,14 +31,36 @@ export function PiezaForm() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [partes, setPartes] = useState<Parte[]>([]);
 
-  const { handleSubmit, setValue, register } = useForm<FormValues>({
+  const { handleSubmit, setValue, register, control } = useForm<FormValues>({
     defaultValues: {
       nombre: "",
       medida: "",
       detalle: "",
+      tipo: "chapa",
+      parteId: "",
+      costo: "0",
+      horas: "0",
+      costoPorPano: "0",
+      panos: "0",
     },
   });
+
+  const tipo = useWatch({ control, name: "tipo" });
+
+  // Cargar partes disponibles
+  useEffect(() => {
+    const loadPartes = async () => {
+      try {
+        const data = await getPartes();
+        setPartes(data);
+      } catch (error) {
+        console.error("[piezas] Error al cargar partes:", error);
+      }
+    };
+    loadPartes();
+  }, []);
 
   // Cargar pieza existente en modo edición
   useEffect(() => {
@@ -43,6 +73,12 @@ export function PiezaForm() {
             setValue("nombre", data.nombre || "");
             setValue("medida", data.medida || "");
             setValue("detalle", data.detalle || "");
+            setValue("tipo", data.tipo || "chapa");
+            setValue("parteId", data.parteId ? String(data.parteId) : "");
+            setValue("costo", String(data.costo || 0));
+            setValue("horas", String(data.horas || 0));
+            setValue("costoPorPano", String(data.costoPorPano || 0));
+            setValue("panos", String(data.panos || 0));
           }
         } catch (error) {
           console.error("[piezas] Error al cargar pieza:", error);
@@ -60,13 +96,32 @@ export function PiezaForm() {
       return;
     }
 
+    if (!data.tipo) {
+      Alert.error({ title: "Error", text: "El tipo es obligatorio.", icon: "error" });
+      return;
+    }
+
     setIsSubmitting(true);
 
     const payload: Record<string, any> = {
       nombre: data.nombre.trim(),
       medida: data.medida?.trim() || null,
       detalle: data.detalle?.trim() || null,
+      tipo: data.tipo,
+      parteId: data.parteId ? parseInt(data.parteId) : null,
     };
+
+    if (data.tipo === "chapa") {
+      payload.costo = parseFloat(data.costo) || 0;
+      payload.horas = parseFloat(data.horas) || 0;
+      payload.costoPorPano = 0;
+      payload.panos = 0;
+    } else {
+      payload.costoPorPano = parseFloat(data.costoPorPano) || 0;
+      payload.panos = parseFloat(data.panos) || 0;
+      payload.costo = 0;
+      payload.horas = 0;
+    }
 
     try {
       let result;
@@ -134,6 +189,104 @@ export function PiezaForm() {
           </label>
         </div>
       </div>
+
+      {/* Tipo y Parte */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="relative">
+          <select
+            id="tipo"
+            {...register("tipo")}
+            className="block px-2.5 pb-1.5 pt-3 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600"
+          >
+            <option value="chapa">Chapa</option>
+            <option value="pintura">Pintura</option>
+          </select>
+          <label htmlFor="tipo" className="absolute text-sm text-gray-500 duration-300 transform -translate-y-3 scale-75 top-1 origin-[0] bg-white px-2 start-1">
+            Tipo *
+          </label>
+        </div>
+
+        <div className="relative">
+          <select
+            id="parteId"
+            {...register("parteId")}
+            className="block px-2.5 pb-1.5 pt-3 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600"
+          >
+            <option value="">Sin parte asignada</option>
+            {partes.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.nombre}{p.abreviatura ? ` (${p.abreviatura})` : ""}
+              </option>
+            ))}
+          </select>
+          <label htmlFor="parteId" className="absolute text-sm text-gray-500 duration-300 transform -translate-y-3 scale-75 top-1 origin-[0] bg-white px-2 start-1">
+            Parte
+          </label>
+        </div>
+      </div>
+
+      {/* Campos condicionales segun tipo */}
+      {tipo === "chapa" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="relative">
+            <input
+              type="number"
+              step="0.01"
+              id="costo"
+              {...register("costo")}
+              className={floatingInputClass}
+              placeholder=" "
+            />
+            <label htmlFor="costo" className={floatingLabelClass}>
+              Costo
+            </label>
+          </div>
+          <div className="relative">
+            <input
+              type="number"
+              step="0.01"
+              id="horas"
+              {...register("horas")}
+              className={floatingInputClass}
+              placeholder=" "
+            />
+            <label htmlFor="horas" className={floatingLabelClass}>
+              Horas
+            </label>
+          </div>
+        </div>
+      )}
+
+      {tipo === "pintura" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="relative">
+            <input
+              type="number"
+              step="0.01"
+              id="costoPorPano"
+              {...register("costoPorPano")}
+              className={floatingInputClass}
+              placeholder=" "
+            />
+            <label htmlFor="costoPorPano" className={floatingLabelClass}>
+              Costo por Paño
+            </label>
+          </div>
+          <div className="relative">
+            <input
+              type="number"
+              step="0.01"
+              id="panos"
+              {...register("panos")}
+              className={floatingInputClass}
+              placeholder=" "
+            />
+            <label htmlFor="panos" className={floatingLabelClass}>
+              Paños
+            </label>
+          </div>
+        </div>
+      )}
 
       {/* Detalle */}
       <div className="relative">

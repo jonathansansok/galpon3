@@ -1,5 +1,5 @@
 //backend\src\piezas\dto\create-pieza.dto.ts
-import { IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreatePiezaDto {
   @IsString()
@@ -12,4 +12,27 @@ export class CreatePiezaDto {
   @IsOptional()
   @IsString()
   detalle?: string;
+
+  @IsString()
+  tipo: string;
+
+  @IsOptional()
+  @IsNumber()
+  parteId?: number;
+
+  @IsOptional()
+  @IsNumber()
+  costo?: number;
+
+  @IsOptional()
+  @IsNumber()
+  horas?: number;
+
+  @IsOptional()
+  @IsNumber()
+  costoPorPano?: number;
+
+  @IsOptional()
+  @IsNumber()
+  panos?: number;
 }

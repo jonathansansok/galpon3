@@ -11,6 +11,7 @@ import { TemasModule } from './temas/temas.module';
 import { PresupuestosModule } from './presupuestos/presupuestos.module';
 import { TurnosModule } from './turnos/turnos.module';
 import { PiezasModule } from './piezas/piezas.module';
+import { PartesModule } from './partes/partes.module';
 import { AuthModule } from './auth/auth.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AuditInterceptor } from './notifications/audit.interceptor';
@@ -29,6 +30,7 @@ import { CsrfMiddleware } from './csrf/csrf.middleware';
     PresupuestosModule,
     TurnosModule,
     PiezasModule,
+    PartesModule,
     AuthModule,
     NotificationsModule,
   ],
