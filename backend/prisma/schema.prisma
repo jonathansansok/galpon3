@@ -241,3 +241,18 @@ model AuditLog {
   @@index([userId])
   @@index([createdAt])
 }
+
+model Turnos {
+  id                       Int       @id @default(autoincrement())
+  uuid                     String    @unique @default(uuid()) @db.VarChar(36)
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+  presupuestoId            String?   @db.VarChar(36)
+  plaza                    Int
+  fechaHoraInicioEstimada  DateTime
+  fechaHoraFinEstimada     DateTime
+  fechaHoraInicioReal      DateTime?
+  fechaHoraFinReal         DateTime?
+  estado                   String    @default("Programado")
+  observaciones            String?   @db.Text
+}

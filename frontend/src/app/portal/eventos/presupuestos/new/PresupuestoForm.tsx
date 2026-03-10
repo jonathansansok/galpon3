@@ -376,12 +376,20 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
           label="Monto"
           placeholder=""
         />
-        <InputField
-          register={register}
-          name="estado"
-          label="Estado"
-          placeholder="Pendiente, Aprobado, etc."
-        />
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+          <select
+            {...register("estado")}
+            className="border rounded px-3 py-2 w-full"
+          >
+            <option value="Pendiente">Pendiente</option>
+            <option value="Creado">Creado</option>
+            <option value="En revisión">En revisión</option>
+            <option value="Aprobado">Aprobado</option>
+            <option value="En curso">En curso</option>
+            <option value="Finalizado">Finalizado</option>
+          </select>
+        </div>
         <Textarea
           id="observaciones"
           value={watch("observaciones")}

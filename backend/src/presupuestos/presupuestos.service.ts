@@ -20,6 +20,7 @@ export class PresupuestosService {
       const result = await this.prismaService.$queryRaw<
         Array<{
           id: number;
+          uuid: string;
           createdAt: Date;
           updatedAt: Date;
           movilId: string | null;
@@ -33,14 +34,15 @@ export class PresupuestosService {
           color: string | null;
         }>
       >(Prisma.sql`
-        SELECT 
-          p.id, 
-          p.createdAt, 
-          p.updatedAt, 
-          p.movilId, 
-          p.patente, 
-          p.monto, 
-          p.estado, 
+        SELECT
+          p.id,
+          p.uuid,
+          p.createdAt,
+          p.updatedAt,
+          p.movilId,
+          p.patente,
+          p.monto,
+          p.estado,
           p.observaciones,
           t.marca, 
           t.modelo, 
