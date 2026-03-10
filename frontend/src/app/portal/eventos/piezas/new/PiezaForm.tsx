@@ -14,6 +14,11 @@ interface FormValues {
   detalle: string;
 }
 
+const floatingInputClass =
+  "block px-2.5 pb-1.5 pt-3 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer";
+const floatingLabelClass =
+  "absolute text-sm text-gray-500 duration-300 transform -translate-y-3 scale-75 top-1 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-1 peer-focus:scale-75 peer-focus:-translate-y-3 start-1";
+
 export function PiezaForm() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
@@ -98,45 +103,53 @@ export function PiezaForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {/* Nombre */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Nombre *
-        </label>
-        <input
-          type="text"
-          {...register("nombre")}
-          className="border rounded px-3 py-2 w-full"
-          placeholder="Nombre de la pieza"
-          required
-        />
-      </div>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {/* Nombre */}
+        <div className="relative">
+          <input
+            type="text"
+            id="nombre"
+            {...register("nombre")}
+            className={floatingInputClass}
+            placeholder=" "
+            required
+          />
+          <label htmlFor="nombre" className={floatingLabelClass}>
+            Nombre *
+          </label>
+        </div>
 
-      {/* Medida */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Medida
-        </label>
-        <input
-          type="text"
-          {...register("medida")}
-          className="border rounded px-3 py-2 w-full"
-          placeholder="Medida (opcional)"
-        />
+        {/* Medida */}
+        <div className="relative">
+          <input
+            type="text"
+            id="medida"
+            {...register("medida")}
+            className={floatingInputClass}
+            placeholder=" "
+          />
+          <label htmlFor="medida" className={floatingLabelClass}>
+            Medida
+          </label>
+        </div>
       </div>
 
       {/* Detalle */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+      <div className="relative">
+        <textarea
+          id="detalle"
+          {...register("detalle")}
+          className="block px-2.5 pb-1.5 pt-3 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+          placeholder=" "
+          rows={3}
+        />
+        <label
+          htmlFor="detalle"
+          className="absolute text-sm text-gray-500 duration-300 transform -translate-y-3 scale-75 top-1 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-[1.5rem] peer-focus:top-1 peer-focus:scale-75 peer-focus:-translate-y-3 start-1"
+        >
           Detalle
         </label>
-        <textarea
-          {...register("detalle")}
-          className="border rounded px-3 py-2 w-full"
-          rows={3}
-          placeholder="Detalle adicional (opcional)"
-        />
       </div>
 
       <div className="flex gap-3">

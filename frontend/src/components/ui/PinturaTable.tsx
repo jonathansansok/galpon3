@@ -1,6 +1,8 @@
 //frontend\src\components\ui\PinturaTable.tsx
 import React, { useState } from "react";
-import { FaEdit, FaTrash, FaPlus, FaSave } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus, FaSave, FaSync } from "react-icons/fa";
+import Link from "next/link";
+import { Pieza } from "@/types/Pieza";
 
 interface PinturaRow {
   id: number;
@@ -35,8 +37,12 @@ type PiezaKey = keyof typeof piezasConValores;
 
 export default function PinturaTable({
   onUpdate,
+  piezasDB = [],
+  onRefreshPiezas,
 }: {
   onUpdate: (costo: number, horas: number, diasPanos: number) => void;
+  piezasDB?: Pieza[];
+  onRefreshPiezas?: () => void;
 }) {
   const [rows, setRows] = useState<PinturaRow[]>([]);
   const [newRow, setNewRow] = useState<PinturaRow>({
@@ -268,34 +274,58 @@ const handleAddRow = (e: React.MouseEvent<HTMLButtonElement>) => {
               </select>
             </td>
             <td className="py-4 px-6">
-              <select
-                value={newRow.piezas}
-                onChange={(e) => {
-                  const pieza = e.target.value;
-                  const valores = piezasConValores[pieza as PiezaKey];
-  
-                  if (valores) {
-                    const horas = valores.panos * 6; // Cada paño equivale a 6 horas
-                    const costo = valores.panos * valores.costoPorPano; // Costo total basado en los paños
-  
-                    setNewRow({
-                      ...newRow,
-                      piezas: pieza,
-                      horas,
-                      costo,
-                    });
-                  }
-                }}
-                className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Seleccione una pieza</option>
-                {partesPintura[newRow.parte as ParteKey]?.map((pieza) => (
-                  <option key={pieza} value={pieza}>
-                    {pieza} -{" "}
-                    {piezasConValores[pieza as PiezaKey]?.panos || 0} paños
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center gap-1">
+                <select
+                  value={newRow.piezas}
+                  onChange={(e) => {
+                    const pieza = e.target.value;
+                    const valores = piezasConValores[pieza as PiezaKey];
+
+                    if (valores) {
+                      const horas = valores.panos * 6;
+                      const costo = valores.panos * valores.costoPorPano;
+                      setNewRow({ ...newRow, piezas: pieza, horas, costo });
+                    } else {
+                      setNewRow({ ...newRow, piezas: pieza, horas: 0, costo: 0 });
+                    }
+                  }}
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Seleccione una pieza</option>
+                  {partesPintura[newRow.parte as ParteKey]?.map((pieza) => (
+                    <option key={pieza} value={pieza}>
+                      {pieza} -{" "}
+                      {piezasConValores[pieza as PiezaKey]?.panos || 0} paños
+                    </option>
+                  ))}
+                  {piezasDB.length > 0 && (
+                    <optgroup label="Piezas del sistema">
+                      {piezasDB.map((p) => (
+                        <option key={`db-${p.id}`} value={p.nombre}>
+                          {p.nombre}{p.medida ? ` (${p.medida})` : ""}
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                </select>
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); onRefreshPiezas?.(); }}
+                  className="text-green-500 hover:text-green-700 p-1"
+                  title="Actualizar piezas"
+                >
+                  <FaSync size={14} />
+                </button>
+                <Link
+                  href="/portal/eventos/piezas/new"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-green-500 hover:text-green-700 p-1"
+                  title="Crear nueva pieza"
+                >
+                  <FaEdit size={14} />
+                </Link>
+              </div>
             </td>
             <td className="py-4 px-2 w-[80px]">
               <input

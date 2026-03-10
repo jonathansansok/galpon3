@@ -11,25 +11,28 @@ import {
 
 const ACTION_CONFIG: Record<
   string,
-  { icon: typeof FaPlus; color: string; bg: string; label: string }
+  { icon: typeof FaPlus; color: string; bg: string; label: string; selfLabel: string }
 > = {
   CREATE: {
     icon: FaPlus,
     color: "text-emerald-500",
     bg: "bg-emerald-50",
-    label: "Creó",
+    label: "creó",
+    selfLabel: "creado",
   },
   UPDATE: {
     icon: FaEdit,
     color: "text-blue-500",
     bg: "bg-blue-50",
-    label: "Actualizó",
+    label: "actualizó",
+    selfLabel: "actualizado",
   },
   DELETE: {
     icon: FaTrash,
     color: "text-red-500",
     bg: "bg-red-50",
-    label: "Eliminó",
+    label: "eliminó",
+    selfLabel: "eliminado",
   },
 };
 
@@ -190,6 +193,7 @@ export default function NotificationBell() {
                 ? !((n.readBy as number[]) || []).includes(user.id)
                 : false;
               const url = getNotificationUrl(n.entity, n.entityId);
+              const isSelf = user?.id === n.userId;
 
               const content = (
                 <>
@@ -204,10 +208,10 @@ export default function NotificationBell() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-800 leading-snug">
                       <span className="font-semibold">
-                        {n.user?.email || [n.user?.nombre, n.user?.apellido].filter(Boolean).join(" ") || "Usuario"}
+                        {isSelf ? "Has" : (n.user?.email || [n.user?.nombre, n.user?.apellido].filter(Boolean).join(" ") || "Usuario")}
                       </span>{" "}
                       <span className={`font-medium ${config.color}`}>
-                        {config.label.toLowerCase()}
+                        {isSelf ? config.selfLabel : config.label}
                       </span>{" "}
                       <span className="text-gray-600">
                         {n.entity}
