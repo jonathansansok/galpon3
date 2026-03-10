@@ -123,6 +123,8 @@ export default function PiezasPage() {
 
   const columns = [
     { key: "nombre", label: "Nombre" },
+    { key: "tipo", label: "Tipo", render: (item: Pieza) => item.tipo === "chapa" ? "Chapa" : item.tipo === "pintura" ? "Pintura" : item.tipo || "N/A" },
+    { key: "parte", label: "Parte", render: (item: Pieza) => item.parte?.nombre || "Sin parte" },
     { key: "medida", label: "Medida", render: (item: Pieza) => item.medida || "N/A" },
     { key: "detalle", label: "Detalle", render: (item: Pieza) => item.detalle || "N/A" },
     {

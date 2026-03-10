@@ -10,7 +10,7 @@ import WatermarkBackground from "@/components/WatermarkBackground";
 import { createPresupuesto, updatePresupuesto } from "../Presupuestos.api";
 import { useParams, useRouter } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import PhotosEvModal from "@/components/ui/MultimediaModals/PhotosEvModal";
 import PdfModal from "@/components/ui/MultimediaModals/PdfModal";
 import WordModal from "@/components/ui/MultimediaModals/WordModal";
@@ -100,10 +100,15 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
     return Math.floor(horas / 4) + (horas % 4 >= 2 ? 0.5 : 0);
   };
 
-  const preciosData = useMemo(() => {
+  const [preciosData, setPreciosData] = useState({
+    chapa: { costo: 0, horas: 0, diasPanos: 0, materiales: "" },
+    pintura: { costo: 0, horas: 0, diasPanos: 0, materiales: "" },
+  });
+
+  const calcularPrecios = useCallback(() => {
     const totalHorasChapa = chapaRows.reduce((sum, r) => sum + r.horas, 0);
     const totalHorasPintura = pinturaRows.reduce((sum, r) => sum + r.horas, 0);
-    return {
+    setPreciosData({
       chapa: {
         costo: chapaRows.reduce((sum, r) => sum + r.costo, 0),
         horas: totalHorasChapa,
@@ -116,8 +121,20 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
         diasPanos: calculateDiasPanos(totalHorasPintura),
         materiales: materialesPintura,
       },
-    };
+    });
   }, [chapaRows, pinturaRows, materialesChapa, materialesPintura]);
+
+  // Auto-calcular cuando cambian las filas de Chapa/Pintura
+  useEffect(() => {
+    calcularPrecios();
+  }, [calcularPrecios]);
+
+  const handlePreciosFieldChange = (row: "chapa" | "pintura", field: string, value: number | string) => {
+    setPreciosData((prev) => ({
+      ...prev,
+      [row]: { ...prev[row], [field]: value },
+    }));
+  };
   // Estado para los checkboxes "Magnitud del Daño"
   const [magnitudDanio, setMagnitudDanio] = useState<string[]>([]);
   const { files, setFile, getFileUrl } = useFileFields("presupuestos", presupuesto);
@@ -393,6 +410,8 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
           if (row === "chapa") setMaterialesChapa(value);
           else setMaterialesPintura(value);
         }}
+        onFieldChange={handlePreciosFieldChange}
+        onReset={calcularPrecios}
       />
       {/* Select de Tipo de Trabajo */}
       <TipoTrabajoSelect

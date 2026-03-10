@@ -1,19 +1,35 @@
 //frontend\src\components\ui\PreciosCyP.tsx
 import React from "react";
+import { FaSync } from "react-icons/fa";
 
 export default function PreciosCyP({
   data,
   onMaterialesChange,
+  onFieldChange,
+  onReset,
 }: {
   data: {
     chapa: { costo: number; horas: number; diasPanos: number; materiales: string };
     pintura: { costo: number; horas: number; diasPanos: number; materiales: string };
   };
   onMaterialesChange: (row: "chapa" | "pintura", value: string) => void;
+  onFieldChange: (row: "chapa" | "pintura", field: string, value: number | string) => void;
+  onReset: () => void;
 }) {
   return (
     <div className="mt-6">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">Precios CyP</h2>
+      <div className="flex items-center gap-3 mb-4">
+        <h2 className="text-2xl font-bold text-gray-800">Precios CyP</h2>
+        <button
+          type="button"
+          onClick={(e) => { e.preventDefault(); onReset(); }}
+          className="flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm font-semibold transition duration-200"
+          title="Resetear valores desde las tablas de Chapa y Pintura"
+        >
+          <FaSync size={12} />
+          Resetear conteo
+        </button>
+      </div>
       <div className="overflow-hidden rounded-lg shadow-lg bg-white">
         <table className="min-w-full bg-white">
           <thead>
@@ -43,8 +59,8 @@ export default function PreciosCyP({
                 <input
                   type="number"
                   value={data.chapa.costo}
-                  readOnly
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full bg-gray-100 focus:outline-none"
+                  onChange={(e) => onFieldChange("chapa", "costo", parseFloat(e.target.value) || 0)}
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
                   placeholder="Costo"
                 />
               </td>
@@ -52,8 +68,8 @@ export default function PreciosCyP({
                 <input
                   type="number"
                   value={data.chapa.horas}
-                  readOnly
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full bg-gray-100 focus:outline-none"
+                  onChange={(e) => onFieldChange("chapa", "horas", parseFloat(e.target.value) || 0)}
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
                   placeholder="Horas"
                 />
               </td>
@@ -61,8 +77,8 @@ export default function PreciosCyP({
                 <input
                   type="number"
                   value={data.chapa.diasPanos}
-                  readOnly
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full bg-gray-100 focus:outline-none"
+                  onChange={(e) => onFieldChange("chapa", "diasPanos", parseFloat(e.target.value) || 0)}
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
                   placeholder="Dias/Panos"
                 />
               </td>
@@ -83,8 +99,8 @@ export default function PreciosCyP({
                 <input
                   type="number"
                   value={data.pintura.costo}
-                  readOnly
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full bg-gray-100 focus:outline-none"
+                  onChange={(e) => onFieldChange("pintura", "costo", parseFloat(e.target.value) || 0)}
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
                   placeholder="Costo"
                 />
               </td>
@@ -92,8 +108,8 @@ export default function PreciosCyP({
                 <input
                   type="number"
                   value={data.pintura.horas}
-                  readOnly
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full bg-gray-100 focus:outline-none"
+                  onChange={(e) => onFieldChange("pintura", "horas", parseFloat(e.target.value) || 0)}
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
                   placeholder="Horas"
                 />
               </td>
@@ -101,8 +117,8 @@ export default function PreciosCyP({
                 <input
                   type="number"
                   value={data.pintura.diasPanos}
-                  readOnly
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full bg-gray-100 focus:outline-none"
+                  onChange={(e) => onFieldChange("pintura", "diasPanos", parseFloat(e.target.value) || 0)}
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
                   placeholder="Dias/Panos"
                 />
               </td>
