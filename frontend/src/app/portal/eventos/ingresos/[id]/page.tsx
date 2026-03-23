@@ -159,7 +159,7 @@ const ProductDetailPage = ({ params }: Props) => {
       src: getUploadUrl("ingresos", ingreso.word1),
       title: "Word 1",
     },
-  ];
+  ].filter((x): x is { src: string; title: string } => x.src !== null);
 
   const pdfs = [
     {
@@ -202,7 +202,7 @@ const ProductDetailPage = ({ params }: Props) => {
       src: getUploadUrl("ingresos", ingreso.pdf10),
       title: "PDF 10",
     },
-  ];
+  ].filter((x): x is { src: string; title: string } => x.src !== null);
   const images = [
     {
       src: getUploadUrl("ingresos", ingreso.imagen),
@@ -244,7 +244,7 @@ const ProductDetailPage = ({ params }: Props) => {
       src: getUploadUrl("ingresos", ingreso.imagenSen6),
       title: "Imagen seña 6 del ingreso",
     },
-  ];
+  ].filter((x): x is { src: string; title: string } => x.src !== null);
   return (
     <div className="flex justify-center items-center flex-col w-full px-4 py-6">
       <IngresoInfo

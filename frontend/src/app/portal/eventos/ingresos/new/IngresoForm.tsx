@@ -222,7 +222,7 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
         const response = await fetch("/api/auth/me");
         const data = await response.json();
         if (data.email) {
-          setUser({ name: data.name, email: data.email });
+          setUser({ id: data.id, name: data.name, email: data.email });
         } else {
           router.push("/api/auth/login");
         }
