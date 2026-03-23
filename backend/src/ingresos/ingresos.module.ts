@@ -5,7 +5,8 @@ import { IngresosController } from './ingresos.controller';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MulterModule } from '@nestjs/platform-express';
 import { extname } from 'path';
-import multerS3 from 'multer-s3';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const multerS3 = require('multer-s3');
 import { r2Client, R2_BUCKET } from 'src/config/r2.config';
 
 @Module({

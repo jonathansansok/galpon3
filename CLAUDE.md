@@ -143,6 +143,12 @@ AUTH0_CLIENT_SECRET=<secret>
 - Allowed Logout URLs: `https://<proyecto>.vercel.app`
 - Allowed Web Origins: `https://<proyecto>.vercel.app`
 
+### Notas sobre migraciones
+- El Dockerfile usa `prisma db push --skip-generate` en vez de `prisma migrate deploy`
+- La historia de migraciones está rota (tablas originales creadas fuera de Prisma)
+- `db push` aplica el schema actual directamente a la DB sin depender del historial
+- multer-s3 se importa con `require()` (no `import default`) por incompatibilidad CJS/ESM
+
 ## Conventions
 
 - All domain models share common fields: `id`, `createdAt`, `updatedAt`, `clas_seg` (ALTA/MEDIA/BAJA), location fields (`establecimiento`, `modulo_ur`, `pabellon`, `sector`), `fechaHora`, multiple image/PDF fields
