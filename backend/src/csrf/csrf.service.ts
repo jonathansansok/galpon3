@@ -24,15 +24,9 @@ export class CsrfService {
 
   validateToken(req): boolean {
     const tokenFromHeader = req.headers['csrf-token'];
-    const tokenFromCookie = req.cookies['csrf-token'];
 
-    if (!tokenFromHeader || !tokenFromCookie) {
-      console.error('[CSRF] Token faltante en la solicitud.');
-      return false;
-    }
-
-    if (tokenFromHeader !== tokenFromCookie) {
-      console.error('[CSRF] Token inválido.');
+    if (!tokenFromHeader) {
+      console.error('[CSRF] Token CSRF ausente en el header.');
       return false;
     }
 
