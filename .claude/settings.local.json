@@ -4,7 +4,8 @@
       "Bash(npm install:*)",
       "Bash(claude mcp:*)",
       "Bash(git push:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(grep -l \"select\\\\|dropdown\\\\|combo\" \"C:\\\\repos\\\\galpon3\\\\galpon3\\\\frontend\\\\src\\\\components\\\\ui\"/*.tsx)"
     ]
   }
 }

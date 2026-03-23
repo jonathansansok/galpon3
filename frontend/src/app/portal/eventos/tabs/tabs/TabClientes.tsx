@@ -1,6 +1,6 @@
 "use client";
 // frontend/src/app/portal/eventos/tabs/tabs/TabClientes.tsx
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRepairStore } from "@/lib/repairStore";
 import { getIngresos } from "../../ingresos/ingresos.api";
 import { Ingreso } from "@/types/Ingreso";
@@ -14,14 +14,12 @@ export default function TabClientes() {
   const [loading, setLoading] = useState(false);
   const [showNewForm, setShowNewForm] = useState(false);
   const [expandedEditId, setExpandedEditId] = useState<number | null>(null);
-  const hasLoadedRef = useRef(false);
   const selectCliente = useRepairStore((s) => s.selectCliente);
   const selectedCliente = useRepairStore((s) => s.selectedCliente);
 
   useEffect(() => {
-    if (!hasLoadedRef.current) return;
-    console.log("[linear] TabClientes selectedCliente changed:", selectedCliente?.id);
-  }, [selectedCliente]);
+    handleLoadData();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLoadData = async () => {
     console.log("[linear] TabClientes handleLoadData");
@@ -30,7 +28,6 @@ export default function TabClientes() {
       const data = await getIngresos();
       const list = Array.isArray(data) ? data : [];
       setClientes(list);
-      hasLoadedRef.current = true;
       console.log("[linear] TabClientes loaded", list.length, "clientes");
     } catch (error) {
       console.error("[linear] TabClientes error loading:", error);
@@ -92,7 +89,7 @@ export default function TabClientes() {
 
       <div className="flex gap-2">
         <button onClick={handleLoadData} disabled={loading} className={buttonVariants({ variant: "outline" })}>
-          {loading ? "Cargando..." : "Cargar clientes"}
+          {loading ? "Cargando..." : "Recargar clientes"}
         </button>
       </div>
 
@@ -165,7 +162,7 @@ export default function TabClientes() {
         </div>
       ) : (
         <p className="text-gray-400 text-sm">
-          {clientes.length === 0 ? "Hacé clic en \"Cargar clientes\" para ver los registros." : "No hay resultados."}
+          {loading ? "Cargando..." : clientes.length === 0 ? "No se encontraron clientes." : "No hay resultados."}
         </p>
       )}
 

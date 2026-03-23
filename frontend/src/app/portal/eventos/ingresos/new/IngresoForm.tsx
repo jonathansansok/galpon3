@@ -593,7 +593,7 @@ export function IngresoForm({ ingreso, onSuccess, editId }: { ingreso: any; onSu
           <Button
             type="button"
             onClick={goToIngresos}
-            className="bg-orange-500"
+            className="bg-slate-500 hover:bg-slate-600"
           >
             Volver
           </Button>

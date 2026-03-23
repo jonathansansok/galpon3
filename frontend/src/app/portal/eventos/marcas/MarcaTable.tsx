@@ -150,7 +150,7 @@ const MarcaTable: React.FC<MarcaTableProps> = ({
               <td className="px-4 py-2 flex gap-2">
                 <button
                   onClick={() => handleEdit(marca.id, marca.value, marca.label)}
-                  className="text-yellow-500 hover:text-yellow-600"
+                  className="text-teal-500 hover:text-teal-600"
                 >
                   <FaEdit />
                 </button>

@@ -1,5 +1,18 @@
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3900';
 
+export interface AdminUser {
+  id: number;
+  nombre: string | null;
+  apellido: string | null;
+  telefono: string | null;
+}
+
+export async function getAdmins(): Promise<AdminUser[]> {
+  const res = await fetch(`${BACKEND_URL}/api/users/admins`);
+  if (!res.ok) return [];
+  return res.json();
+}
+
 export async function login(email: string, password: string) {
   const url = `${BACKEND_URL}/api/auth/login`;
   console.log('[auth.ts] login fetch:', url);

@@ -7,6 +7,8 @@ import { FaShieldAlt } from "react-icons/fa";
 import { useUserStore } from "@/lib/store";
 import { getMe, logout as logoutApi } from "@/lib/api/auth";
 
+const AUTH_CACHE_KEY = "auth_user";
+
 interface AuthProviderProps {
   children: React.ReactNode;
 }
@@ -15,68 +17,77 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const setUser = useUserStore((state) => state.setUser);
   const setPrivilege = useUserStore((state) => state.setPrivilege);
   const setComp = useUserStore((state) => state.setComp);
   const isAuthPage = pathname.startsWith("/auth/");
 
-  console.log('[AuthProvider] pathname:', pathname, 'isAuthPage:', isAuthPage);
+  // Si hay caché en localStorage, cargamos inmediatamente sin spinner
+  const cached = !isAuthPage ? (() => {
+    try { return JSON.parse(localStorage.getItem(AUTH_CACHE_KEY) || "null"); } catch { return null; }
+  })() : null;
+
+  const [isLoading, setIsLoading] = useState(!cached);
+
+  console.log('[AuthProvider] pathname:', pathname, 'isAuthPage:', isAuthPage, 'cached:', !!cached);
 
   useEffect(() => {
     if (isAuthPage) {
-      console.log('[AuthProvider] Auth page detected, skipping getMe');
       setIsLoading(false);
       return;
     }
 
-    console.log('[AuthProvider] Calling getMe...');
+    // Restaurar desde caché al instante (nueva pestaña, F5 sin BFCache, etc.)
+    if (cached) {
+      setUser(cached.user);
+      setPrivilege(cached.privilege);
+      setComp(cached.comp);
+    }
+
+    // Validar sesión contra el backend (siempre, en segundo plano si hay caché)
     getMe()
       .then((userData) => {
-        console.log('[AuthProvider] getMe success:', userData);
         setUser(userData);
         setPrivilege(userData.privilege || null);
         setComp(userData.comp || null);
+        localStorage.setItem(AUTH_CACHE_KEY, JSON.stringify({
+          user: userData,
+          privilege: userData.privilege || null,
+          comp: userData.comp || null,
+        }));
         setIsLoading(false);
       })
       .catch((err) => {
         console.log('[AuthProvider] getMe error:', err.message);
+        localStorage.removeItem(AUTH_CACHE_KEY);
+        setUser(null);
         setIsLoading(false);
         router.push("/auth/login");
       });
-  }, [isAuthPage, router, setUser, setPrivilege, setComp]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthPage]);
 
   useEffect(() => {
     if (isAuthPage) return;
 
     const handleActivity = () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(async () => {
         await logoutApi().catch(() => {});
+        localStorage.removeItem(AUTH_CACHE_KEY);
         setUser(null);
         router.push("/auth/login");
       }, 3600000); // 1 hora de inactividad
     };
 
-    const handleUnload = () => {
-      localStorage.removeItem("user");
-    };
-
     window.addEventListener("mousemove", handleActivity);
     window.addEventListener("keydown", handleActivity);
-    window.addEventListener("beforeunload", handleUnload);
-
     handleActivity();
 
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
       window.removeEventListener("mousemove", handleActivity);
       window.removeEventListener("keydown", handleActivity);
-      window.removeEventListener("beforeunload", handleUnload);
     };
   }, [router, isAuthPage, setUser]);
 

@@ -461,7 +461,7 @@ export function PresupuestoForm({ presupuesto, onSuccess, editId }: { presupuest
         <Button
           type="button"
           onClick={() => router.push("/portal/eventos/presupuestos")}
-          className="bg-orange-500"
+          className="bg-slate-500 hover:bg-slate-600"
         >
           Volver
         </Button>

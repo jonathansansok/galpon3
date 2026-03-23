@@ -26,6 +26,11 @@ export class UsersController {
     return this.usersService.findByEmail(query.email);
   }
 
+  @Get('admins')
+  async findAdmins() {
+    return this.usersService.findAdmins();
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@Request() req) {

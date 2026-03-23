@@ -73,6 +73,19 @@ export class UsersService {
     });
   }
 
+  async findAdmins() {
+    return this.prisma.users.findMany({
+      where: { privilege: 'A1' },
+      select: {
+        id: true,
+        nombre: true,
+        apellido: true,
+        telefono: true,
+      },
+      orderBy: { nombre: 'asc' },
+    });
+  }
+
   async findAll() {
     return this.prisma.users.findMany({
       select: {

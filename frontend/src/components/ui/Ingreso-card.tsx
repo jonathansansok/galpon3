@@ -24,7 +24,7 @@ function Highlight({ text, matches }: { text: string, matches: FuseResultMatch[]
   matches.forEach(match => {
     match.indices.forEach(([start, end]) => {
       parts.push(text.slice(lastIndex, start));
-      parts.push(<mark key={start} style={{ backgroundColor: 'orange' }}>{text.slice(start, end + 1)}</mark>);
+      parts.push(<mark key={start} style={{ backgroundColor: '#5eead4' }}>{text.slice(start, end + 1)}</mark>);
       lastIndex = end + 1;
     });
   });

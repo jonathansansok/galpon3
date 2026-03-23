@@ -1,17 +1,23 @@
 "use client";
+import { useState, useEffect } from "react";
 import { useUserStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function HomePage() {
+  const [mounted, setMounted] = useState(false);
   const user = useUserStore((state) => state.user);
   const privilege = useUserStore((state) => state.privilege);
   const comp = useUserStore((state) => state.comp);
   const router = useRouter();
 
+  useEffect(() => { setMounted(true); }, []);
+
   const handleNavigate = () => {
-    router.push("/portal/eventos/");
+    router.push("/portal/eventos/tabs");
   };
+
+  if (!mounted) return null;
 
   return (
     <div className="flex justify-center items-center min-h-screen flex-col w-full mt-0">
@@ -38,9 +44,9 @@ export default function HomePage() {
               </p>
               <button
                 onClick={handleNavigate}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 transform hover:scale-105"
+                className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 transform hover:scale-105"
               >
-                Ir al Dashboard
+                Flujo de Reparación
               </button>
             </div>
           </div>

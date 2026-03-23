@@ -145,6 +145,12 @@ export async function updatePresupuesto(id: string, formData: FormData) {
   }
 }
 
+export async function updatePresupuestoEstado(id: string, estado: string) {
+  const formData = new FormData();
+  formData.append("estado", estado);
+  return updatePresupuesto(id, formData);
+}
+
 export async function deletePresupuesto(id: string) {
   try {
     const csrfToken = await getCsrfToken();

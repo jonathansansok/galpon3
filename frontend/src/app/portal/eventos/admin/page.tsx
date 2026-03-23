@@ -199,9 +199,9 @@ function UsersSection() {
           <p className="text-2xl font-bold text-indigo-600">{users.filter((u) => u.privilege === "A1").length}</p>
         </div>
         {pendingUsers.length > 0 && (
-          <div className="bg-amber-50 rounded-xl border border-amber-200 px-4 py-3 shadow-sm">
-            <p className="text-xs text-amber-500 font-medium uppercase tracking-wider">Pendientes</p>
-            <p className="text-2xl font-bold text-amber-600">{pendingUsers.length}</p>
+          <div className="bg-blue-50 rounded-xl border border-blue-200 px-4 py-3 shadow-sm">
+            <p className="text-xs text-blue-500 font-medium uppercase tracking-wider">Pendientes</p>
+            <p className="text-2xl font-bold text-blue-600">{pendingUsers.length}</p>
           </div>
         )}
       </div>
@@ -256,9 +256,9 @@ function UsersSection() {
               return (
                 <div
                   key={user.id}
-                  className="bg-white rounded-xl border border-amber-200 shadow-sm p-4 flex items-center gap-4"
+                  className="bg-white rounded-xl border border-blue-200 shadow-sm p-4 flex items-center gap-4"
                 >
-                  <div className="w-11 h-11 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 font-bold text-sm">
+                  <div className="w-11 h-11 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 font-bold text-sm">
                     {initials}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -436,7 +436,7 @@ function UsersSection() {
                       onClick={() => setResetConfirm(user)}
                       disabled={resetLoading === user.id}
                       title="Generar link de reset"
-                      className="p-2 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-all disabled:opacity-40"
+                      className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all disabled:opacity-40"
                     >
                       {resetLoading === user.id ? (
                         <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -508,8 +508,8 @@ function UsersSection() {
       {resetConfirm !== null && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setResetConfirm(null)}>
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 w-full max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
-            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-amber-50 flex items-center justify-center">
-              <svg className="w-6 h-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-blue-50 flex items-center justify-center">
+              <svg className="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
             </div>
@@ -527,7 +527,7 @@ function UsersSection() {
               </button>
               <button
                 onClick={() => handleResetLink(resetConfirm)}
-                className="flex-1 px-4 py-2.5 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:bg-amber-600 transition-colors shadow-sm"
+                className="flex-1 px-4 py-2.5 bg-teal-600 text-white rounded-xl text-sm font-semibold hover:bg-teal-700 transition-colors shadow-sm"
               >
                 Resetear
               </button>

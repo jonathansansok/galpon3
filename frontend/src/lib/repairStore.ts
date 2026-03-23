@@ -16,6 +16,7 @@ interface RepairState {
   selectMovil: (movil: Tema | null) => void;
   selectPresupuesto: (presupuesto: Presupuesto | null) => void;
   selectTurno: (turno: Turno | null) => void;
+  jumpToIngreso: (presupuesto: Presupuesto, turno: Turno) => void;
   clearAll: () => void;
 }
 
@@ -64,6 +65,15 @@ export const useRepairStore = create<RepairState>((set) => ({
   selectTurno: (turno) => {
     console.log("[linear] selectTurno:", turno?.id, turno?.estado);
     set({ selectedTurno: turno, activeTab: 4 });
+  },
+
+  jumpToIngreso: (presupuesto, turno) => {
+    console.log("[linear] jumpToIngreso turnoId:", turno.id, "presupuestoId:", presupuesto.uuid ?? presupuesto.id);
+    set({
+      selectedPresupuesto: presupuesto,
+      selectedTurno: turno,
+      activeTab: 4,
+    });
   },
 
   clearAll: () => {

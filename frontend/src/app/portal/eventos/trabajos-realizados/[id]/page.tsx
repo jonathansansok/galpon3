@@ -51,7 +51,7 @@ export default function TrabajoRealizadoDetailPage({ params }: Props) {
         <div className="flex gap-2">
           <button
             onClick={() => router.push(`/portal/eventos/trabajos-realizados/${params.id}/edit`)}
-            className="bg-yellow-500 text-white px-3 py-1.5 rounded-lg hover:bg-yellow-600 text-sm transition"
+            className="bg-teal-600 text-white px-3 py-1.5 rounded-lg hover:bg-teal-700 text-sm transition"
           >
             Editar
           </button>

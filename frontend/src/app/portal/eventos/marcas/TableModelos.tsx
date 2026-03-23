@@ -152,7 +152,7 @@ const TableModelos: React.FC<TableModelosProps> = ({
               <td className="px-4 py-2 flex gap-2 justify-start">
                 <button
                   onClick={() => handleEdit(modelo)}
-                  className="text-yellow-500 hover:text-yellow-600"
+                  className="text-teal-500 hover:text-teal-600"
                   title="Editar"
                 >
                   <FaEdit />

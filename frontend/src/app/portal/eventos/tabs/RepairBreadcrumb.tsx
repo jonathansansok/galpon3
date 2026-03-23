@@ -68,14 +68,14 @@ export default function RepairBreadcrumb() {
           <span className="text-gray-400">›</span>
           <button
             onClick={() => setActiveTab(2)}
-            className="flex items-center gap-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-2 py-1 rounded-md transition"
+            className="flex items-center gap-1 bg-sky-100 hover:bg-sky-200 text-sky-800 px-2 py-1 rounded-md transition"
           >
             <span className="font-medium">Presupuesto:</span>
             <span>#{selectedPresupuesto.id}{selectedPresupuesto.monto ? ` — $${selectedPresupuesto.monto}` : ""}</span>
           </button>
           <button
             onClick={() => { selectPresupuesto(null); setActiveTab(2); }}
-            className="text-yellow-400 hover:text-red-500 font-bold px-1"
+            className="text-sky-400 hover:text-red-500 font-bold px-1"
             title="Limpiar presupuesto y contexto"
           >
             ×

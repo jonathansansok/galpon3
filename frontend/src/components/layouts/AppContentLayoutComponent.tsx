@@ -19,10 +19,14 @@ import {
   FaWrench,
   FaUserShield,
   FaClipboardList,
+  FaBars,
+  FaTimes,
 } from "react-icons/fa";
 import { useUserStore } from "@/lib/store";
 import { logout as logoutApi } from "@/lib/api/auth";
 import NotificationBell from "@/components/ui/NotificationBell";
+import CalendarioPlazas from "@/components/ui/CalendarioPlazas";
+import { FaCalendarAlt } from "react-icons/fa";
 
 interface AppContentLayoutComponentProps {
   children?: React.ReactNode;
@@ -41,6 +45,7 @@ export default function AppContentLayoutComponent(
   console.log('[AppContentLayout] user:', user, 'privilege:', privilege);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [calendarioOpen, setCalendarioOpen] = useState(false);
 
   // Redirigir C1 a turnos si intenta acceder a otra sección
   const isC1 = privilege === "C1";
@@ -83,6 +88,7 @@ export default function AppContentLayoutComponent(
               </Link>
               <div className="my-0 border-b border-gray-100 pb-4">
                 {[
+                  { href: "/portal/eventos/tabs", label: "Flujo de Reparación", icon: <FaClipboardList className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                   { href: "/portal/eventos", label: "Dashboard", icon: <MdOutlineSpaceDashboard className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                   { href: "/portal/eventos/ingresos", label: "Clientes", icon: <CgProfile className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                   { href: "/portal/eventos/temas", label: "Móviles", icon: <FaCarAlt className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
@@ -93,7 +99,6 @@ export default function AppContentLayoutComponent(
                   { href: "/portal/eventos/piezas", label: "Piezas", icon: <FaCogs className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                   { href: "/portal/eventos/partes", label: "Partes", icon: <FaCogs className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                   { href: "/portal/eventos/realizados", label: "Trabajos realizados", icon: <FaWrench className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
-                  { href: "/portal/eventos/tabs", label: "Flujo de Reparación", icon: <FaClipboardList className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                 ].filter((item) => !privilege || item.roles.includes(privilege)).map((item) => (
                   <Link key={item.href} href={item.href} onClick={handleLinkClick}>
                     <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
@@ -134,27 +139,47 @@ export default function AppContentLayoutComponent(
           </div>
         </div>
       </div>
+      {/* Solapa verde — solo desktop */}
       <div
-        className={`fixed top-0 left-0 h-screen bg-green-400 z-30 cursor-pointer ${
-          isSidebarCollapsed ? "block" : "hidden"
+        className={`fixed top-0 left-0 h-screen bg-green-400 z-30 cursor-pointer hidden ${
+          isSidebarCollapsed ? "lg:block" : "lg:hidden"
         }`}
         onMouseEnter={handleMouseEnter}
         style={{ width: "9px" }}
       >
         <div className="absolute top-[6%] left-0 bg-green-400 w-5 h-1/6 rounded-tr-sm rounded-br-xl"></div>
       </div>
+      {/* Hamburguesa — solo mobile */}
+      <button
+        className="fixed top-3 left-3 z-50 lg:hidden bg-white rounded-md p-2 shadow-md border border-gray-200"
+        onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        aria-label="Menú"
+      >
+        {isSidebarCollapsed
+          ? <FaBars className="text-xl text-gray-700" />
+          : <FaTimes className="text-xl text-gray-700" />
+        }
+      </button>
       <div
         className={`fixed top-0 left-0 w-full h-full backdrop-blur-sm z-10 transition-opacity duration-300 ${
           isSidebarCollapsed ? "hidden" : "block"
         }`}
         onClick={handleMouseLeave}
       />
-      {/* Notification bell - fixed top right (hidden for C1 clients) */}
+      {/* Botones fijos arriba a la derecha (ocultos para C1) */}
       {privilege !== "C1" && (
-        <div className="fixed top-3 right-4 z-40">
+        <div className="fixed top-3 right-4 z-40 flex items-center gap-2">
+          <button
+            onClick={() => setCalendarioOpen(true)}
+            title="Ver calendario de plazas"
+            className="p-2 rounded-full bg-white shadow hover:bg-blue-50 text-blue-600 transition-colors"
+          >
+            <FaCalendarAlt className="text-xl" />
+          </button>
           <NotificationBell />
         </div>
       )}
+      <CalendarioPlazas isOpen={calendarioOpen} onClose={() => setCalendarioOpen(false)} />
       <main className="flex-1 p-6 lg:ml-2 bg-white">{children}</main>
     </div>
   )}
@@ -181,6 +206,7 @@ export default function AppContentLayoutComponent(
             onClick={async () => {
               setShowLogoutModal(false);
               await logoutApi().catch(() => {});
+              localStorage.removeItem("auth_user");
               setUser(null);
               router.push("/auth/login");
             }}

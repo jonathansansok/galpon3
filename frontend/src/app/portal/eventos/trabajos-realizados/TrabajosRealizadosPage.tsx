@@ -100,7 +100,7 @@ export default function TrabajosRealizadosPage() {
                       </button>
                       <button
                         onClick={() => router.push(`/portal/eventos/trabajos-realizados/${t.id}/edit`)}
-                        className="text-yellow-600 hover:underline text-xs"
+                        className="text-teal-600 hover:underline text-xs"
                       >
                         Editar
                       </button>

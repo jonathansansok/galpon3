@@ -95,7 +95,7 @@ export default function TabPresupuestos() {
     : presupuestos;
 
   const estadoColor: Record<string, string> = {
-    Pendiente: "bg-yellow-100 text-yellow-800",
+    Pendiente: "bg-sky-100 text-sky-700",
     "En curso": "bg-blue-100 text-blue-800",
     Aprobado: "bg-green-100 text-green-800",
     Finalizado: "bg-gray-100 text-gray-700",
@@ -105,15 +105,20 @@ export default function TabPresupuestos() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2">
         <h2 className="text-2xl font-bold">Presupuestos</h2>
-        <button onClick={handleToggleNew} className={buttonVariants({ variant: showNewForm ? "outline" : "default" })}>
-          {showNewForm ? "✕ Cancelar" : "+ Agregar Presupuesto"}
-        </button>
+        <div>
+          <button
+            onClick={handleToggleNew}
+            className={showNewForm ? buttonVariants({ variant: "outline" }) : "bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-md transition-colors"}
+          >
+            {showNewForm ? "✕ Cancelar" : "+ Agregar Presupuesto"}
+          </button>
+        </div>
       </div>
 
       {selectedMovil && (
-        <div className="text-sm text-yellow-700 bg-yellow-50 px-3 py-2 rounded-md border border-yellow-200">
+        <div className="text-sm text-teal-700 bg-teal-50 px-3 py-2 rounded-md border border-teal-200">
           Filtrando por móvil: <strong>{(selectedMovil as any).patente} — {(selectedMovil as any).marca} {(selectedMovil as any).modelo}</strong>
         </div>
       )}
@@ -130,12 +135,12 @@ export default function TabPresupuestos() {
           placeholder="Buscar por patente, marca, modelo, estado, monto..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full max-w-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full max-w-lg focus:outline-none focus:ring-2 focus:ring-teal-400"
         />
       )}
 
       {selectedPresupuesto && (
-        <div className="text-sm text-yellow-700 bg-yellow-50 px-3 py-2 rounded-md border border-yellow-200">
+        <div className="text-sm text-teal-700 bg-teal-50 px-3 py-2 rounded-md border border-teal-200">
           Seleccionado: <strong>#{selectedPresupuesto.id} — ${selectedPresupuesto.monto} ({selectedPresupuesto.estado})</strong>
         </div>
       )}
@@ -163,7 +168,7 @@ export default function TabPresupuestos() {
                     key={p.id}
                     onClick={() => handleSelect(p)}
                     className={`cursor-pointer border-t border-gray-100 transition ${
-                      isEditing ? "bg-yellow-50" : isSelected ? "bg-yellow-100" : "hover:bg-gray-50"
+                      isEditing ? "bg-teal-50" : isSelected ? "bg-teal-100" : "hover:bg-gray-50"
                     }`}
                   >
                     <td className="px-4 py-3 text-gray-500">{p.id}</td>
@@ -209,9 +214,9 @@ export default function TabPresupuestos() {
 
       {/* Formulario de edición inline */}
       {editingItem && (
-        <div className="border border-yellow-300 rounded-lg p-4 bg-yellow-50">
+        <div className="border border-teal-300 rounded-lg p-4 bg-teal-50">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="font-semibold text-yellow-800">
+            <h3 className="font-semibold text-teal-800">
               ✏️ Editando Presupuesto #{editingItem.id} — {editingItem.patente} ${editingItem.monto}
             </h3>
             <button onClick={() => setExpandedEditId(null)} className="text-gray-400 hover:text-red-500 text-lg font-bold">✕</button>
@@ -222,12 +227,12 @@ export default function TabPresupuestos() {
 
       {/* Formulario de creación inline */}
       {showNewForm && (
-        <div className="border border-dashed border-yellow-400 rounded-lg p-4 bg-yellow-50">
+        <div className="border border-dashed border-teal-400 rounded-lg p-4 bg-teal-50">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="font-semibold text-yellow-800">
+            <h3 className="font-semibold text-teal-800">
               + Nuevo Presupuesto
               {selectedMovil && (
-                <span className="ml-2 text-yellow-600 font-normal text-sm">
+                <span className="ml-2 text-teal-600 font-normal text-sm">
                   — para {(selectedMovil as any).patente}
                 </span>
               )}

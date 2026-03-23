@@ -1,6 +1,6 @@
 "use client";
 // frontend/src/app/portal/eventos/tabs/tabs/TabMoviles.tsx
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRepairStore } from "@/lib/repairStore";
 import { getTemas } from "../../temas/Temas.api";
 import { anexarMoviles } from "../../ingresos/ingresos.api";
@@ -15,16 +15,13 @@ export default function TabMoviles() {
   const [loading, setLoading] = useState(false);
   const [showNewForm, setShowNewForm] = useState(false);
   const [expandedEditId, setExpandedEditId] = useState<number | null>(null);
-  const hasLoadedRef = useRef(false);
   const selectedCliente = useRepairStore((s) => s.selectedCliente);
   const selectedMovil = useRepairStore((s) => s.selectedMovil);
   const selectMovil = useRepairStore((s) => s.selectMovil);
 
   useEffect(() => {
     console.log("[linear] TabMoviles selectedCliente changed:", selectedCliente?.id);
-    if (selectedCliente && !hasLoadedRef.current) {
-      handleLoadData();
-    }
+    handleLoadData();
   }, [selectedCliente]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleLoadData = async () => {
@@ -34,7 +31,6 @@ export default function TabMoviles() {
       const data = await getTemas();
       const list = Array.isArray(data) ? data : [];
       setMoviles(list);
-      hasLoadedRef.current = true;
       console.log("[linear] TabMoviles loaded", list.length, "moviles total");
     } catch (error) {
       console.error("[linear] TabMoviles error loading:", error);
@@ -66,7 +62,6 @@ export default function TabMoviles() {
   const handleEditSuccess = () => {
     console.log("[linear] TabMoviles handleEdit success, reloading");
     setExpandedEditId(null);
-    hasLoadedRef.current = false;
     handleLoadData();
   };
 
@@ -81,7 +76,6 @@ export default function TabMoviles() {
       }
     }
     setShowNewForm(false);
-    hasLoadedRef.current = false;
     handleLoadData();
   };
 
@@ -119,7 +113,7 @@ export default function TabMoviles() {
 
       <div className="flex gap-2">
         <button onClick={handleLoadData} disabled={loading} className={buttonVariants({ variant: "outline" })}>
-          {loading ? "Cargando..." : "Cargar móviles"}
+          {loading ? "Cargando..." : "Recargar móviles"}
         </button>
       </div>
 
@@ -194,8 +188,8 @@ export default function TabMoviles() {
         </div>
       ) : (
         <p className="text-gray-400 text-sm">
-          {moviles.length === 0
-            ? "Hacé clic en \"Cargar móviles\" para ver los registros."
+          {loading
+            ? "Cargando..."
             : selectedCliente
             ? "Este cliente no tiene móviles asociados."
             : "No hay resultados."}

@@ -90,32 +90,25 @@ export class TurnosService {
       const inicio = new Date(fechaInicio);
       const fin = new Date(fechaFin);
 
-      const turnosOcupados = await this.prismaService.turnos.findMany({
-        where: {
-          estado: { not: 'Cancelado' },
-          fechaHoraInicioEstimada: { lt: fin },
-          fechaHoraFinEstimada: { gt: inicio },
-        },
+      // Traer todos los turnos no cancelados y filtrar en TypeScript
+      // usando fechas reales cuando existen (si el auto llegó tarde/temprano)
+      const candidatos = await this.prismaService.turnos.findMany({
+        where: { estado: { not: 'Cancelado' } },
         orderBy: { fechaHoraInicioEstimada: 'asc' },
       });
 
-      const plazas: Record<number, any[]> = {
-        1: [],
-        2: [],
-        3: [],
-        4: [],
-        5: [],
-        6: [],
-        7: [],
-        8: [],
-      };
+      const turnosOcupados = candidatos.filter((t) => {
+        const efectivoInicio = t.fechaHoraInicioReal ?? t.fechaHoraInicioEstimada;
+        const efectivoFin = t.fechaHoraFinReal ?? t.fechaHoraFinEstimada;
+        return efectivoInicio < fin && efectivoFin > inicio;
+      });
+
+      const plazas: Record<number, any[]> = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [] };
       for (const turno of turnosOcupados) {
-        if (plazas[turno.plaza]) {
-          plazas[turno.plaza].push(turno);
-        }
+        if (plazas[turno.plaza]) plazas[turno.plaza].push(turno);
       }
 
-      console.log('[turnos] Disponibilidad calculada:', plazas);
+      console.log('[turnos] Disponibilidad calculada (con fechas reales):', plazas);
       return plazas;
     } catch (error) {
       console.error('[turnos] Error al consultar disponibilidad:', error);

@@ -641,7 +641,7 @@ export function TemaForm({ tema, onSuccess, initialClienteId, editId }: { tema: 
           placeholder="Escribe las observaciones aquí..."
         />
         <div className="flex space-x-4">
-          <Button type="button" onClick={goToTemas} className="bg-orange-500">
+          <Button type="button" onClick={goToTemas} className="bg-slate-500 hover:bg-slate-600">
             Volver
           </Button>
           <Button
