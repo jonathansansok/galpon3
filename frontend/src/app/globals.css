@@ -67,3 +67,28 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ===== Scrollbars — Verde Vida ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #e8f7f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2aad6e;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1e9660;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2aad6e #e8f7f1;
+}

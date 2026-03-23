@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getIngreso } from "../ingresos.api";
 import ImageModal from "@/components/InternoId/ImageUniqueModal";
 import IngresoInfo from "@/components/InternoId/FichaTecnicaYFoto";
+import RelatedDataAccordion from "@/components/IngresoRelated/RelatedDataAccordion";
 import { getUploadUrl } from "@/app/utils/multimediaUrl";
 
 interface Props {
@@ -185,6 +186,7 @@ const ProductDetailPage = ({ params }: Props) => {
         }}
         ingreso={ingreso}
       />
+      <RelatedDataAccordion ingresoId={id} />
     </div>
   );
 };

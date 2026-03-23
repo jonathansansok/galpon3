@@ -21,8 +21,9 @@ interface FormValues {
   observaciones: string;
 }
 
-export function TurnoForm({ turno }: { turno: any }) {
+export function TurnoForm({ turno, onSuccess, editId }: { turno: any; onSuccess?: () => void; editId?: number }) {
   const params = useParams<{ id: string }>();
+  const effectiveId = editId ? String(editId) : params?.id;
   const router = useRouter();
   const [presupuestosAprobados, setPresupuestosAprobados] = useState<any[]>([]);
   const [plazaAvailability, setPlazaAvailability] = useState<Record<number, any[]> | null>(null);
@@ -57,11 +58,11 @@ export function TurnoForm({ turno }: { turno: any }) {
 
   // Cargar turno existente en modo edición
   useEffect(() => {
-    if (params?.id) {
+    if (effectiveId && !turno) {
       const loadTurno = async () => {
         try {
-          console.log("[turnos] Cargando turno para editar:", params.id);
-          const data = await getTurno(params.id);
+          console.log("[turnos] Cargando turno para editar:", effectiveId);
+          const data = await getTurno(effectiveId);
           if (data) {
             setValue("presupuestoId", data.presupuestoId || "");
             setValue("plaza", data.plaza?.toString() || "");
@@ -78,7 +79,7 @@ export function TurnoForm({ turno }: { turno: any }) {
       };
       loadTurno();
     }
-  }, [params?.id, setValue]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [effectiveId, setValue]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Cargar presupuestos aprobados
   useEffect(() => {
@@ -116,8 +117,8 @@ export function TurnoForm({ turno }: { turno: any }) {
     if (!plazaAvailability) return false;
     const turnosEnPlaza = plazaAvailability[plazaNum] || [];
     // Si estamos editando, excluir el turno actual
-    if (params?.id) {
-      return turnosEnPlaza.some((t: any) => t.id !== parseInt(params.id));
+    if (effectiveId) {
+      return turnosEnPlaza.some((t: any) => t.id !== parseInt(effectiveId!));
     }
     return turnosEnPlaza.length > 0;
   };
@@ -155,19 +156,23 @@ export function TurnoForm({ turno }: { turno: any }) {
 
     try {
       let result;
-      if (params?.id) {
-        result = await updateTurno(params.id, payload);
+      if (effectiveId) {
+        result = await updateTurno(effectiveId!, payload);
       } else {
         result = await createTurno(payload);
       }
 
       if (result.success) {
         await Alert.success({
-          title: params?.id ? "Turno actualizado" : "Turno creado",
+          title: effectiveId ? "Turno actualizado" : "Turno creado",
           text: result.message || "Operación exitosa",
           icon: "success",
         });
-        router.push("/portal/eventos/turnos");
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          router.push("/portal/eventos/turnos");
+        }
       } else {
         Alert.error({
           title: "Error",
@@ -304,7 +309,7 @@ export function TurnoForm({ turno }: { turno: any }) {
 
       <div className="flex gap-3">
         <Button type="submit">
-          {params?.id ? "Actualizar Turno" : "Crear Turno"}
+          {effectiveId ? "Actualizar Turno" : "Crear Turno"}
         </Button>
         <Button
           type="button"

@@ -11,6 +11,7 @@ export default function RepairBreadcrumb() {
   const selectMovil = useRepairStore((s) => s.selectMovil);
   const selectPresupuesto = useRepairStore((s) => s.selectPresupuesto);
   const setActiveTab = useRepairStore((s) => s.setActiveTab);
+  const clearAll = useRepairStore((s) => s.clearAll);
 
   const hasAny = selectedCliente || selectedMovil || selectedPresupuesto || selectedTurno;
   if (!hasAny) return null;
@@ -104,6 +105,14 @@ export default function RepairBreadcrumb() {
           </button>
         </>
       )}
+
+      <button
+        onClick={clearAll}
+        className="ml-auto flex items-center gap-1 text-xs font-medium text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md transition"
+      >
+        <span className="text-base leading-none">×</span>
+        Limpiar todo
+      </button>
     </div>
   );
 }

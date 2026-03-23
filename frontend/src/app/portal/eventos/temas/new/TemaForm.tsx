@@ -41,7 +41,7 @@ interface Interno {
   detalle: string;
 }
 
-export function TemaForm({ tema }: { tema: any }) {
+export function TemaForm({ tema, onSuccess, initialClienteId, editId }: { tema: any; onSuccess?: (createdId?: number) => void; initialClienteId?: number; editId?: number }) {
   const [presupuestos, setPresupuestos] = useState<any[]>([]);
   const [showPresupuestos, setShowPresupuestos] = useState(false);
   const idMovil = usePresupuestoStore((state) => state.idMovil);
@@ -146,6 +146,7 @@ export function TemaForm({ tema }: { tema: any }) {
 
   const router = useRouter();
   const params = useParams<{ id: string }>();
+  const effectiveId = editId ? String(editId) : params?.id;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -170,12 +171,12 @@ export function TemaForm({ tema }: { tema: any }) {
   const setPatente = usePresupuestoStore((state) => state.setPatente); // Agregar esta línea
 
   useEffect(() => {
-    if (params?.id) {
+    if (effectiveId) {
       console.log("[DEBUG] Valor de tema?.patente:", tema?.patente);
       setIdMovil(Number(params.id));
       setPatente(tema?.patente || "");
     }
-  }, [params?.id, setIdMovil, setPatente, tema?.patente]);
+  }, [effectiveId, setIdMovil, setPatente, tema?.patente]);
 
   const [fechaHora, setFechaHora] = useState<string>(tema?.fechaHora || "");
   const [observacion, setObservacion] = useState<string>(
@@ -227,7 +228,7 @@ export function TemaForm({ tema }: { tema: any }) {
   useEffect(() => {
     const fetchClienteAsociado = async () => {
       try {
-        if (params?.id) {
+        if (effectiveId) {
           console.log("[DEBUG] ID del tema:", params.id); // Verificar el ID del tema
 
           const cliente = await getClienteAsociado(params.id);
@@ -267,7 +268,7 @@ export function TemaForm({ tema }: { tema: any }) {
     };
 
     fetchClienteAsociado();
-  }, [params?.id, setClienteData]);
+  }, [effectiveId, setClienteData]);
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -345,6 +346,10 @@ export function TemaForm({ tema }: { tema: any }) {
       for (const key in payload) {
         formData.append(key, payload[key]);
       }
+      if (initialClienteId) {
+        formData.append("clienteId", String(initialClienteId));
+        console.log("[linear] TemaForm appending initialClienteId:", initialClienteId);
+      }
 
       // Procesar imágenes y archivos
       const sanitizeName = (name: string) => name.replace(/[^a-zA-Z0-9._-]/g, "_").substring(0, 60);
@@ -389,13 +394,13 @@ export function TemaForm({ tema }: { tema: any }) {
       try {
         let response;
 
-        if (params?.id) {
-          response = await updateTema(params.id, formData);
+        if (effectiveId) {
+          response = await updateTema(effectiveId!, formData);
         } else {
           response = await createTema(formData);
         }
 
-        const mensajeTitulo = params?.id
+        const mensajeTitulo = effectiveId
           ? "Actualización de Móvil"
           : "Creación de Móvil";
 
@@ -413,7 +418,11 @@ export function TemaForm({ tema }: { tema: any }) {
 
         if (response.success) {
           clearFieldErrors();
-          window.location.href = "/portal/eventos/temas";
+          if (onSuccess) {
+            onSuccess(response.data?.id);
+          } else {
+            window.location.href = "/portal/eventos/temas";
+          }
         } else {
           console.error(
             "[ERROR] Error al crear o actualizar tema:",
@@ -452,7 +461,7 @@ export function TemaForm({ tema }: { tema: any }) {
         <Button
           type="button"
           onClick={() => {
-            if (params?.id) {
+            if (effectiveId) {
               setIdMovil(Number(params.id)); // Guardar el ID del móvil en Zustand
               console.log(`ID del móvil (${params.id}) guardado en Zustand.`);
               router.push("/portal/eventos/presupuestos/new"); // Navegar en la misma ventana

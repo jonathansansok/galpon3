@@ -61,7 +61,7 @@ interface FormValues {
   [key: string]: string;
 }
 
-export function IngresoForm({ ingreso }: { ingreso: any }) {
+export function IngresoForm({ ingreso, onSuccess, editId }: { ingreso: any; onSuccess?: () => void; editId?: number }) {
   const { handleSubmit, setValue, register, watch } = useForm<FormValues>({
     defaultValues: {
       numeroCuit: ingreso?.numeroCuit || "",
@@ -110,6 +110,7 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
 
   const router = useRouter();
   const params = useParams<{ id: string }>();
+  const effectiveId = editId ? String(editId) : params?.id;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedInternos, setSelectedInternos] = useState<Interno[]>(() => {
     try {
@@ -138,9 +139,9 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
         setMoviles(data);
 
         // Si estamos en modo edición, obtener los móviles asociados al ingreso
-        if (params?.id) {
+        if (effectiveId) {
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/ingresos/${params.id}/moviles`
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/ingresos/${effectiveId}/moviles`
           );
           if (!response.ok) {
             throw new Error("Error al obtener los móviles asociados");
@@ -154,7 +155,7 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
     };
 
     fetchMoviles();
-  }, [params?.id]);
+  }, [effectiveId]);
 
   const handleAnexarMoviles = async () => {
     try {
@@ -364,8 +365,8 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
         console.log(`  ${key}:`, value, `(${typeof value})`);
       });
       
-      if (params?.id) {
-        response = await updateIngreso(params.id, formData);
+      if (effectiveId) {
+        response = await updateIngreso(effectiveId!, formData);
       } else {
         response = await createIngreso(formData);
       }
@@ -386,7 +387,11 @@ export function IngresoForm({ ingreso }: { ingreso: any }) {
           const historialEgresos = ingreso.historialEgresos || [];
           generatePDF(payload, files.imagen, historialEgresos);
         }
-        router.push("/portal/eventos/ingresos");
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          router.push("/portal/eventos/ingresos");
+        }
       } else {
         console.error("Error al crear o actualizar ingreso:", response.error);
         handleBackendErrors(response);

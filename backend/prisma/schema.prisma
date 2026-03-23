@@ -272,6 +272,39 @@ model Partes {
   piezas      Piezas[]
 }
 
+model TrabajosRealizados {
+  id            Int       @id @default(autoincrement())
+  uuid          String    @unique @default(uuid()) @db.VarChar(36)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  turnoId       String?   @db.VarChar(36)
+  fechaRealiz   DateTime?
+  descripcion   String?   @db.Text
+  monto         String?
+  observaciones String?   @db.Text
+  imagen        String?   @db.VarChar(255)
+  imagenDer     String?   @db.VarChar(255)
+  imagenIz      String?   @db.VarChar(255)
+  imagenDact    String?   @db.VarChar(255)
+  imagenSen1    String?   @db.VarChar(255)
+  imagenSen2    String?   @db.VarChar(255)
+  imagenSen3    String?   @db.VarChar(255)
+  imagenSen4    String?   @db.VarChar(255)
+  imagenSen5    String?   @db.VarChar(255)
+  imagenSen6    String?   @db.VarChar(255)
+  pdf1          String?   @db.VarChar(255)
+  pdf2          String?   @db.VarChar(255)
+  pdf3          String?   @db.VarChar(255)
+  pdf4          String?   @db.VarChar(255)
+  pdf5          String?   @db.VarChar(255)
+  pdf6          String?   @db.VarChar(255)
+  pdf7          String?   @db.VarChar(255)
+  pdf8          String?   @db.VarChar(255)
+  pdf9          String?   @db.VarChar(255)
+  pdf10         String?   @db.VarChar(255)
+  word1         String?   @db.VarChar(255)
+}
+
 model Piezas {
   id           Int      @id @default(autoincrement())
   uuid         String   @unique @default(uuid()) @db.VarChar(36)

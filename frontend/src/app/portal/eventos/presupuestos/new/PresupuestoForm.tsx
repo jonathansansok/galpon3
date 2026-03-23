@@ -32,7 +32,7 @@ interface FormValues {
   [key: string]: string;
 }
 
-export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
+export function PresupuestoForm({ presupuesto, onSuccess, editId }: { presupuesto: any; onSuccess?: () => void; editId?: number }) {
   const clienteData = usePresupuestoStore((state) => state.clienteData);
 
   useEffect(() => {
@@ -42,15 +42,16 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
     );
   }, [clienteData]);
   const params = useParams<{ id: string }>(); // Declarar params antes de usarlo
+  const effectiveId = editId ? String(editId) : params?.id;
   const idMovil = usePresupuestoStore((state) => state.idMovil); // Declarar idMovil antes de usarlo
   const patente = usePresupuestoStore((state) => state.patente); // Declarar patente antes de usarlo
 
   // Calcular los valores dinámicamente
-  const movilId = params?.id
+  const movilId = effectiveId
     ? presupuesto?.movilId || idMovil || ""
     : idMovil || "";
 
-  const patenteValue = params?.id
+  const patenteValue = effectiveId
     ? presupuesto?.patente || patente || ""
     : patente || "";
   console.log("[DEBUG] Valor de patente desde Zustand:", patente);
@@ -239,13 +240,13 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
       try {
         let response;
 
-        if (params?.id) {
-          response = await updatePresupuesto(params.id, formData);
+        if (effectiveId) {
+          response = await updatePresupuesto(effectiveId!, formData);
         } else {
           response = await createPresupuesto(formData);
         }
 
-        const mensajeTitulo = params?.id
+        const mensajeTitulo = effectiveId
           ? "Actualización de Presupuesto"
           : "Creación de Presupuesto";
 
@@ -259,7 +260,11 @@ export function PresupuestoForm({ presupuesto }: { presupuesto: any }) {
 
         if (response.success) {
           clearFieldErrors();
-          router.push("/portal/eventos/presupuestos");
+          if (onSuccess) {
+            onSuccess();
+          } else {
+            router.push("/portal/eventos/presupuestos");
+          }
         } else {
           console.error(
             "[ERROR] Error al crear o actualizar presupuesto:",

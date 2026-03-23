@@ -3,20 +3,23 @@
 import { useState, useEffect, useRef } from "react";
 import { useRepairStore } from "@/lib/repairStore";
 import { getTemas } from "../../temas/Temas.api";
+import { anexarMoviles } from "../../ingresos/ingresos.api";
 import { Tema } from "@/types/Tema";
-import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import { TemaForm } from "../../temas/new/TemaForm";
+import Link from "next/link";
 
 export default function TabMoviles() {
   const [moviles, setMoviles] = useState<Tema[]>([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showNewForm, setShowNewForm] = useState(false);
+  const [expandedEditId, setExpandedEditId] = useState<number | null>(null);
   const hasLoadedRef = useRef(false);
   const selectedCliente = useRepairStore((s) => s.selectedCliente);
   const selectedMovil = useRepairStore((s) => s.selectedMovil);
   const selectMovil = useRepairStore((s) => s.selectMovil);
 
-  // Auto-cargar cuando hay cliente seleccionado
   useEffect(() => {
     console.log("[linear] TabMoviles selectedCliente changed:", selectedCliente?.id);
     if (selectedCliente && !hasLoadedRef.current) {
@@ -46,7 +49,42 @@ export default function TabMoviles() {
     selectMovil(movil);
   };
 
-  // Filtrar por cliente seleccionado y por búsqueda de texto
+  const handleToggleEdit = (id: number) => {
+    const next = expandedEditId === id ? null : id;
+    console.log("[linear] TabMoviles setExpandedEditId:", next);
+    setExpandedEditId(next);
+    if (next !== null) setShowNewForm(false);
+  };
+
+  const handleToggleNew = () => {
+    const next = !showNewForm;
+    console.log("[linear] TabMoviles showNewForm:", next);
+    setShowNewForm(next);
+    if (next) setExpandedEditId(null);
+  };
+
+  const handleEditSuccess = () => {
+    console.log("[linear] TabMoviles handleEdit success, reloading");
+    setExpandedEditId(null);
+    hasLoadedRef.current = false;
+    handleLoadData();
+  };
+
+  const handleNewSuccess = async (createdId?: number) => {
+    console.log("[linear] TabMoviles handleNew success, createdId:", createdId);
+    if (selectedCliente && createdId) {
+      try {
+        await anexarMoviles(selectedCliente.id, [createdId]);
+        console.log("[linear] TabMoviles auto-linked movil", createdId, "to cliente", selectedCliente.id);
+      } catch (error) {
+        console.error("[linear] TabMoviles error linking movil to cliente:", error);
+      }
+    }
+    setShowNewForm(false);
+    hasLoadedRef.current = false;
+    handleLoadData();
+  };
+
   const byCliente = selectedCliente
     ? moviles.filter((m) => (m as any).clienteId === selectedCliente.id)
     : moviles;
@@ -59,13 +97,15 @@ export default function TabMoviles() {
       )
     : byCliente;
 
+  const editingItem = expandedEditId !== null ? moviles.find((m) => m.id === expandedEditId) : null;
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Móviles</h2>
-        <Link href="/portal/eventos/temas/new" className={buttonVariants()}>
-          + Agregar Móvil
-        </Link>
+        <button onClick={handleToggleNew} className={buttonVariants({ variant: showNewForm ? "outline" : "default" })}>
+          {showNewForm ? "✕ Cancelar" : "+ Agregar Móvil"}
+        </button>
       </div>
 
       {selectedCliente && (
@@ -78,11 +118,7 @@ export default function TabMoviles() {
       )}
 
       <div className="flex gap-2">
-        <button
-          onClick={handleLoadData}
-          disabled={loading}
-          className={buttonVariants({ variant: "outline" })}
-        >
+        <button onClick={handleLoadData} disabled={loading} className={buttonVariants({ variant: "outline" })}>
           {loading ? "Cargando..." : "Cargar móviles"}
         </button>
       </div>
@@ -120,14 +156,13 @@ export default function TabMoviles() {
             <tbody>
               {filtered.map((movil) => {
                 const isSelected = selectedMovil?.id === movil.id;
+                const isEditing = expandedEditId === movil.id;
                 return (
                   <tr
                     key={movil.id}
                     onClick={() => handleSelect(movil)}
                     className={`cursor-pointer border-t border-gray-100 transition ${
-                      isSelected
-                        ? "bg-green-100 hover:bg-green-150"
-                        : "hover:bg-gray-50"
+                      isEditing ? "bg-green-50" : isSelected ? "bg-green-100" : "hover:bg-gray-50"
                     }`}
                   >
                     <td className="px-4 py-3 font-medium">{(movil as any).patente || "—"}</td>
@@ -144,13 +179,12 @@ export default function TabMoviles() {
                       >
                         Ver
                       </Link>
-                      <Link
-                        href={`/portal/eventos/temas/${movil.id}/edit`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-gray-500 hover:underline text-xs"
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleToggleEdit(movil.id); }}
+                        className={`text-xs underline ${isEditing ? "text-red-500" : "text-gray-500 hover:text-gray-700"}`}
                       >
-                        Editar
-                      </Link>
+                        {isEditing ? "Cerrar" : "Editar"}
+                      </button>
                     </td>
                   </tr>
                 );
@@ -164,8 +198,39 @@ export default function TabMoviles() {
             ? "Hacé clic en \"Cargar móviles\" para ver los registros."
             : selectedCliente
             ? "Este cliente no tiene móviles asociados."
-            : "No hay resultados para la búsqueda."}
+            : "No hay resultados."}
         </p>
+      )}
+
+      {/* Formulario de edición inline */}
+      {editingItem && (
+        <div className="border border-green-300 rounded-lg p-4 bg-green-50">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-semibold text-green-800">
+              ✏️ Editando: {(editingItem as any).patente} — {(editingItem as any).marca} {(editingItem as any).modelo}
+            </h3>
+            <button onClick={() => setExpandedEditId(null)} className="text-gray-400 hover:text-red-500 text-lg font-bold">✕</button>
+          </div>
+          <TemaForm tema={editingItem} editId={editingItem.id} onSuccess={handleEditSuccess} />
+        </div>
+      )}
+
+      {/* Formulario de creación inline */}
+      {showNewForm && (
+        <div className="border border-dashed border-green-400 rounded-lg p-4 bg-green-50">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-semibold text-green-800">
+              + Nuevo Móvil
+              {selectedCliente && (
+                <span className="ml-2 text-green-600 font-normal text-sm">
+                  — se vinculará a {selectedCliente.apellido}, {selectedCliente.nombres}
+                </span>
+              )}
+            </h3>
+            <button onClick={() => setShowNewForm(false)} className="text-gray-400 hover:text-red-500 text-lg font-bold">✕</button>
+          </div>
+          <TemaForm tema={null} initialClienteId={selectedCliente?.id} onSuccess={handleNewSuccess} />
+        </div>
       )}
     </div>
   );

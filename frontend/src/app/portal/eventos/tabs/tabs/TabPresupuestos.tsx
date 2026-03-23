@@ -2,21 +2,27 @@
 // frontend/src/app/portal/eventos/tabs/tabs/TabPresupuestos.tsx
 import { useState, useEffect } from "react";
 import { useRepairStore } from "@/lib/repairStore";
+import { usePresupuestoStore } from "@/lib/store";
 import { getPresupuestosWithMovilData } from "../../presupuestos/Presupuestos.api";
 import { getPresupuestosAsociados } from "../../temas/Temas.api";
 import { Presupuesto } from "@/types/Presupuesto";
-import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import { PresupuestoForm } from "../../presupuestos/new/PresupuestoForm";
+import Link from "next/link";
 
 export default function TabPresupuestos() {
   const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showNewForm, setShowNewForm] = useState(false);
+  const [expandedEditId, setExpandedEditId] = useState<number | null>(null);
   const selectedMovil = useRepairStore((s) => s.selectedMovil);
   const selectedPresupuesto = useRepairStore((s) => s.selectedPresupuesto);
   const selectPresupuesto = useRepairStore((s) => s.selectPresupuesto);
+  const setIdMovil = usePresupuestoStore((s) => s.setIdMovil);
+  const setPatente = usePresupuestoStore((s) => s.setPatente);
+  const setMovilData = usePresupuestoStore((s) => s.setMovilData);
 
-  // Auto-cargar cuando cambia el móvil seleccionado
   useEffect(() => {
     console.log("[linear] TabPresupuestos selectedMovil changed:", selectedMovil?.id);
     handleLoadData();
@@ -48,6 +54,38 @@ export default function TabPresupuestos() {
     selectPresupuesto(presupuesto);
   };
 
+  const handleToggleEdit = (id: number) => {
+    const next = expandedEditId === id ? null : id;
+    console.log("[linear] TabPresupuestos setExpandedEditId:", next);
+    setExpandedEditId(next);
+    if (next !== null) setShowNewForm(false);
+  };
+
+  const handleToggleNew = () => {
+    const next = !showNewForm;
+    console.log("[linear] TabPresupuestos showNewForm:", next);
+    if (next && selectedMovil) {
+      setIdMovil(selectedMovil.id);
+      setPatente((selectedMovil as any).patente ?? "");
+      setMovilData(selectedMovil);
+      console.log("[linear] TabPresupuestos openNew — movilId:", selectedMovil.id, "patente:", (selectedMovil as any).patente);
+    }
+    setShowNewForm(next);
+    if (next) setExpandedEditId(null);
+  };
+
+  const handleEditSuccess = () => {
+    console.log("[linear] TabPresupuestos handleEdit success, reloading");
+    setExpandedEditId(null);
+    handleLoadData();
+  };
+
+  const handleNewSuccess = () => {
+    console.log("[linear] TabPresupuestos handleNew success, reloading");
+    setShowNewForm(false);
+    handleLoadData();
+  };
+
   const filtered = query.length >= 2
     ? presupuestos.filter((p) =>
         `${p.patente ?? ""} ${p.marca ?? ""} ${p.modelo ?? ""} ${p.estado ?? ""} ${p.monto ?? ""}`
@@ -63,13 +101,15 @@ export default function TabPresupuestos() {
     Finalizado: "bg-gray-100 text-gray-700",
   };
 
+  const editingItem = expandedEditId !== null ? presupuestos.find((p) => p.id === expandedEditId) : null;
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Presupuestos</h2>
-        <Link href="/portal/eventos/presupuestos/new" className={buttonVariants()}>
-          + Agregar Presupuesto
-        </Link>
+        <button onClick={handleToggleNew} className={buttonVariants({ variant: showNewForm ? "outline" : "default" })}>
+          {showNewForm ? "✕ Cancelar" : "+ Agregar Presupuesto"}
+        </button>
       </div>
 
       {selectedMovil && (
@@ -79,11 +119,7 @@ export default function TabPresupuestos() {
       )}
 
       <div className="flex gap-2">
-        <button
-          onClick={handleLoadData}
-          disabled={loading}
-          className={buttonVariants({ variant: "outline" })}
-        >
+        <button onClick={handleLoadData} disabled={loading} className={buttonVariants({ variant: "outline" })}>
           {loading ? "Cargando..." : "Recargar presupuestos"}
         </button>
       </div>
@@ -121,14 +157,13 @@ export default function TabPresupuestos() {
             <tbody>
               {filtered.map((p) => {
                 const isSelected = selectedPresupuesto?.id === p.id;
+                const isEditing = expandedEditId === p.id;
                 return (
                   <tr
                     key={p.id}
                     onClick={() => handleSelect(p)}
                     className={`cursor-pointer border-t border-gray-100 transition ${
-                      isSelected
-                        ? "bg-yellow-100 hover:bg-yellow-150"
-                        : "hover:bg-gray-50"
+                      isEditing ? "bg-yellow-50" : isSelected ? "bg-yellow-100" : "hover:bg-gray-50"
                     }`}
                   >
                     <td className="px-4 py-3 text-gray-500">{p.id}</td>
@@ -149,13 +184,12 @@ export default function TabPresupuestos() {
                       >
                         Ver
                       </Link>
-                      <Link
-                        href={`/portal/eventos/presupuestos/${p.id}/edit`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-gray-500 hover:underline text-xs"
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleToggleEdit(p.id); }}
+                        className={`text-xs underline ${isEditing ? "text-red-500" : "text-gray-500 hover:text-gray-700"}`}
                       >
-                        Editar
-                      </Link>
+                        {isEditing ? "Cerrar" : "Editar"}
+                      </button>
                     </td>
                   </tr>
                 );
@@ -171,6 +205,37 @@ export default function TabPresupuestos() {
             ? "Este móvil no tiene presupuestos asociados."
             : "Hacé clic en \"Recargar presupuestos\" para ver los registros."}
         </p>
+      )}
+
+      {/* Formulario de edición inline */}
+      {editingItem && (
+        <div className="border border-yellow-300 rounded-lg p-4 bg-yellow-50">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-semibold text-yellow-800">
+              ✏️ Editando Presupuesto #{editingItem.id} — {editingItem.patente} ${editingItem.monto}
+            </h3>
+            <button onClick={() => setExpandedEditId(null)} className="text-gray-400 hover:text-red-500 text-lg font-bold">✕</button>
+          </div>
+          <PresupuestoForm presupuesto={editingItem} editId={editingItem.id} onSuccess={handleEditSuccess} />
+        </div>
+      )}
+
+      {/* Formulario de creación inline */}
+      {showNewForm && (
+        <div className="border border-dashed border-yellow-400 rounded-lg p-4 bg-yellow-50">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-semibold text-yellow-800">
+              + Nuevo Presupuesto
+              {selectedMovil && (
+                <span className="ml-2 text-yellow-600 font-normal text-sm">
+                  — para {(selectedMovil as any).patente}
+                </span>
+              )}
+            </h3>
+            <button onClick={() => setShowNewForm(false)} className="text-gray-400 hover:text-red-500 text-lg font-bold">✕</button>
+          </div>
+          <PresupuestoForm presupuesto={null} onSuccess={handleNewSuccess} />
+        </div>
       )}
     </div>
   );

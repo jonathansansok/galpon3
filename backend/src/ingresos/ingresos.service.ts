@@ -592,4 +592,38 @@ export class IngresosService {
       );
     }
   }
+
+  async getRelatedData(id: number) {
+    const ingreso = await this.findOne(id);
+    const moviles = ingreso.moviles ?? [];
+
+    let presupuestos: any[] = [];
+    if (moviles.length > 0) {
+      const movilIds = moviles.map((m: any) => String(m.id));
+      presupuestos = await this.prismaService.presupuestos.findMany({
+        where: { movilId: { in: movilIds } },
+        orderBy: { createdAt: 'desc' },
+      });
+    }
+
+    let turnos: any[] = [];
+    if (presupuestos.length > 0) {
+      const presupuestoUuids = presupuestos.map((p: any) => p.uuid);
+      turnos = await this.prismaService.turnos.findMany({
+        where: { presupuestoId: { in: presupuestoUuids } },
+        orderBy: { fechaHoraInicioEstimada: 'asc' },
+      });
+    }
+
+    let trabajos: any[] = [];
+    if (turnos.length > 0) {
+      const turnoUuids = turnos.map((t: any) => t.uuid);
+      trabajos = await this.prismaService.trabajosRealizados.findMany({
+        where: { turnoId: { in: turnoUuids } },
+        orderBy: { createdAt: 'desc' },
+      });
+    }
+
+    return { moviles, presupuestos, turnos, trabajos };
+  }
 }

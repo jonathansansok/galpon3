@@ -409,6 +409,12 @@ export class IngresosController {
     }
   }
 
+  @Get(':id/related-data')
+  @ApiOperation({ summary: 'Obtener datos relacionados de un ingreso (móviles, presupuestos, turnos, trabajos)' })
+  getRelatedData(@Param('id', ParseIntPipe) id: number) {
+    return this.ingresosService.getRelatedData(id);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.ingresosService.findOne(id);

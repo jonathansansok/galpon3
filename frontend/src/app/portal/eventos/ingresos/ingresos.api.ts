@@ -196,6 +196,19 @@ export async function getEventosByLpu(evento: string, lpu: string) {
   }
 }
 
+export async function getIngresoRelatedData(id: string) {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/ingresos/${parseInt(id, 10)}/related-data`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error(`Error al obtener datos relacionados del ingreso ${id}`);
+    return await res.json();
+  } catch (error) {
+    console.error(`Error al obtener datos relacionados del ingreso ${id}:`, error);
+    throw error;
+  }
+}
+
 export async function searchInternos(query: string) {
   try {
     const res = await fetch(`${BACKEND_URL}/api/ingresos/search?query=${encodeURIComponent(query)}`, {

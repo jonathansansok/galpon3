@@ -4,13 +4,16 @@ import { useState, useEffect, useRef } from "react";
 import { useRepairStore } from "@/lib/repairStore";
 import { getIngresos } from "../../ingresos/ingresos.api";
 import { Ingreso } from "@/types/Ingreso";
-import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import { IngresoForm } from "../../ingresos/new/IngresoForm";
+import Link from "next/link";
 
 export default function TabClientes() {
   const [clientes, setClientes] = useState<Ingreso[]>([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showNewForm, setShowNewForm] = useState(false);
+  const [expandedEditId, setExpandedEditId] = useState<number | null>(null);
   const hasLoadedRef = useRef(false);
   const selectCliente = useRepairStore((s) => s.selectCliente);
   const selectedCliente = useRepairStore((s) => s.selectedCliente);
@@ -42,6 +45,32 @@ export default function TabClientes() {
     selectCliente(cliente);
   };
 
+  const handleToggleEdit = (id: number) => {
+    const next = expandedEditId === id ? null : id;
+    console.log("[linear] TabClientes setExpandedEditId:", next);
+    setExpandedEditId(next);
+    if (next !== null) setShowNewForm(false);
+  };
+
+  const handleToggleNew = () => {
+    const next = !showNewForm;
+    console.log("[linear] TabClientes showNewForm:", next);
+    setShowNewForm(next);
+    if (next) setExpandedEditId(null);
+  };
+
+  const handleEditSuccess = () => {
+    console.log("[linear] TabClientes handleEdit success, reloading");
+    setExpandedEditId(null);
+    handleLoadData();
+  };
+
+  const handleNewSuccess = () => {
+    console.log("[linear] TabClientes handleNew success, reloading");
+    setShowNewForm(false);
+    handleLoadData();
+  };
+
   const filtered = query.length >= 2
     ? clientes.filter((c) =>
         `${c.apellido} ${c.nombres} ${c.numeroCuit ?? ""} ${c.emailCliente ?? ""} ${c.telefono ?? ""}`
@@ -50,21 +79,19 @@ export default function TabClientes() {
       )
     : clientes;
 
+  const editingItem = expandedEditId !== null ? clientes.find((c) => c.id === expandedEditId) : null;
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Clientes</h2>
-        <Link href="/portal/eventos/ingresos/new" className={buttonVariants()}>
-          + Agregar Cliente
-        </Link>
+        <button onClick={handleToggleNew} className={buttonVariants({ variant: showNewForm ? "outline" : "default" })}>
+          {showNewForm ? "✕ Cancelar" : "+ Agregar Cliente"}
+        </button>
       </div>
 
       <div className="flex gap-2">
-        <button
-          onClick={handleLoadData}
-          disabled={loading}
-          className={buttonVariants({ variant: "outline" })}
-        >
+        <button onClick={handleLoadData} disabled={loading} className={buttonVariants({ variant: "outline" })}>
           {loading ? "Cargando..." : "Cargar clientes"}
         </button>
       </div>
@@ -101,14 +128,13 @@ export default function TabClientes() {
             <tbody>
               {filtered.map((cliente) => {
                 const isSelected = selectedCliente?.id === cliente.id;
+                const isEditing = expandedEditId === cliente.id;
                 return (
                   <tr
                     key={cliente.id}
                     onClick={() => handleSelect(cliente)}
                     className={`cursor-pointer border-t border-gray-100 transition ${
-                      isSelected
-                        ? "bg-blue-100 hover:bg-blue-150"
-                        : "hover:bg-gray-50"
+                      isEditing ? "bg-blue-50" : isSelected ? "bg-blue-100" : "hover:bg-gray-50"
                     }`}
                   >
                     <td className="px-4 py-3 font-medium">{cliente.apellido}</td>
@@ -124,13 +150,12 @@ export default function TabClientes() {
                       >
                         Ver
                       </Link>
-                      <Link
-                        href={`/portal/eventos/ingresos/${cliente.id}/edit`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-gray-500 hover:underline text-xs"
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleToggleEdit(cliente.id); }}
+                        className={`text-xs underline ${isEditing ? "text-red-500" : "text-gray-500 hover:text-gray-700"}`}
                       >
-                        Editar
-                      </Link>
+                        {isEditing ? "Cerrar" : "Editar"}
+                      </button>
                     </td>
                   </tr>
                 );
@@ -140,10 +165,32 @@ export default function TabClientes() {
         </div>
       ) : (
         <p className="text-gray-400 text-sm">
-          {clientes.length === 0
-            ? "Hacé clic en \"Cargar clientes\" para ver los registros."
-            : "No hay resultados para la búsqueda."}
+          {clientes.length === 0 ? "Hacé clic en \"Cargar clientes\" para ver los registros." : "No hay resultados."}
         </p>
+      )}
+
+      {/* Formulario de edición inline */}
+      {editingItem && (
+        <div className="border border-blue-300 rounded-lg p-4 bg-blue-50">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-semibold text-blue-800">
+              ✏️ Editando: {editingItem.apellido}, {editingItem.nombres}
+            </h3>
+            <button onClick={() => setExpandedEditId(null)} className="text-gray-400 hover:text-red-500 text-lg font-bold">✕</button>
+          </div>
+          <IngresoForm ingreso={editingItem} editId={editingItem.id} onSuccess={handleEditSuccess} />
+        </div>
+      )}
+
+      {/* Formulario de creación inline */}
+      {showNewForm && (
+        <div className="border border-dashed border-green-400 rounded-lg p-4 bg-green-50">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-semibold text-green-800">+ Nuevo Cliente</h3>
+            <button onClick={() => setShowNewForm(false)} className="text-gray-400 hover:text-red-500 text-lg font-bold">✕</button>
+          </div>
+          <IngresoForm ingreso={null} onSuccess={handleNewSuccess} />
+        </div>
       )}
     </div>
   );

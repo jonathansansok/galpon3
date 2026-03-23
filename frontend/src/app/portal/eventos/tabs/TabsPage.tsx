@@ -21,7 +21,6 @@ const TABS = [
 export default function TabsPage() {
   const activeTab = useRepairStore((s) => s.activeTab);
   const setActiveTab = useRepairStore((s) => s.setActiveTab);
-  const clearAll = useRepairStore((s) => s.clearAll);
   const selectedCliente = useRepairStore((s) => s.selectedCliente);
   const selectedMovil = useRepairStore((s) => s.selectedMovil);
   const selectedPresupuesto = useRepairStore((s) => s.selectedPresupuesto);
@@ -44,21 +43,15 @@ export default function TabsPage() {
   return (
     <div className="flex flex-col w-full px-4 py-6 gap-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center">
         <h1 className="text-3xl font-bold text-gray-800">Flujo de Reparación</h1>
-        <button
-          onClick={clearAll}
-          className="text-sm text-gray-400 hover:text-red-500 underline transition"
-        >
-          Limpiar contexto
-        </button>
       </div>
 
       {/* Breadcrumb de contexto */}
       <RepairBreadcrumb />
 
       {/* Barra de tabs */}
-      <div className="flex border-b border-gray-200 overflow-x-auto">
+      <div className="flex border-b border-gray-200 overflow-x-auto overflow-y-hidden">
         {TABS.map((tab) => {
           const unlocked = isUnlocked(tab.index);
           const isActive = activeTab === tab.index;
