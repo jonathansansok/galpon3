@@ -225,6 +225,10 @@ export class IngresosService {
       updateIngresoDto.historialEgresos = historialEgresos;
     }
 
+    // Helper para extraer el basename del key S3 (multer-s3 usa key, no filename)
+    const s3Basename = (file: Express.Multer.File): string =>
+      ((file as any).key as string).split('/').pop()!;
+
     // Procesar archivos subidos
     const imagenesHistorial: {
       imagen?: string[];
@@ -247,118 +251,89 @@ export class IngresosService {
         );
       }
 
+      const basename = s3Basename(file);
       if (file.originalname.startsWith('imagen-')) {
         if (existingIngreso.imagen) {
           imagenesHistorial.imagen = imagenesHistorial.imagen || [];
           imagenesHistorial.imagen.push(existingIngreso.imagen);
         }
-        updateIngresoDto.imagen = file.filename.replace(
-          extname(file.filename),
-          '.png',
-        );
+        updateIngresoDto.imagen = basename.replace(extname(basename), '.png');
       } else if (file.originalname.startsWith('imagenDer-')) {
         if (existingIngreso.imagenDer) {
           imagenesHistorial.imagenDer = imagenesHistorial.imagenDer || [];
           imagenesHistorial.imagenDer.push(existingIngreso.imagenDer);
         }
-        updateIngresoDto.imagenDer = file.filename.replace(
-          extname(file.filename),
-          '.png',
-        );
+        updateIngresoDto.imagenDer = basename.replace(extname(basename), '.png');
       } else if (file.originalname.startsWith('imagenIz-')) {
         if (existingIngreso.imagenIz) {
           imagenesHistorial.imagenIz = imagenesHistorial.imagenIz || [];
           imagenesHistorial.imagenIz.push(existingIngreso.imagenIz);
         }
-        updateIngresoDto.imagenIz = file.filename.replace(
-          extname(file.filename),
-          '.png',
-        );
+        updateIngresoDto.imagenIz = basename.replace(extname(basename), '.png');
       } else if (file.originalname.startsWith('imagenDact-')) {
         if (existingIngreso.imagenDact) {
           imagenesHistorial.imagenDact = imagenesHistorial.imagenDact || [];
           imagenesHistorial.imagenDact.push(existingIngreso.imagenDact);
         }
-        updateIngresoDto.imagenDact = file.filename.replace(
-          extname(file.filename),
-          '.png',
-        );
+        updateIngresoDto.imagenDact = basename.replace(extname(basename), '.png');
       } else if (file.originalname.startsWith('imagenSen1-')) {
         if (existingIngreso.imagenSen1) {
           imagenesHistorial.imagenSen1 = imagenesHistorial.imagenSen1 || [];
           imagenesHistorial.imagenSen1.push(existingIngreso.imagenSen1);
         }
-        updateIngresoDto.imagenSen1 = file.filename.replace(
-          extname(file.filename),
-          '.png',
-        );
+        updateIngresoDto.imagenSen1 = basename.replace(extname(basename), '.png');
       } else if (file.originalname.startsWith('imagenSen2-')) {
         if (existingIngreso.imagenSen2) {
           imagenesHistorial.imagenSen2 = imagenesHistorial.imagenSen2 || [];
           imagenesHistorial.imagenSen2.push(existingIngreso.imagenSen2);
         }
-        updateIngresoDto.imagenSen2 = file.filename.replace(
-          extname(file.filename),
-          '.png',
-        );
+        updateIngresoDto.imagenSen2 = basename.replace(extname(basename), '.png');
       } else if (file.originalname.startsWith('imagenSen3-')) {
         if (existingIngreso.imagenSen3) {
           imagenesHistorial.imagenSen3 = imagenesHistorial.imagenSen3 || [];
           imagenesHistorial.imagenSen3.push(existingIngreso.imagenSen3);
         }
-        updateIngresoDto.imagenSen3 = file.filename.replace(
-          extname(file.filename),
-          '.png',
-        );
+        updateIngresoDto.imagenSen3 = basename.replace(extname(basename), '.png');
       } else if (file.originalname.startsWith('imagenSen4-')) {
         if (existingIngreso.imagenSen4) {
           imagenesHistorial.imagenSen4 = imagenesHistorial.imagenSen4 || [];
           imagenesHistorial.imagenSen4.push(existingIngreso.imagenSen4);
         }
-        updateIngresoDto.imagenSen4 = file.filename.replace(
-          extname(file.filename),
-          '.png',
-        );
+        updateIngresoDto.imagenSen4 = basename.replace(extname(basename), '.png');
       } else if (file.originalname.startsWith('imagenSen5-')) {
         if (existingIngreso.imagenSen5) {
           imagenesHistorial.imagenSen5 = imagenesHistorial.imagenSen5 || [];
           imagenesHistorial.imagenSen5.push(existingIngreso.imagenSen5);
         }
-        updateIngresoDto.imagenSen5 = file.filename.replace(
-          extname(file.filename),
-          '.png',
-        );
+        updateIngresoDto.imagenSen5 = basename.replace(extname(basename), '.png');
       } else if (file.originalname.startsWith('imagenSen6-')) {
         if (existingIngreso.imagenSen6) {
           imagenesHistorial.imagenSen6 = imagenesHistorial.imagenSen6 || [];
           imagenesHistorial.imagenSen6.push(existingIngreso.imagenSen6);
         }
-        updateIngresoDto.imagenSen6 = file.filename.replace(
-          extname(file.filename),
-          '.png',
-        );
+        updateIngresoDto.imagenSen6 = basename.replace(extname(basename), '.png');
       } else if (file.originalname.startsWith('pdf1-')) {
-        updateIngresoDto.pdf1 = file.filename;
+        updateIngresoDto.pdf1 = basename;
       } else if (file.originalname.startsWith('pdf2-')) {
-        updateIngresoDto.pdf2 = file.filename;
+        updateIngresoDto.pdf2 = basename;
       } else if (file.originalname.startsWith('pdf3-')) {
-        updateIngresoDto.pdf3 = file.filename;
+        updateIngresoDto.pdf3 = basename;
       } else if (file.originalname.startsWith('pdf4-')) {
-        updateIngresoDto.pdf4 = file.filename;
+        updateIngresoDto.pdf4 = basename;
       } else if (file.originalname.startsWith('pdf5-')) {
-        updateIngresoDto.pdf5 = file.filename;
+        updateIngresoDto.pdf5 = basename;
       } else if (file.originalname.startsWith('pdf6-')) {
-        updateIngresoDto.pdf6 = file.filename;
+        updateIngresoDto.pdf6 = basename;
       } else if (file.originalname.startsWith('pdf7-')) {
-        updateIngresoDto.pdf7 = file.filename;
+        updateIngresoDto.pdf7 = basename;
       } else if (file.originalname.startsWith('pdf8-')) {
-        updateIngresoDto.pdf8 = file.filename;
+        updateIngresoDto.pdf8 = basename;
       } else if (file.originalname.startsWith('pdf9-')) {
-        updateIngresoDto.pdf9 = file.filename;
+        updateIngresoDto.pdf9 = basename;
       } else if (file.originalname.startsWith('pdf10-')) {
-        updateIngresoDto.pdf10 = file.filename;
+        updateIngresoDto.pdf10 = basename;
       } else if (file.originalname.startsWith('word1-')) {
-        updateIngresoDto.word1 = file.filename;
+        updateIngresoDto.word1 = basename;
       }
     });
 
