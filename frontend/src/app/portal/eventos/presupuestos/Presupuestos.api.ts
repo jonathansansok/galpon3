@@ -1,5 +1,8 @@
 //frontend\src\app\portal\eventos\presupuestos\Presupuestos.api.ts
+import { getCsrfToken } from '../Eventos.api';
+
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 export async function getPresupuestosWithMovilData() {
   try {
     const res = await fetch(`${BACKEND_URL}/api/presupuestos/with-movil-data`, {
@@ -16,6 +19,7 @@ export async function getPresupuestosWithMovilData() {
     throw error;
   }
 }
+
 export async function getMovilById(movilId: string) {
   try {
     const res = await fetch(`${BACKEND_URL}/api/temas/${movilId}`, {
@@ -32,7 +36,7 @@ export async function getMovilById(movilId: string) {
     throw error;
   }
 }
-// Obtener todos los presupuestos
+
 export async function getPresupuestos() {
   try {
     const res = await fetch(`${BACKEND_URL}/api/presupuestos`, {
@@ -50,7 +54,6 @@ export async function getPresupuestos() {
   }
 }
 
-// Obtener un presupuesto por ID
 export async function getPresupuesto(id: string) {
   try {
     const numericId = parseInt(id, 10);
@@ -73,13 +76,9 @@ export async function getPresupuesto(id: string) {
   }
 }
 
-// Crear un presupuesto
 export async function createPresupuesto(formData: FormData) {
   try {
-    const csrfToken = getCsrfTokenFromCookies();
-    if (!csrfToken) {
-      throw new Error("[CSRF] No se encontró el token CSRF en las cookies.");
-    }
+    const csrfToken = await getCsrfToken();
 
     const res = await fetch(`${BACKEND_URL}/api/presupuestos`, {
       method: "POST",
@@ -99,38 +98,19 @@ export async function createPresupuesto(formData: FormData) {
 
     if (!res.ok) {
       console.error("Error del backend:", data);
-      return {
-        success: false,
-        data: null,
-        error: data?.error || "Error desconocido",
-        message: null,
-      };
+      return { success: false, data: null, error: data?.error || "Error desconocido", message: null };
     }
 
-    return {
-      success: true,
-      data: data?.data ?? null,
-      message: data?.message ?? "Operación exitosa",
-      error: null,
-    };
+    return { success: true, data: data?.data ?? null, message: data?.message ?? "Operación exitosa", error: null };
   } catch (error) {
     console.error("Error al crear presupuesto:", error);
-    return {
-      success: false,
-      data: null,
-      error: (error as Error)?.message || "Error desconocido",
-      message: null,
-    };
+    return { success: false, data: null, error: (error as Error)?.message || "Error desconocido", message: null };
   }
 }
 
-// Actualizar un presupuesto
 export async function updatePresupuesto(id: string, formData: FormData) {
   try {
-    const csrfToken = getCsrfTokenFromCookies();
-    if (!csrfToken) {
-      throw new Error("[CSRF] No se encontró el token CSRF en las cookies.");
-    }
+    const csrfToken = await getCsrfToken();
 
     const numericId = parseInt(id, 10);
     if (isNaN(numericId)) {
@@ -155,38 +135,19 @@ export async function updatePresupuesto(id: string, formData: FormData) {
 
     if (!res.ok) {
       console.error("Error del backend:", data);
-      return {
-        success: false,
-        data: null,
-        error: data?.error || "Error desconocido",
-        message: null,
-      };
+      return { success: false, data: null, error: data?.error || "Error desconocido", message: null };
     }
 
-    return {
-      success: true,
-      data: data?.data ?? null,
-      message: data?.message ?? "Operación exitosa",
-      error: null,
-    };
+    return { success: true, data: data?.data ?? null, message: data?.message ?? "Operación exitosa", error: null };
   } catch (error) {
     console.error(`Error al actualizar presupuesto con ID ${id}:`, error);
-    return {
-      success: false,
-      data: null,
-      error: (error as Error)?.message || "Error desconocido",
-      message: null,
-    };
+    return { success: false, data: null, error: (error as Error)?.message || "Error desconocido", message: null };
   }
 }
 
-// Eliminar un presupuesto
 export async function deletePresupuesto(id: string) {
   try {
-    const csrfToken = getCsrfTokenFromCookies();
-    if (!csrfToken) {
-      throw new Error("[CSRF] No se encontró el token CSRF en las cookies.");
-    }
+    const csrfToken = await getCsrfToken();
 
     const numericId = parseInt(id, 10);
     if (isNaN(numericId)) {
@@ -210,42 +171,12 @@ export async function deletePresupuesto(id: string) {
 
     if (!res.ok) {
       console.error("Error del backend:", data);
-      return {
-        success: false,
-        data: null,
-        error: data?.error || "Error desconocido",
-        message: null,
-      };
+      return { success: false, data: null, error: data?.error || "Error desconocido", message: null };
     }
 
-    return {
-      success: true,
-      data: data?.data ?? null,
-      message: data?.message ?? "Operación exitosa",
-      error: null,
-    };
+    return { success: true, data: data?.data ?? null, message: data?.message ?? "Operación exitosa", error: null };
   } catch (error) {
     console.error(`Error al eliminar presupuesto con ID ${id}:`, error);
-    return {
-      success: false,
-      data: null,
-      error: (error as Error)?.message || "Error desconocido",
-      message: null,
-    };
+    return { success: false, data: null, error: (error as Error)?.message || "Error desconocido", message: null };
   }
-}
-
-// Obtener el token CSRF desde las cookies
-function getCsrfTokenFromCookies() {
-  console.log("[CSRF] Verificando cookies disponibles en el navegador:", document.cookie);
-  const csrfCookie = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("csrf-token="));
-  if (!csrfCookie) {
-    console.error("[CSRF] No se encontró el token CSRF en las cookies.");
-    return null;
-  }
-  const token = csrfCookie.split("=")[1];
-  console.log("[CSRF] Token CSRF leído de las cookies:", token);
-  return token;
 }

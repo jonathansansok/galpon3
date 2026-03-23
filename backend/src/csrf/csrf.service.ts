@@ -13,10 +13,11 @@ export class CsrfService {
 
     console.log('[CSRF] Generando nuevo token CSRF...');
     const token = crypto.randomBytes(64).toString('hex'); // Generar un nuevo token
+    const isProd = process.env.NODE_ENV === 'production';
     res.cookie('csrf-token', token, {
       httpOnly: false,
-      secure: false, // Cambia a true si usas HTTPS
-      sameSite: 'lax',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
     });
     return token;
   }

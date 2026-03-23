@@ -1,10 +1,10 @@
 //frontend\src\app\portal\eventos\turnos\Turnos.api.ts
+import { getCsrfToken } from '../Eventos.api';
+
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-// Obtener turnos con datos de presupuesto y móvil
 export async function getTurnosWithPresupuestoData() {
   try {
-    console.log("[turnos] Obteniendo turnos con datos de presupuesto...");
     const res = await fetch(`${BACKEND_URL}/api/turnos/with-presupuesto-data`, {
       cache: "no-store",
     });
@@ -18,18 +18,16 @@ export async function getTurnosWithPresupuestoData() {
   }
 }
 
-// Obtener un turno con datos de presupuesto y móvil
 export async function getTurnoWithPresupuestoData(id: string) {
   try {
     const numericId = parseInt(id, 10);
     if (isNaN(numericId)) {
       throw new Error(`ID inválido: ${id}`);
     }
-    console.log("[turnos] Obteniendo turno con datos de presupuesto, ID:", numericId);
-    const csrfToken = getCsrfTokenFromCookies();
+    const csrfToken = await getCsrfToken();
     const res = await fetch(`${BACKEND_URL}/api/turnos/with-presupuesto-data/${numericId}`, {
       cache: "no-store",
-      headers: csrfToken ? { "csrf-token": csrfToken } : {},
+      headers: { "csrf-token": csrfToken },
       credentials: "include",
     });
     if (!res.ok) {
@@ -42,10 +40,8 @@ export async function getTurnoWithPresupuestoData(id: string) {
   }
 }
 
-// Obtener todos los turnos
 export async function getTurnos() {
   try {
-    console.log("[turnos] Obteniendo todos los turnos...");
     const res = await fetch(`${BACKEND_URL}/api/turnos`, {
       cache: "no-store",
     });
@@ -59,18 +55,16 @@ export async function getTurnos() {
   }
 }
 
-// Obtener un turno por ID
 export async function getTurno(id: string) {
   try {
     const numericId = parseInt(id, 10);
     if (isNaN(numericId)) {
       throw new Error(`ID inválido: ${id}`);
     }
-    console.log("[turnos] Obteniendo turno con ID:", numericId);
-    const csrfToken = getCsrfTokenFromCookies();
+    const csrfToken = await getCsrfToken();
     const res = await fetch(`${BACKEND_URL}/api/turnos/${numericId}`, {
       cache: "no-store",
-      headers: csrfToken ? { "csrf-token": csrfToken } : {},
+      headers: { "csrf-token": csrfToken },
       credentials: "include",
     });
     if (!res.ok) {
@@ -83,16 +77,14 @@ export async function getTurno(id: string) {
   }
 }
 
-// Consultar disponibilidad de plazas
 export async function getPlazaAvailability(fechaInicio: string, fechaFin: string) {
   try {
-    console.log("[turnos] Consultando disponibilidad:", { fechaInicio, fechaFin });
-    const csrfToken = getCsrfTokenFromCookies();
+    const csrfToken = await getCsrfToken();
     const res = await fetch(
       `${BACKEND_URL}/api/turnos/availability?fechaInicio=${encodeURIComponent(fechaInicio)}&fechaFin=${encodeURIComponent(fechaFin)}`,
       {
         cache: "no-store",
-        headers: csrfToken ? { "csrf-token": csrfToken } : {},
+        headers: { "csrf-token": csrfToken },
         credentials: "include",
       }
     );
@@ -106,14 +98,9 @@ export async function getPlazaAvailability(fechaInicio: string, fechaFin: string
   }
 }
 
-// Crear un turno
 export async function createTurno(data: Record<string, any>) {
   try {
-    const csrfToken = getCsrfTokenFromCookies();
-    if (!csrfToken) {
-      throw new Error("[CSRF] No se encontró el token CSRF en las cookies.");
-    }
-    console.log("[turnos] Creando turno:", data);
+    const csrfToken = await getCsrfToken();
 
     const res = await fetch(`${BACKEND_URL}/api/turnos`, {
       method: "POST",
@@ -134,43 +121,23 @@ export async function createTurno(data: Record<string, any>) {
 
     if (!res.ok) {
       console.error("[turnos] Error del backend:", responseData);
-      return {
-        success: false,
-        data: null,
-        error: responseData?.message || "Error desconocido",
-        message: null,
-      };
+      return { success: false, data: null, error: responseData?.message || "Error desconocido", message: null };
     }
 
-    return {
-      success: true,
-      data: responseData?.data ?? null,
-      message: responseData?.message ?? "Turno creado exitosamente",
-      error: null,
-    };
+    return { success: true, data: responseData?.data ?? null, message: responseData?.message ?? "Turno creado exitosamente", error: null };
   } catch (error) {
     console.error("[turnos] Error al crear turno:", error);
-    return {
-      success: false,
-      data: null,
-      error: (error as Error)?.message || "Error desconocido",
-      message: null,
-    };
+    return { success: false, data: null, error: (error as Error)?.message || "Error desconocido", message: null };
   }
 }
 
-// Actualizar un turno
 export async function updateTurno(id: string, data: Record<string, any>) {
   try {
-    const csrfToken = getCsrfTokenFromCookies();
-    if (!csrfToken) {
-      throw new Error("[CSRF] No se encontró el token CSRF en las cookies.");
-    }
+    const csrfToken = await getCsrfToken();
     const numericId = parseInt(id, 10);
     if (isNaN(numericId)) {
       throw new Error(`ID inválido: ${id}`);
     }
-    console.log("[turnos] Actualizando turno:", { id: numericId, data });
 
     const res = await fetch(`${BACKEND_URL}/api/turnos/${numericId}`, {
       method: "PATCH",
@@ -191,43 +158,23 @@ export async function updateTurno(id: string, data: Record<string, any>) {
 
     if (!res.ok) {
       console.error("[turnos] Error del backend:", responseData);
-      return {
-        success: false,
-        data: null,
-        error: responseData?.message || "Error desconocido",
-        message: null,
-      };
+      return { success: false, data: null, error: responseData?.message || "Error desconocido", message: null };
     }
 
-    return {
-      success: true,
-      data: responseData?.data ?? null,
-      message: responseData?.message ?? "Turno actualizado exitosamente",
-      error: null,
-    };
+    return { success: true, data: responseData?.data ?? null, message: responseData?.message ?? "Turno actualizado exitosamente", error: null };
   } catch (error) {
     console.error(`[turnos] Error al actualizar turno con ID ${id}:`, error);
-    return {
-      success: false,
-      data: null,
-      error: (error as Error)?.message || "Error desconocido",
-      message: null,
-    };
+    return { success: false, data: null, error: (error as Error)?.message || "Error desconocido", message: null };
   }
 }
 
-// Eliminar un turno
 export async function deleteTurno(id: string) {
   try {
-    const csrfToken = getCsrfTokenFromCookies();
-    if (!csrfToken) {
-      throw new Error("[CSRF] No se encontró el token CSRF en las cookies.");
-    }
+    const csrfToken = await getCsrfToken();
     const numericId = parseInt(id, 10);
     if (isNaN(numericId)) {
       throw new Error(`ID inválido: ${id}`);
     }
-    console.log("[turnos] Eliminando turno con ID:", numericId);
 
     const res = await fetch(`${BACKEND_URL}/api/turnos/${numericId}`, {
       method: "DELETE",
@@ -246,42 +193,12 @@ export async function deleteTurno(id: string) {
 
     if (!res.ok) {
       console.error("[turnos] Error del backend:", data);
-      return {
-        success: false,
-        data: null,
-        error: data?.error || "Error desconocido",
-        message: null,
-      };
+      return { success: false, data: null, error: data?.error || "Error desconocido", message: null };
     }
 
-    return {
-      success: true,
-      data: data?.data ?? null,
-      message: data?.message ?? "Turno eliminado exitosamente",
-      error: null,
-    };
+    return { success: true, data: data?.data ?? null, message: data?.message ?? "Turno eliminado exitosamente", error: null };
   } catch (error) {
     console.error(`[turnos] Error al eliminar turno con ID ${id}:`, error);
-    return {
-      success: false,
-      data: null,
-      error: (error as Error)?.message || "Error desconocido",
-      message: null,
-    };
+    return { success: false, data: null, error: (error as Error)?.message || "Error desconocido", message: null };
   }
-}
-
-// Obtener el token CSRF desde las cookies
-function getCsrfTokenFromCookies() {
-  console.log("[turnos][CSRF] Verificando cookies:", document.cookie);
-  const csrfCookie = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("csrf-token="));
-  if (!csrfCookie) {
-    console.error("[turnos][CSRF] No se encontró el token CSRF en las cookies.");
-    return null;
-  }
-  const token = csrfCookie.split("=")[1];
-  console.log("[turnos][CSRF] Token CSRF leído:", token);
-  return token;
 }

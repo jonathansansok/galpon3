@@ -1,27 +1,11 @@
 //frontend\src\app\portal\eventos\ingresos\ingresos.api.ts
-export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+import { getCsrfToken } from '../Eventos.api';
 
-function getCsrfTokenFromCookies() {
-  console.log("[CSRF] Verificando cookies disponibles en el navegador:", document.cookie);
-  const csrfCookie = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("csrf-token="));
-  if (!csrfCookie) {
-    console.error("[CSRF] No se encontró el token CSRF en las cookies.");
-    return null;
-  }
-  const token = csrfCookie.split("=")[1];
-  console.log("[CSRF] Token CSRF leído de las cookies:", token);
-  return token;
-}
+export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export async function removeAnexo(clienteId: number, movilId: number) {
   try {
-    const csrfToken = getCsrfTokenFromCookies();
-    if (!csrfToken) {
-      throw new Error("[CSRF] No se encontró el token CSRF en las cookies.");
-    }
-
+    const csrfToken = await getCsrfToken();
     const response = await fetch(
       `${BACKEND_URL}/api/ingresos/${clienteId}/moviles/${movilId}`,
       {
@@ -45,13 +29,10 @@ export async function removeAnexo(clienteId: number, movilId: number) {
     throw error;
   }
 }
+
 export async function anexarMoviles(clienteId: number, movilesIds: number[]) {
   try {
-    const csrfToken = getCsrfTokenFromCookies();
-    if (!csrfToken) {
-      throw new Error("[CSRF] No se encontró el token CSRF en las cookies.");
-    }
-
+    const csrfToken = await getCsrfToken();
     const response = await fetch(`${BACKEND_URL}/api/ingresos/anexar-moviles`, {
       method: "POST",
       headers: {
@@ -73,6 +54,7 @@ export async function anexarMoviles(clienteId: number, movilesIds: number[]) {
     throw error;
   }
 }
+
 export async function getIngresos() {
   try {
     const res = await fetch(`${BACKEND_URL}/api/ingresos`, {
@@ -106,6 +88,7 @@ export async function getIngreso(id: string) {
     throw error;
   }
 }
+
 export async function createIngreso(formData: FormData) {
   try {
     console.log("[DEBUG] FormData enviado al backend:");
@@ -113,10 +96,7 @@ export async function createIngreso(formData: FormData) {
       console.log(`  ${key}:`, value);
     }
 
-    const csrfToken = getCsrfTokenFromCookies();
-    if (!csrfToken) {
-      throw new Error("[CSRF] No se encontró el token CSRF en las cookies.");
-    }
+    const csrfToken = await getCsrfToken();
     console.log("[DEBUG] Token CSRF obtenido:", csrfToken);
 
     const res = await fetch(`${BACKEND_URL}/api/ingresos`, {
@@ -147,12 +127,10 @@ export async function createIngreso(formData: FormData) {
     return { success: false, error: (error as Error)?.message || "Error desconocido" };
   }
 }
+
 export async function deleteIngreso(id: string) {
   try {
-    const csrfToken = getCsrfTokenFromCookies();
-    if (!csrfToken) {
-      throw new Error("[CSRF] No se encontró el token CSRF en las cookies.");
-    }
+    const csrfToken = await getCsrfToken();
 
     const res = await fetch(`${BACKEND_URL}/api/ingresos/${parseInt(id, 10)}`, {
       method: "DELETE",
@@ -177,10 +155,7 @@ export async function deleteIngreso(id: string) {
 
 export async function updateIngreso(id: string, formData: FormData) {
   try {
-    const csrfToken = getCsrfTokenFromCookies();
-    if (!csrfToken) {
-      throw new Error("[CSRF] No se encontró el token CSRF en las cookies.");
-    }
+    const csrfToken = await getCsrfToken();
 
     const res = await fetch(`${BACKEND_URL}/api/ingresos/${parseInt(id, 10)}`, {
       method: "PATCH",
