@@ -169,6 +169,24 @@ Backend CSRF: valida solo presencia del header `csrf-token` (sin comparar con co
 
 Privilegios de usuario: `A1` (admin), `B1` (operador), `C1` (solo turnos). El sidebar filtra por estos valores exactos.
 
+### Patrón anti-hidratación Zustand + SSR — regla obligatoria
+
+Cualquier componente que lea un Zustand store (`useUserStore`, `useRepairStore`, etc.) en el render raíz **debe** usar el patrón `mounted` para evitar el error `Text content does not match server-rendered HTML`:
+
+```tsx
+const [mounted, setMounted] = useState(false);
+useEffect(() => { setMounted(true); }, []);
+if (!mounted) return null;
+```
+
+**Por qué:** Next.js pre-renderiza en el servidor con el store vacío (e.g. `privilege: null`, `user: null`). Si el cliente tiene valores distintos al montar, React lanza un hydration mismatch. El `return null` en servidor hace que ambos lados coincidan (nada).
+
+**Cuándo aplicar:** En cualquier `page.tsx` o componente que:
+- Condiciona el render según `privilege`, `user`, o cualquier valor de Zustand
+- Muestra contenido diferente según autenticación
+
+**Archivos con este patrón aplicado:** `frontend/src/app/page.tsx`, `frontend/src/app/portal/eventos/plazas-config/page.tsx`
+
 ## Conventions
 
 - All domain models share common fields: `id`, `createdAt`, `updatedAt`, `clas_seg` (ALTA/MEDIA/BAJA), location fields (`establecimiento`, `modulo_ur`, `pabellon`, `sector`), `fechaHora`, multiple image/PDF fields

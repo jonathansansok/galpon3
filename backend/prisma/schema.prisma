@@ -262,6 +262,31 @@ model Turnos {
   observaciones            String?   @db.Text
 }
 
+model TallerConfig {
+  id        Int      @id @default(1)
+  canvasW   Int      @default(1400)
+  canvasH   Int      @default(600)
+  updatedAt DateTime @updatedAt
+
+  @@map("TallerConfig")
+}
+
+model Plazas {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid()) @db.VarChar(36)
+  numero    Int      @unique
+  nombre    String   @db.VarChar(100)
+  activa    Boolean  @default(true)
+  posX      Int?
+  posY      Int?
+  ancho     Int?
+  alto      Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("Plazas")
+}
+
 model Partes {
   id          Int      @id @default(autoincrement())
   uuid        String   @unique @default(uuid()) @db.VarChar(36)

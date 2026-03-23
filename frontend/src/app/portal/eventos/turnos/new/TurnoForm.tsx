@@ -6,6 +6,7 @@ import Textarea from "@/components/ui/Textarea";
 import { useForm } from "react-hook-form";
 import { createTurno, updateTurno, getPlazaAvailability, getTurno } from "../Turnos.api";
 import { getPresupuestosWithMovilData, updatePresupuestoEstado } from "../../presupuestos/Presupuestos.api";
+import { getPlazas, Plaza } from "../../plazas-config/Plazas.api";
 import { getPresupuestosAsociados } from "../../temas/Temas.api";
 import { useParams, useRouter } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
@@ -28,6 +29,7 @@ export function TurnoForm({ turno, onSuccess, editId, preselectedPresupuesto, mo
   const router = useRouter();
   const [presupuestosAprobados, setPresupuestosAprobados] = useState<any[]>([]);
   const [plazaAvailability, setPlazaAvailability] = useState<Record<number, any[]> | null>(null);
+  const [plazas, setPlazas] = useState<Plaza[]>([]);
   const [presupuestoDropdownOpen, setPresupuestoDropdownOpen] = useState(false);
   const presupuestoDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -139,6 +141,10 @@ export function TurnoForm({ turno, onSuccess, editId, preselectedPresupuesto, mo
     };
     loadPresupuestos();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    getPlazas().then((data) => setPlazas(data.filter((p) => p.activa))).catch(() => {});
+  }, []);
 
   // Consultar disponibilidad cuando cambian las fechas
   useEffect(() => {
@@ -309,11 +315,11 @@ export function TurnoForm({ turno, onSuccess, editId, preselectedPresupuesto, mo
       <div className="relative mb-4">
         <select id="plaza" {...register("plaza")} className={floatInput} required>
           <option value="">— Seleccionar plaza —</option>
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => {
-            const occupied = isPlazaOccupied(num);
+          {plazas.map((p) => {
+            const occupied = isPlazaOccupied(p.numero);
             return (
-              <option key={num} value={num}>
-                Plaza #{num} {occupied ? "(Ocupada)" : "(Disponible)"}
+              <option key={p.numero} value={p.numero}>
+                {p.nombre} {occupied ? "(Ocupada)" : "(Disponible)"}
               </option>
             );
           })}

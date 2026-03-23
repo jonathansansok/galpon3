@@ -103,9 +103,15 @@ export class TurnosService {
         return efectivoInicio < fin && efectivoFin > inicio;
       });
 
-      const plazas: Record<number, any[]> = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [] };
+      const plazasActivas = await this.prismaService.plazas.findMany({
+        where: { activa: true },
+        orderBy: { numero: 'asc' },
+      });
+      const plazas: Record<number, any[]> = Object.fromEntries(
+        plazasActivas.map((p) => [p.numero, []]),
+      );
       for (const turno of turnosOcupados) {
-        if (plazas[turno.plaza]) plazas[turno.plaza].push(turno);
+        if (plazas[turno.plaza] !== undefined) plazas[turno.plaza].push(turno);
       }
 
       console.log('[turnos] Disponibilidad calculada (con fechas reales):', plazas);

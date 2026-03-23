@@ -1,16 +1,17 @@
 "use client";
 // frontend/src/components/ui/CalendarioPlazas.tsx
 import { useState, useEffect, useCallback } from "react";
-import { format, addDays, addWeeks, addMonths, startOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, parseISO } from "date-fns";
+import { format, addDays, addWeeks, addMonths, addYears, startOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { getTurnosWithPresupuestoData } from "@/app/portal/eventos/turnos/Turnos.api";
 import { Turno } from "@/types/Turno";
 import { useRepairStore } from "@/lib/repairStore";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { getPlazas, Plaza } from "@/app/portal/eventos/plazas-config/Plazas.api";
 
 const HORA_INICIO = 7;
 const HORA_FIN = 22;
 const TOTAL_HORAS = HORA_FIN - HORA_INICIO;
-const PLAZAS = [1, 2, 3, 4, 5, 6, 7, 8];
 const HORAS = Array.from({ length: TOTAL_HORAS + 1 }, (_, i) => HORA_INICIO + i);
 
 function pillStyle(turno: Turno): string {
@@ -43,8 +44,9 @@ interface Props {
 export default function CalendarioPlazas({ isOpen, onClose }: Props) {
   const jumpToIngreso = useRepairStore((s) => s.jumpToIngreso);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [view, setView] = useState<"day" | "week" | "month">("day");
+  const [view, setView] = useState<"day" | "week" | "month" | "year">("day");
   const [turnos, setTurnos] = useState<Turno[]>([]);
+  const [plazas, setPlazas] = useState<Plaza[]>([]);
   const [loading, setLoading] = useState(false);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
 
@@ -58,7 +60,10 @@ export default function CalendarioPlazas({ isOpen, onClose }: Props) {
   }, []);
 
   useEffect(() => {
-    if (isOpen) loadTurnos();
+    if (isOpen) {
+      loadTurnos();
+      getPlazas().then((data) => setPlazas(data.filter((p) => p.activa))).catch(() => {});
+    }
   }, [isOpen, loadTurnos]);
 
   useEffect(() => {
@@ -80,9 +85,9 @@ export default function CalendarioPlazas({ isOpen, onClose }: Props) {
   const semana = Array.from({ length: 7 }, (_, i) => addDays(startOfWeek(currentDate, { weekStartsOn: 1 }), i));
 
   const navPrev = () => setCurrentDate((d) =>
-    view === "day" ? addDays(d, -1) : view === "week" ? addWeeks(d, -1) : addMonths(d, -1));
+    view === "day" ? addDays(d, -1) : view === "week" ? addWeeks(d, -1) : view === "month" ? addMonths(d, -1) : addYears(d, -1));
   const navNext = () => setCurrentDate((d) =>
-    view === "day" ? addDays(d, 1) : view === "week" ? addWeeks(d, 1) : addMonths(d, 1));
+    view === "day" ? addDays(d, 1) : view === "week" ? addWeeks(d, 1) : view === "month" ? addMonths(d, 1) : addYears(d, 1));
 
   const handleTurnoClick = (t: Turno) => {
     // Construir un Presupuesto mínimo con los datos del join disponibles en el turno
@@ -129,12 +134,12 @@ export default function CalendarioPlazas({ isOpen, onClose }: Props) {
       </div>
 
       {/* Columnas de plazas */}
-      {PLAZAS.map((plaza) => {
-        const turnosPlaza = turnosDelDia(currentDate, plaza);
+      {plazas.map((p) => {
+        const turnosPlaza = turnosDelDia(currentDate, p.numero);
         return (
-          <div key={plaza} className="flex-1 min-w-[100px] border-r border-gray-100 last:border-r-0">
+          <div key={p.numero} className="flex-1 min-w-[100px] border-r border-gray-100 last:border-r-0">
             <div className="h-10 border-b border-gray-200 flex items-center justify-center bg-gray-50">
-              <span className="text-xs font-semibold text-gray-600">Plaza {plaza}</span>
+              <span className="text-xs font-semibold text-gray-600">{p.nombre}</span>
             </div>
             <div className="relative bg-white" style={{ height: 600 }}>
               {/* Líneas de hora */}
@@ -186,9 +191,9 @@ export default function CalendarioPlazas({ isOpen, onClose }: Props) {
         <thead>
           <tr>
             <th className="w-24 border border-gray-200 bg-gray-50 p-2" />
-            {PLAZAS.map((p) => (
-              <th key={p} className="border border-gray-200 bg-gray-50 p-2 font-semibold text-gray-600 min-w-[90px]">
-                Plaza {p}
+            {plazas.map((p) => (
+              <th key={p.numero} className="border border-gray-200 bg-gray-50 p-2 font-semibold text-gray-600 min-w-[90px]">
+                {p.nombre}
               </th>
             ))}
           </tr>
@@ -200,10 +205,10 @@ export default function CalendarioPlazas({ isOpen, onClose }: Props) {
                 <div>{format(dia, "EEE", { locale: es })}</div>
                 <div className="text-base font-bold">{format(dia, "d")}</div>
               </td>
-              {PLAZAS.map((plaza) => {
-                const pills = turnosDelDia(dia, plaza);
+              {plazas.map((p) => {
+                const pills = turnosDelDia(dia, p.numero);
                 return (
-                  <td key={plaza} className="border border-gray-200 p-1 align-top min-h-[60px]">
+                  <td key={p.numero} className="border border-gray-200 p-1 align-top min-h-[60px]">
                     <div className="flex flex-col gap-0.5">
                       {pills.map((t) => (
                         <div key={t.id} className={`rounded px-1 py-0.5 truncate border ${pillStyle(t)} relative cursor-pointer`}
@@ -268,7 +273,7 @@ export default function CalendarioPlazas({ isOpen, onClose }: Props) {
                       onMouseEnter={() => setHoveredId(t.id)}
                       onMouseLeave={() => setHoveredId(null)}
                       onClick={() => handleTurnoClick(t)}>
-                      {t.patente || "—"} P{t.plaza}
+                      {t.patente || "—"} {plazas.find((p) => p.numero === t.plaza)?.nombre ?? `P${t.plaza}`}
                       {t.fechaHoraInicioReal && <span className="ml-0.5 text-green-300">●</span>}
                       {hoveredId === t.id && tooltip(t)}
                     </div>
@@ -285,48 +290,111 @@ export default function CalendarioPlazas({ isOpen, onClose }: Props) {
     );
   };
 
+  // --- Year view ---
+  const YearView = () => {
+    const year = currentDate.getFullYear();
+    const meses = Array.from({ length: 12 }, (_, i) => new Date(year, i, 1));
+    const diasSemana = ["L", "M", "X", "J", "V", "S", "D"];
+    const diasConTurnos = new Set(
+      turnos.map((t) => { const d = toLocalDate(t.fechaHoraInicioEstimada); return d ? format(d, "yyyy-MM-dd") : null; }).filter(Boolean)
+    );
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        {meses.map((mesDate) => {
+          const mesInicio = startOfMonth(mesDate);
+          const mesFin = endOfMonth(mesDate);
+          const dias = eachDayOfInterval({ start: mesInicio, end: mesFin });
+          const offset = (mesInicio.getDay() + 6) % 7;
+          return (
+            <div key={mesDate.getMonth()} className="border border-gray-200 rounded-lg overflow-hidden">
+              <div className={`px-3 py-2 text-sm font-semibold text-center capitalize border-b border-gray-200 ${isSameMonth(mesDate, new Date()) ? "bg-blue-600 text-white" : "bg-gray-50 text-gray-700"}`}>
+                {format(mesDate, "MMMM", { locale: es })}
+              </div>
+              <div className="p-2">
+                <div className="grid grid-cols-7 mb-1">
+                  {diasSemana.map((d) => (
+                    <div key={d} className="text-center text-[9px] font-semibold text-gray-400">{d}</div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-7 gap-y-0.5">
+                  {Array.from({ length: offset }).map((_, i) => <div key={`p${i}`} />)}
+                  {dias.map((dia) => {
+                    const key = format(dia, "yyyy-MM-dd");
+                    const tiene = diasConTurnos.has(key);
+                    const hoy = isSameDay(dia, new Date());
+                    return (
+                      <button key={key}
+                        onClick={() => { setCurrentDate(dia); setView("day"); }}
+                        className={`relative flex items-center justify-center text-[10px] h-5 w-full rounded transition-colors
+                          ${hoy ? "bg-blue-600 text-white font-bold" : tiene ? "font-semibold text-gray-800 hover:bg-gray-100" : "text-gray-400 hover:bg-gray-50"}`}>
+                        {format(dia, "d")}
+                        {tiene && !hoy && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-blue-500" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-white" onClick={(e) => e.target === e.currentTarget && onClose()}>
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-gray-50 shrink-0">
-        <div className="flex items-center gap-4">
-          <h2 className="text-lg font-bold text-gray-800">Plazas del Taller</h2>
-          <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-lg p-0.5">
-            <button onClick={() => setView("day")}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${view === "day" ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100"}`}>
-              Día
-            </button>
-            <button onClick={() => setView("week")}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${view === "week" ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100"}`}>
-              Semana
-            </button>
-            <button onClick={() => setView("month")}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${view === "month" ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100"}`}>
-              Mes
-            </button>
-          </div>
-        </div>
+      <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-gray-50 shrink-0 gap-4">
+
+        {/* Izquierda: título + navegación */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1">
-            <button onClick={navPrev} className="p-1.5 rounded hover:bg-gray-200 text-gray-600 font-bold">◀</button>
-            <button onClick={() => setCurrentDate(new Date())}
-              className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100 text-gray-700">
-              Hoy
+          <h2 className="text-lg font-bold text-gray-800 shrink-0">Plazas del Taller</h2>
+          <div className="w-px h-5 bg-gray-300" />
+          <div className="flex items-center gap-0.5 bg-white border border-gray-200 rounded-lg p-0.5">
+            <button onClick={navPrev} className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 transition-colors">
+              <FaChevronLeft className="text-xs" />
             </button>
-            <button onClick={navNext} className="p-1.5 rounded hover:bg-gray-200 text-gray-600 font-bold">▶</button>
+            <button
+              onClick={() => setCurrentDate(new Date())}
+              className="px-3 py-1 text-sm font-medium rounded-md hover:bg-gray-100 text-gray-700 transition-colors capitalize min-w-[64px] text-center"
+            >
+              {view === "day" || view === "week"
+                ? "Hoy"
+                : view === "month"
+                ? format(new Date(), "MMM", { locale: es })
+                : format(new Date(), "yyyy")}
+            </button>
+            <button onClick={navNext} className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 transition-colors">
+              <FaChevronRight className="text-xs" />
+            </button>
           </div>
-          <span className="text-sm font-semibold text-gray-700 min-w-[180px] text-center capitalize">
+          <span className="text-sm font-semibold text-gray-700 capitalize">
             {view === "day"
               ? format(currentDate, "EEEE d 'de' MMMM yyyy", { locale: es })
               : view === "week"
               ? `${format(semana[0], "d MMM", { locale: es })} — ${format(semana[6], "d MMM yyyy", { locale: es })}`
-              : format(currentDate, "MMMM yyyy", { locale: es })}
+              : view === "month"
+              ? format(currentDate, "MMMM yyyy", { locale: es })
+              : format(currentDate, "yyyy")}
           </span>
+        </div>
+
+        {/* Derecha: selector de vista + acciones */}
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-0.5 bg-white border border-gray-200 rounded-lg p-0.5">
+            {(["day", "week", "month", "year"] as const).map((v) => (
+              <button key={v} onClick={() => setView(v)}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${view === v ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100"}`}>
+                {v === "day" ? "Día" : v === "week" ? "Semana" : v === "month" ? "Mes" : "Año"}
+              </button>
+            ))}
+          </div>
           <button onClick={loadTurnos} disabled={loading}
-            className="text-xs text-gray-500 hover:text-gray-700 border border-gray-200 rounded px-2 py-1">
+            className="p-1.5 rounded-md border border-gray-200 text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors text-sm">
             {loading ? "…" : "↻"}
           </button>
-          <button onClick={onClose} className="p-1.5 rounded hover:bg-red-100 text-gray-500 hover:text-red-600 font-bold text-lg leading-none">
+          <button onClick={onClose}
+            className="p-1.5 rounded-md hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors font-bold text-lg leading-none">
             ✕
           </button>
         </div>
@@ -345,7 +413,7 @@ export default function CalendarioPlazas({ isOpen, onClose }: Props) {
       <div className="flex-1 overflow-auto p-4">
         {loading ? (
           <div className="flex items-center justify-center h-full text-gray-400">Cargando turnos...</div>
-        ) : view === "day" ? <DayView /> : view === "week" ? <WeekView /> : <MonthView />}
+        ) : view === "day" ? <DayView /> : view === "week" ? <WeekView /> : view === "month" ? <MonthView /> : <YearView />}
       </div>
     </div>
   );

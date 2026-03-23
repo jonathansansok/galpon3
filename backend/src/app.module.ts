@@ -18,6 +18,8 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { AuditInterceptor } from './notifications/audit.interceptor';
 import { CsrfModule } from './csrf/csrf.module';
 import { CsrfMiddleware } from './csrf/csrf.middleware';
+import { PlazasModule } from './plazas/plazas.module';
+import { TallerConfigModule } from './taller-config/taller-config.module';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { CsrfMiddleware } from './csrf/csrf.middleware';
     PartesModule,
     AuthModule,
     NotificationsModule,
+    PlazasModule,
+    TallerConfigModule,
   ],
   controllers: [],
   providers: [
