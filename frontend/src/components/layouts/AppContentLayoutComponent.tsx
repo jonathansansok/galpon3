@@ -18,6 +18,7 @@ import {
   FaCogs,
   FaWrench,
   FaUserShield,
+  FaClipboardList,
 } from "react-icons/fa";
 import { useUserStore } from "@/lib/store";
 import { logout as logoutApi } from "@/lib/api/auth";
@@ -92,6 +93,7 @@ export default function AppContentLayoutComponent(
                   { href: "/portal/eventos/piezas", label: "Piezas", icon: <FaCogs className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                   { href: "/portal/eventos/partes", label: "Partes", icon: <FaCogs className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                   { href: "/portal/eventos/realizados", label: "Trabajos realizados", icon: <FaWrench className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
+                  { href: "/portal/eventos/tabs", label: "Flujo de Reparación", icon: <FaClipboardList className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                 ].filter((item) => !privilege || item.roles.includes(privilege)).map((item) => (
                   <Link key={item.href} href={item.href} onClick={handleLinkClick}>
                     <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">

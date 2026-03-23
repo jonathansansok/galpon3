@@ -1,12 +1,9 @@
 //frontend\src\app\portal\eventos\ingresos\[id]\page.tsx
 "use client";
 import { useEffect, useState } from "react";
-import { getIngreso, getEventosByLpu } from "../ingresos.api";
+import { getIngreso } from "../ingresos.api";
 import ImageModal from "@/components/InternoId/ImageUniqueModal";
-import EventList from "@/components/InternoId/EvsDisponYSeleccionados";
 import IngresoInfo from "@/components/InternoId/FichaTecnicaYFoto";
-import EventosSearch from "@/components/eventossearch/EventosSearch";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getUploadUrl } from "@/app/utils/multimediaUrl";
 
 interface Props {
@@ -15,56 +12,9 @@ interface Props {
   };
 }
 
-const eventosDisponibles = [
-  "manifestaciones",
-  "impactos",
-  "manifestaciones2",
-  "agresiones",
-  "preingresos",
-  "prevenciones",
-  "sumarios",
-  "habeas",
-  "huelgas",
-  "procedimientos",
-  "reqnos",
-  "reqpositivos",
-  "riesgos",
-  "extramuros",
-  "elementos",
-  "atentados",
-  "egresos",
-  "temas",
-  "traslados",
-];
-
-const eventosHumanizados: { [key: string]: string } = {
-  manifestaciones: "Alteración al orden hab.",
-  impactos: "Impacto sanitario",
-  manifestaciones2: "Alteración al orden sec. común",
-  agresiones: "Agresiones al personal penit.",
-  preingresos: "Preingresos",
-  prevenciones: "Prevenciones",
-  sumarios: "Sumarios",
-  habeas: "Habeas Corpus",
-  huelgas: "Huelgas de hambre",
-  procedimientos: "Procedimientos de registro",
-  reqnos: "Res. de req.: Negativa",
-  reqpositivos: "Res. de req.: Positiva",
-  riesgos: "Informes de Riesgos",
-  extramuros: "Salidas a hospital",
-  elementos: "Elementos",
-  atentados: "Atentados a la seguridad",
-  egresos: "Egresos extramuro",
-  temas: "Móvil",
-  traslados: "Traslados"
-};
-
 const ProductDetailPage = ({ params }: Props) => {
   const { id } = params;
   const [ingreso, setIngreso] = useState<any>(null);
-  const [eventos, setEventos] = useState<any[]>([]);
-  const [eventosSeleccionados, setEventosSeleccionados] = useState<string[]>(eventosDisponibles);
-  const [selectAll, setSelectAll] = useState<boolean>(true);
   const [showAllFields, setShowAllFields] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -76,45 +26,6 @@ const ProductDetailPage = ({ params }: Props) => {
 
     fetchIngreso();
   }, [id]);
-
-  useEffect(() => {
-    if (ingreso && eventosSeleccionados.length > 0) {
-      const fetchEventos = async () => {
-        console.log("Fetching eventos for selected events:", eventosSeleccionados);
-        const allEventos = await Promise.all(
-          eventosSeleccionados.map(async (evento) => {
-            const data = await getEventosByLpu(evento, ingreso.lpu);
-            if (Array.isArray(data)) {
-              return data.map((item: any) => ({ ...item, tipo: evento }));
-            } else {
-              return [];
-            }
-          })
-        );
-        console.log("Fetched eventos:", allEventos);
-        setEventos(allEventos.flat());
-      };
-
-      fetchEventos();
-    }
-  }, [ingreso, eventosSeleccionados]);
-
-  const toggleEvento = (evento: string) => {
-    setEventosSeleccionados((prev) =>
-      prev.includes(evento)
-        ? prev.filter((e) => e !== evento)
-        : [...prev, evento]
-    );
-  };
-
-  const toggleSelectAll = () => {
-    if (selectAll) {
-      setEventosSeleccionados([]);
-    } else {
-      setEventosSeleccionados(eventosDisponibles);
-    }
-    setSelectAll(!selectAll);
-  };
 
   const toggleFields = () => {
     setShowAllFields(!showAllFields);
@@ -203,6 +114,7 @@ const ProductDetailPage = ({ params }: Props) => {
       title: "PDF 10",
     },
   ].filter((x): x is { src: string; title: string } => x.src !== null);
+
   const images = [
     {
       src: getUploadUrl("ingresos", ingreso.imagen),
@@ -245,6 +157,7 @@ const ProductDetailPage = ({ params }: Props) => {
       title: "Imagen seña 6 del ingreso",
     },
   ].filter((x): x is { src: string; title: string } => x.src !== null);
+
   return (
     <div className="flex justify-center items-center flex-col w-full px-4 py-6">
       <IngresoInfo
@@ -272,30 +185,6 @@ const ProductDetailPage = ({ params }: Props) => {
         }}
         ingreso={ingreso}
       />
-      <EventList
-        eventosDisponibles={eventosDisponibles}
-        eventosSeleccionados={eventosSeleccionados}
-        toggleEvento={toggleEvento}
-        selectAll={selectAll}
-        toggleSelectAll={toggleSelectAll}
-        eventosHumanizados={eventosHumanizados} // Pasar el mapeo de títulos humanizados
-      />
-      <Card className="mt-4">
-        <CardHeader>
-          <CardTitle>Eventos Relacionados para ver y descargar:</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {eventos.length > 0 ? (
-            <EventosSearch
-            eventos={eventos}
-            ingreso={ingreso}
-            eventosHumanizados={eventosHumanizados} // Pasar el mapeo humanizado
-          />// Pasar el mapeo de títulos humanizados
-          ) : (
-            <p>No hay eventos relacionados.</p>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 };
