@@ -47,8 +47,8 @@ export class AuthService {
 
     res.cookie('jwt', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
       maxAge: 8 * 60 * 60 * 1000, // 8 horas
       path: '/',
     });
@@ -103,8 +103,8 @@ export class AuthService {
   async logout(res: Response) {
     res.clearCookie('jwt', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
       path: '/',
     });
     return { message: 'Sesión cerrada' };
