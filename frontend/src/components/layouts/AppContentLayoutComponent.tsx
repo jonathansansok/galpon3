@@ -39,6 +39,7 @@ export default function AppContentLayoutComponent(
 
   console.log('[AppContentLayout] user:', user, 'privilege:', privilege);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // Redirigir C1 a turnos si intenta acceder a otra sección
   const isC1 = privilege === "C1";
@@ -72,7 +73,7 @@ export default function AppContentLayoutComponent(
       >
         <div className="relative h-full">
           {/* Contenido desplazable */}
-          <div className="p-6 h-full overflow-y-auto pb-20">
+          <div className="p-6 h-full overflow-y-auto pb-40">
             <div className="flex flex-col justify-start items-center">
               <Link href="/" onClick={handleLinkClick}>
                 <h1 className="text-2xl text-center cursor-pointer font-bold text-blue-900 border-b border-gray-100 pb-1 w-full">
@@ -115,16 +116,12 @@ export default function AppContentLayoutComponent(
             </div>
           </div>
           {/* Botón de logout fijo */}
-          <div className="absolute bottom-10 left-0 w-full p-6 bg-white border-t border-gray-200">
+          <div className="absolute bottom-14 left-0 w-full p-6 bg-white border-t border-gray-200">
             <p className="text-left text-gray-800 font-bold mb-5 break-words">
               {[user?.nombre, user?.apellido].filter(Boolean).join(" ") || user?.email}
             </p>
             <button
-              onClick={async () => {
-                await logoutApi().catch(() => {});
-                setUser(null);
-                router.push("/auth/login");
-              }}
+              onClick={() => setShowLogoutModal(true)}
               className="flex w-full justify-start items-center gap-4 pl-5 border border-gray-200 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg"
             >
               <MdOutlineLogout className="text-2xl text-gray-600 group-hover:text-white" />
@@ -161,10 +158,38 @@ export default function AppContentLayoutComponent(
   )}
   {user && (
     <footer className="bg-blue-500 text-white text-center py-2 w-full z-30 fixed bottom-0 left-0 text-sm sm:text-base">
-      © 2025 - Galpón 3 - Todos los derechos reservados
+      © 2026 - Galpón 3 - Todos los derechos reservados
     </footer>
   )}
   {!user && <>{children}</>}
+  {showLogoutModal && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/40">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 flex flex-col items-center gap-4">
+        <MdOutlineLogout className="text-5xl text-blue-900" />
+        <h2 className="text-xl font-bold text-blue-900 text-center">¿Cerrar sesión?</h2>
+        <p className="text-gray-500 text-center text-sm">¿Estás seguro de que querés cerrar la sesión?</p>
+        <div className="flex gap-3 w-full mt-2">
+          <button
+            onClick={() => setShowLogoutModal(false)}
+            className="flex-1 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold transition"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={async () => {
+              setShowLogoutModal(false);
+              await logoutApi().catch(() => {});
+              setUser(null);
+              router.push("/auth/login");
+            }}
+            className="flex-1 py-2 rounded-lg bg-blue-900 text-white hover:bg-blue-800 font-semibold transition"
+          >
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
 </div>
   );
 }
