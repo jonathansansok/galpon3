@@ -1,12 +1,6 @@
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3900';
+import { getCsrfToken } from '../Eventos.api';
 
-function getCsrfTokenFromCookies() {
-  const csrfCookie = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("csrf-token="));
-  if (!csrfCookie) return null;
-  return csrfCookie.split("=")[1];
-}
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3900';
 
 export async function getUsers() {
   const res = await fetch(`${BACKEND_URL}/api/users`, {
@@ -32,12 +26,12 @@ export async function updateUser(
     status?: string;
   },
 ) {
-  const csrfToken = getCsrfTokenFromCookies();
+  const csrfToken = await getCsrfToken();
   const res = await fetch(`${BACKEND_URL}/api/users/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      ...(csrfToken ? { 'csrf-token': csrfToken } : {}),
+      'csrf-token': csrfToken,
     },
     credentials: 'include',
     body: JSON.stringify(data),
@@ -50,11 +44,11 @@ export async function updateUser(
 }
 
 export async function deleteUser(id: number) {
-  const csrfToken = getCsrfTokenFromCookies();
+  const csrfToken = await getCsrfToken();
   const res = await fetch(`${BACKEND_URL}/api/users/${id}`, {
     method: 'DELETE',
     headers: {
-      ...(csrfToken ? { 'csrf-token': csrfToken } : {}),
+      'csrf-token': csrfToken,
     },
     credentials: 'include',
   });
@@ -66,12 +60,12 @@ export async function deleteUser(id: number) {
 }
 
 export async function generateResetLink(email: string) {
-  const csrfToken = getCsrfTokenFromCookies();
+  const csrfToken = await getCsrfToken();
   const res = await fetch(`${BACKEND_URL}/api/auth/forgot-password`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      ...(csrfToken ? { 'csrf-token': csrfToken } : {}),
+      'csrf-token': csrfToken,
     },
     credentials: 'include',
     body: JSON.stringify({ email }),
