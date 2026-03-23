@@ -158,6 +158,16 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyAczsxXofuI3k5cXJ5DQDO9YJNOLmnN_jE
 - Config del cliente R2: `backend/src/config/r2.config.ts`
 - Helper de URLs en frontend: `frontend/src/app/utils/multimediaUrl.ts`
 - multer-s3 se importa con `require()` (no `import default`) — incompatibilidad CJS/ESM
+- En `update()` de services: usar `(file as any).key.split('/').pop()` (no `file.filename`, que es `undefined` con multer-s3)
+
+### Patrón CSRF — regla obligatoria
+Todos los archivos `*.api.ts` del frontend deben usar `getCsrfToken()` de `../Eventos.api` (async, cachea en sessionStorage). **Nunca usar `document.cookie`** — no funciona cross-origin (Vercel → Render).
+
+Archivos migrados: `ingresos.api.ts`, `Temas.api.ts`, `Presupuestos.api.ts`, `Turnos.api.ts`, `Marcas.api.ts`, `admin.api.ts`
+
+Backend CSRF: valida solo presencia del header `csrf-token` (sin comparar con cookie). Ver `backend/src/csrf/csrf.service.ts`.
+
+Privilegios de usuario: `A1` (admin), `B1` (operador), `C1` (solo turnos). El sidebar filtra por estos valores exactos.
 
 ## Conventions
 
