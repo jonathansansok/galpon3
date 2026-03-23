@@ -4,7 +4,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
-import { join } from 'path';
 import helmet from 'helmet';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -64,17 +63,7 @@ async function bootstrap() {
   // Otros middlewares y configuraciones
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
-  app.useStaticAssets(join(__dirname, '..', 'src', 'ingresos', 'uploads'), {
-    prefix: '/ingresos/uploads/',
-  });
-  app.useStaticAssets(join(__dirname, '..', 'src', 'temas', 'uploads'), {
-    prefix: '/temas/uploads/',
-  });
-  app.useStaticAssets(join(__dirname, '..', 'src', 'presupuestos', 'uploads'), {
-    prefix: '/presupuestos/uploads/',
-  });
-
-  const port = process.env.BACKEND_PORT || 3900;
+  const port = process.env.PORT || process.env.BACKEND_PORT || 3900;
 
   await app.listen(port);
 }

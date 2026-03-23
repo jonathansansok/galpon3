@@ -14,8 +14,9 @@ import { CreateIngresoDto } from './dto/create-ingreso.dto';
 import { UpdateIngresoDto } from './dto/update-ingreso.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { extname, join } from 'path';
-import * as fs from 'fs';
+import { extname } from 'path';
+import { DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { r2Client, R2_BUCKET } from 'src/config/r2.config';
 
 @Injectable()
 export class IngresosService {
@@ -392,22 +393,14 @@ export class IngresosService {
     const filename = ingreso[field];
 
     if (filename) {
-      // Determinar la carpeta de uploads
-      const uploadsDir = field === 'imagenDer'
-        ? join(__dirname, '..', 'uploads', 'der')
-        : join(__dirname, '..', 'uploads');
-
-      const filePath = join(uploadsDir, filename);
-
       try {
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-          console.log(`[REMOVE-FILE] Archivo eliminado del disco: ${filePath}`);
-        } else {
-          console.warn(`[REMOVE-FILE] Archivo no encontrado en disco: ${filePath}`);
-        }
+        await r2Client.send(new DeleteObjectCommand({
+          Bucket: R2_BUCKET,
+          Key: `ingresos/${filename}`,
+        }));
+        console.log(`[REMOVE-FILE] Archivo eliminado de R2: ingresos/${filename}`);
       } catch (err) {
-        console.error(`[REMOVE-FILE] Error al eliminar archivo del disco: ${err.message}`);
+        console.error(`[REMOVE-FILE] Error al eliminar archivo de R2: ${err.message}`);
       }
     }
 

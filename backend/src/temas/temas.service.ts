@@ -10,8 +10,8 @@ import { CreateTemaDto } from './dto/create-tema.dto';
 import { UpdateTemaDto } from './dto/update-tema.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { join } from 'path';
-import * as fs from 'fs';
+import { DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { r2Client, R2_BUCKET } from 'src/config/r2.config';
 
 @Injectable()
 export class TemasService {
@@ -144,21 +144,14 @@ export class TemasService {
     const filename = tema[field];
 
     if (filename) {
-      const uploadsDir = field === 'imagenDer'
-        ? join(__dirname, '..', 'uploads', 'der')
-        : join(__dirname, '..', 'uploads');
-
-      const filePath = join(uploadsDir, filename);
-
       try {
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-          console.log(`[REMOVE-FILE] Archivo eliminado del disco: ${filePath}`);
-        } else {
-          console.warn(`[REMOVE-FILE] Archivo no encontrado en disco: ${filePath}`);
-        }
+        await r2Client.send(new DeleteObjectCommand({
+          Bucket: R2_BUCKET,
+          Key: `temas/${filename}`,
+        }));
+        console.log(`[REMOVE-FILE] Archivo eliminado de R2: temas/${filename}`);
       } catch (err) {
-        console.error(`[REMOVE-FILE] Error al eliminar archivo del disco: ${err.message}`);
+        console.error(`[REMOVE-FILE] Error al eliminar archivo de R2: ${err.message}`);
       }
     }
 

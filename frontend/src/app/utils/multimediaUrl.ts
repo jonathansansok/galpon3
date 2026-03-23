@@ -1,5 +1,5 @@
 // frontend/src/app/utils/multimediaUrl.ts
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+const R2_URL = process.env.NEXT_PUBLIC_R2_URL;
 
 export type ModuleName = "temas" | "ingresos" | "presupuestos";
 
@@ -12,7 +12,7 @@ export function getUploadUrl(
   filename: string | null | undefined
 ): string | null {
   if (!filename) return null;
-  const url = `${BACKEND_URL}/${module}/uploads/${filename}`;
+  const url = `${R2_URL}/${module}/${filename}`;
   console.log("multimedia", "getUploadUrl", { module, filename, url });
   return url;
 }

@@ -47,7 +47,9 @@ export class IngresosController {
     extension: string = '.png',
   ) {
     if (file.originalname.startsWith(prefix)) {
-      dto[key] = file.filename.replace(extname(file.filename), extension);
+      const s3File = file as any;
+      const basename = (s3File.key as string).split('/').pop()!;
+      dto[key] = basename.replace(extname(basename), extension);
     }
   }
   @Patch(':id/moviles')

@@ -22,6 +22,11 @@ const nextConfig = {
         port: "3900",
         pathname: "/**/uploads/**",
       },
+      {
+        protocol: "https",
+        hostname: "*.r2.dev",
+        pathname: "/**",
+      },
     ],
   },
 };

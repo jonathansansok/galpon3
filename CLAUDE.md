@@ -94,6 +94,55 @@ npx prisma generate                    # Regenerate Prisma client
 - `BACKEND_PORT` — Backend port (default: 3900)
 - `AUTH0_ISSUER_BASE_URL`, `AUTH0_BASE_URL` — Auth0 config
 
+## Deployment (Producción)
+
+### Stack de servicios
+
+| Servicio | Plataforma | Notas |
+|----------|-----------|-------|
+| Archivos multimedia | Cloudflare R2 | Bucket: `galpon3-uploads`, URL pública: `https://pub-0bd8e4d879a54a60b29c7ffc695f395a.r2.dev` |
+| Base de datos MySQL | Aiven (free tier) | Host: `galpon3-mysql-galpon3.b.aivencloud.com:26483`, DB: `defaultdb` |
+| Backend NestJS | Render (Docker) | Repo root dir: `backend/`, puerto: `3900` |
+| Frontend Next.js | Vercel | Repo root dir: `frontend/` |
+| Autenticación | Auth0 | — |
+
+### Migración de archivos a R2
+- Módulos migrados a Cloudflare R2 (multer-s3): `temas`, `ingresos`, `presupuestos`
+- Módulos sin archivos (CRUD puro): `marcas`, `modelos`, `partes`, `piezas`, `turnos`
+- Config del cliente R2: `backend/src/config/r2.config.ts`
+- Helper de URLs en frontend: `frontend/src/app/utils/multimediaUrl.ts`
+
+### Variables de entorno de producción
+
+**Backend (Render):**
+```
+DATABASE_URL=mysql://avnadmin:<pass>@galpon3-mysql-galpon3.b.aivencloud.com:26483/defaultdb?ssl-accept=strict&sslmode=require
+BACKEND_PORT=3900
+FRONTEND_URL=https://<proyecto>.vercel.app
+JWT_SECRET=<random 64 chars>
+R2_ACCOUNT_ID=0f50c4ecf0ce79bb91967d8b2aaa6ec1
+R2_ACCESS_KEY_ID=<token>
+R2_SECRET_ACCESS_KEY=<secret>
+R2_BUCKET_NAME=galpon3-uploads
+NODE_ENV=production
+```
+
+**Frontend (Vercel):**
+```
+NEXT_PUBLIC_BACKEND_URL=https://<proyecto>.onrender.com
+NEXT_PUBLIC_R2_URL=https://pub-0bd8e4d879a54a60b29c7ffc695f395a.r2.dev
+AUTH0_SECRET=<random 32 bytes>
+AUTH0_BASE_URL=https://<proyecto>.vercel.app
+AUTH0_ISSUER_BASE_URL=https://<tenant>.auth0.com
+AUTH0_CLIENT_ID=<id>
+AUTH0_CLIENT_SECRET=<secret>
+```
+
+### Auth0 — URLs de producción a configurar
+- Allowed Callback URLs: `https://<proyecto>.vercel.app/api/auth/callback`
+- Allowed Logout URLs: `https://<proyecto>.vercel.app`
+- Allowed Web Origins: `https://<proyecto>.vercel.app`
+
 ## Conventions
 
 - All domain models share common fields: `id`, `createdAt`, `updatedAt`, `clas_seg` (ALTA/MEDIA/BAJA), location fields (`establecimiento`, `modulo_ur`, `pabellon`, `sector`), `fechaHora`, multiple image/PDF fields
