@@ -45,10 +45,11 @@ export class AuthService {
     };
     const token = this.jwtService.sign(payload);
 
+    const isProd = process.env.NODE_ENV === 'production';
     res.cookie('jwt', token, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 8 * 60 * 60 * 1000, // 8 horas
       path: '/',
     });
@@ -101,10 +102,11 @@ export class AuthService {
   }
 
   async logout(res: Response) {
+    const isProd = process.env.NODE_ENV === 'production';
     res.clearCookie('jwt', {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       path: '/',
     });
     return { message: 'Sesión cerrada' };
