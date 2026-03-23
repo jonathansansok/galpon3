@@ -96,58 +96,68 @@ npx prisma generate                    # Regenerate Prisma client
 
 ## Deployment (Producción)
 
-### Stack de servicios
+### URLs de producción
 
-| Servicio | Plataforma | Notas |
-|----------|-----------|-------|
-| Archivos multimedia | Cloudflare R2 | Bucket: `galpon3-uploads`, URL pública: `https://pub-0bd8e4d879a54a60b29c7ffc695f395a.r2.dev` |
-| Base de datos MySQL | Aiven (free tier) | Host: `galpon3-mysql-galpon3.b.aivencloud.com:26483`, DB: `defaultdb` |
-| Backend NestJS | Render (Docker) | Repo root dir: `backend/`, puerto: `3900` |
-| Frontend Next.js | Vercel | Repo root dir: `frontend/` |
-| Autenticación | Auth0 | — |
+| Servicio | URL | Plataforma |
+|----------|-----|-----------|
+| Frontend | `https://galpon3.vercel.app` | Vercel |
+| Backend | `https://galpon3.onrender.com` | Render |
+| Base de datos | `galpon3-mysql-galpon3.b.aivencloud.com:26483` | Aiven |
+| Archivos | `https://pub-0bd8e4d879a54a60b29c7ffc695f395a.r2.dev` | Cloudflare R2 |
+
+### 1. Cloudflare R2 — dash.cloudflare.com
+- **Account ID:** `0f50c4ecf0ce79bb91967d8b2aaa6ec1`
+- **Bucket:** `galpon3-uploads` (región: ENAM)
+- **URL pública:** `https://pub-0bd8e4d879a54a60b29c7ffc695f395a.r2.dev`
+- **S3 API endpoint:** `https://0f50c4ecf0ce79bb91967d8b2aaa6ec1.r2.cloudflarestorage.com`
+- **Acceso público:** habilitado (R2.dev subdomain)
+- **CORS:** GET permitido desde `http://localhost:3000` y `https://*.vercel.app`
+- **API Token:** creado con permisos "Object Read & Write" solo para `galpon3-uploads`
+- Para rotar credenciales: R2 → Manage R2 API Tokens → Create account API token
+
+### 2. Aiven MySQL — console.aiven.io
+- **Proyecto:** `galpon3` / **Servicio:** `galpon3-mysql`
+- **Plan:** Free (1 CPU, 1GB RAM, 1GB storage) — se apaga por inactividad
+- **Host:** `galpon3-mysql-galpon3.b.aivencloud.com`
+- **Puerto:** `26483` / **DB:** `defaultdb` / **User:** `avnadmin`
+- **SSL:** requerido — agregar `?ssl-accept=strict&sslmode=require` al DATABASE_URL
+- Para ver credenciales: console.aiven.io → galpon3 → galpon3-mysql → Overview → Connection information
+
+### 3. Render — render.com
+- **Servicio:** `galpon3` (Web Service)
+- **Tipo:** Docker / **Instance:** Free (duerme tras 15 min inactividad, cold start ~30s)
+- **Root Directory:** `backend` / **Branch:** `main`
+- **Service ID:** `srv-d70br4qa214c73e76l9g`
+- Variables de entorno configuradas en Render Dashboard → galpon3 → Environment:
+```
+DATABASE_URL=mysql://avnadmin:<pass>@galpon3-mysql-galpon3.b.aivencloud.com:26483/defaultdb?ssl-accept=strict&sslmode=require
+BACKEND_PORT=3900
+NODE_ENV=production
+JWT_SECRET=galpon3-jwt-secret-change-this-in-production-2024
+FRONTEND_URL=https://galpon3.vercel.app
+R2_ACCOUNT_ID=0f50c4ecf0ce79bb91967d8b2aaa6ec1
+R2_ACCESS_KEY_ID=854cf29f1044265498859374f7d0d9a2
+R2_SECRET_ACCESS_KEY=<secret>
+R2_BUCKET_NAME=galpon3-uploads
+```
+- El Dockerfile usa `prisma db push --skip-generate --accept-data-loss` (historial de migraciones roto)
+
+### 4. Vercel — vercel.com
+- **Proyecto:** `galpon3` / **Root Directory:** `frontend` / **Branch:** `main`
+- Variables de entorno configuradas en Vercel Dashboard → galpon3 → Settings → Environment Variables:
+```
+NEXT_PUBLIC_BACKEND_URL=https://galpon3.onrender.com
+NEXT_PUBLIC_R2_URL=https://pub-0bd8e4d879a54a60b29c7ffc695f395a.r2.dev
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaSyAczsxXofuI3k5cXJ5DQDO9YJNOLmnN_jE
+```
+- Deploy automático en cada push a `main`
 
 ### Migración de archivos a R2
 - Módulos migrados a Cloudflare R2 (multer-s3): `temas`, `ingresos`, `presupuestos`
 - Módulos sin archivos (CRUD puro): `marcas`, `modelos`, `partes`, `piezas`, `turnos`
 - Config del cliente R2: `backend/src/config/r2.config.ts`
 - Helper de URLs en frontend: `frontend/src/app/utils/multimediaUrl.ts`
-
-### Variables de entorno de producción
-
-**Backend (Render):**
-```
-DATABASE_URL=mysql://avnadmin:<pass>@galpon3-mysql-galpon3.b.aivencloud.com:26483/defaultdb?ssl-accept=strict&sslmode=require
-BACKEND_PORT=3900
-FRONTEND_URL=https://<proyecto>.vercel.app
-JWT_SECRET=<random 64 chars>
-R2_ACCOUNT_ID=0f50c4ecf0ce79bb91967d8b2aaa6ec1
-R2_ACCESS_KEY_ID=<token>
-R2_SECRET_ACCESS_KEY=<secret>
-R2_BUCKET_NAME=galpon3-uploads
-NODE_ENV=production
-```
-
-**Frontend (Vercel):**
-```
-NEXT_PUBLIC_BACKEND_URL=https://<proyecto>.onrender.com
-NEXT_PUBLIC_R2_URL=https://pub-0bd8e4d879a54a60b29c7ffc695f395a.r2.dev
-AUTH0_SECRET=<random 32 bytes>
-AUTH0_BASE_URL=https://<proyecto>.vercel.app
-AUTH0_ISSUER_BASE_URL=https://<tenant>.auth0.com
-AUTH0_CLIENT_ID=<id>
-AUTH0_CLIENT_SECRET=<secret>
-```
-
-### Auth0 — URLs de producción a configurar
-- Allowed Callback URLs: `https://<proyecto>.vercel.app/api/auth/callback`
-- Allowed Logout URLs: `https://<proyecto>.vercel.app`
-- Allowed Web Origins: `https://<proyecto>.vercel.app`
-
-### Notas sobre migraciones
-- El Dockerfile usa `prisma db push --skip-generate` en vez de `prisma migrate deploy`
-- La historia de migraciones está rota (tablas originales creadas fuera de Prisma)
-- `db push` aplica el schema actual directamente a la DB sin depender del historial
-- multer-s3 se importa con `require()` (no `import default`) por incompatibilidad CJS/ESM
+- multer-s3 se importa con `require()` (no `import default`) — incompatibilidad CJS/ESM
 
 ## Conventions
 
