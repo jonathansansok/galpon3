@@ -64,7 +64,7 @@ export default function AppContentLayoutComponent(
   {user && (
     <div className="flex flex-col lg:flex-row flex-grow">
       <div
-        className={`fixed top-0 left-0 h-screen bg-white z-20 transition-transform duration-300 ${
+        className={`fixed top-0 left-0 h-screen bg-white z-40 transition-transform duration-300 ${
           isSidebarCollapsed ? "-translate-x-full" : "translate-x-0"
         } lg:w-60 w-2/3 md:hidden lg:block`}
         onMouseEnter={handleMouseEnter}
@@ -115,7 +115,7 @@ export default function AppContentLayoutComponent(
             </div>
           </div>
           {/* Botón de logout fijo */}
-          <div className="absolute bottom-0 left-0 w-full p-6 bg-white border-t border-gray-200">
+          <div className="absolute bottom-10 left-0 w-full p-6 bg-white border-t border-gray-200">
             <p className="text-left text-gray-800 font-bold mb-5 break-words">
               {[user?.nombre, user?.apellido].filter(Boolean).join(" ") || user?.email}
             </p>
