@@ -33,8 +33,12 @@ export class PlazasService implements OnModuleInit {
     }
   }
 
-  async findAll() {
-    return this.prisma.plazas.findMany({ orderBy: { numero: 'asc' } });
+  async findAll(pisoId?: number) {
+    return this.prisma.plazas.findMany({
+      where: pisoId !== undefined ? { pisoId } : undefined,
+      orderBy: { numero: 'asc' },
+      include: { piso: { select: { id: true, nombre: true, orden: true } } },
+    });
   }
 
   async findOne(id: number) {

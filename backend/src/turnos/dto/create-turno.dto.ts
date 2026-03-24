@@ -1,5 +1,5 @@
 //backend\src\turnos\dto\create-turno.dto.ts
-import { IsOptional, IsString, IsInt, Min, Max } from 'class-validator';
+import { IsOptional, IsString, IsInt, Min, IsArray, ArrayUnique } from 'class-validator';
 
 export class CreateTurnoDto {
   @IsOptional()
@@ -8,7 +8,6 @@ export class CreateTurnoDto {
 
   @IsInt()
   @Min(1)
-  @Max(8)
   plaza: number;
 
   @IsString()
@@ -32,4 +31,10 @@ export class CreateTurnoDto {
   @IsOptional()
   @IsString()
   observaciones?: string;
+
+  @IsArray()
+  @IsInt({ each: true })
+  @ArrayUnique()
+  @IsOptional()
+  reparadorIds?: number[];
 }

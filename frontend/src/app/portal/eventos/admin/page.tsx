@@ -4,6 +4,8 @@ import { createPortal } from "react-dom";
 import { useUserStore } from "@/lib/store";
 import { getUsers, updateUser, deleteUser, generateResetLink } from "./admin.api";
 import { toast } from "react-toastify";
+import HorarioTab from "../plazas-config/HorarioTab";
+import FeriadosTab from "./FeriadosTab";
 
 interface User {
   id: number;
@@ -20,6 +22,7 @@ interface User {
 
 export default function AdminPage() {
   const privilege = useUserStore((state) => state.privilege);
+  const [tab, setTab] = useState<"usuarios" | "horario" | "feriados">("usuarios");
 
   if (privilege !== "A1") {
     return (
@@ -41,11 +44,34 @@ export default function AdminPage() {
     <div className="min-h-screen bg-slate-50/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Panel de Administracion</h1>
-          <p className="text-sm text-slate-500 mt-1">Gestion de usuarios y permisos del sistema</p>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Panel de Administración</h1>
+          <p className="text-sm text-slate-500 mt-1">Gestión de usuarios, permisos y configuración del taller</p>
         </div>
-        <UsersSection />
+
+        {/* Tabs */}
+        <div className="flex gap-1 border-b border-gray-200 mb-6">
+          <button
+            onClick={() => setTab("usuarios")}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${tab === "usuarios" ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+          >
+            Usuarios
+          </button>
+          <button
+            onClick={() => setTab("horario")}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${tab === "horario" ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+          >
+            Horario del taller
+          </button>
+          <button
+            onClick={() => setTab("feriados")}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${tab === "feriados" ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+          >
+            Feriados
+          </button>
+        </div>
+
+        {tab === "usuarios" ? <UsersSection /> : tab === "horario" ? <HorarioTab /> : <FeriadosTab />}
       </div>
     </div>
   );

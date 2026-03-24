@@ -1030,9 +1030,22 @@ export const ShowTemas = async (
 export const ShowPresupuestos = async (
   success: boolean,
   mensajeTitulo: string,
-  data: any
+  data: any,
+  cliente: any = null
 ) => {
   if (success) {
+    const clienteSection = cliente ? `
+
+*Datos del Cliente:*
+- *Nombre*: ${cliente.nombre || "No disponible"}
+- *Apellido*: ${cliente.apellido || "No disponible"}
+- *Teléfono*: ${cliente.telefono || "No disponible"}
+- *Email*: ${cliente.email || "No disponible"}
+- *CUIT*: ${cliente.cuit || "No disponible"}
+- *Localidad*: ${cliente.localidad || "No disponible"}` : "";
+    const telefono = (cliente?.telefono && cliente.telefono !== "No disponible")
+      ? cliente.telefono
+      : (data?.clienteTelefono ?? "");
     const text = `
 *${mensajeTitulo}*
 
@@ -1055,12 +1068,13 @@ export const ShowPresupuestos = async (
 - *Chasis*: ${data.chasis || "No especificado"}
 - *Combustión*: ${data.combustion || "No especificado"}
 - *VIN*: ${data.vin || "No especificado"}
+${clienteSection}
 `;
 
-    await Alert.success({
+    await Alert.successWithContact({
       title: mensajeTitulo,
       text,
-      icon: "success",
+      phone: telefono,
       confirmButtonText: "ACEPTAR",
     });
   } else {
@@ -1070,6 +1084,50 @@ export const ShowPresupuestos = async (
     });
   }
 };
+export const ShowTurnos = async (
+  success: boolean,
+  mensajeTitulo: string,
+  turnoData: any,
+  presupuestoData: any = null,
+  plazaNombre: string = "",
+  reparadoresTexto: string = "",
+  telefono: string = ""
+) => {
+  if (success) {
+    const inicioReal = turnoData?.fechaHoraInicioReal
+      ? `\n*Inicio real*: ${formatDateTime(turnoData.fechaHoraInicioReal)}`
+      : "";
+    const reparadores = reparadoresTexto ? `\n*Reparadores*: ${reparadoresTexto}` : "";
+    const text = `
+*${mensajeTitulo}*
+
+*Plaza*: ${plazaNombre || turnoData?.plaza || "No especificado"}
+*Inicio estimado*: ${turnoData?.fechaHoraInicioEstimada ? formatDateTime(turnoData.fechaHoraInicioEstimada) : "No especificado"}
+*Fin estimado*: ${turnoData?.fechaHoraFinEstimada ? formatDateTime(turnoData.fechaHoraFinEstimada) : "No especificado"}${inicioReal}
+*Estado*: ${turnoData?.estado || "No especificado"}
+*Observaciones*: ${turnoData?.observaciones || "No especificado"}${reparadores}
+
+*Vehículo Asociado:*
+- *Patente*: ${presupuestoData?.patente || "No especificado"}
+- *Marca*: ${presupuestoData?.marca || "No especificado"}
+- *Modelo*: ${presupuestoData?.modelo || "No especificado"}
+- *Año*: ${presupuestoData?.anio || "No especificado"}
+- *Color*: ${presupuestoData?.color || "No especificado"}
+`;
+    await Alert.successWithContact({
+      title: mensajeTitulo,
+      text,
+      phone: telefono,
+      confirmButtonText: "ACEPTAR",
+    });
+  } else {
+    Alert.error({
+      title: "ERROR",
+      text: "HUBO UN PROBLEMA AL PROCESAR LA SOLICITUD.",
+    });
+  }
+};
+
 export const showCancelAlert = () => {
   Alert.info({
     title: "Cancelado",

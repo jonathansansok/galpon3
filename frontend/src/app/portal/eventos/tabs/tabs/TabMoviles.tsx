@@ -1,6 +1,6 @@
 "use client";
 // frontend/src/app/portal/eventos/tabs/tabs/TabMoviles.tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRepairStore } from "@/lib/repairStore";
 import { getTemas } from "../../temas/Temas.api";
 import { anexarMoviles } from "../../ingresos/ingresos.api";
@@ -8,6 +8,7 @@ import { Tema } from "@/types/Tema";
 import { buttonVariants } from "@/components/ui/button";
 import { TemaForm } from "../../temas/new/TemaForm";
 import Link from "next/link";
+import FileIndicatorsCell from "@/components/ui/FileIndicatorsCell";
 
 export default function TabMoviles() {
   const [moviles, setMoviles] = useState<Tema[]>([]);
@@ -15,6 +16,12 @@ export default function TabMoviles() {
   const [loading, setLoading] = useState(false);
   const [showNewForm, setShowNewForm] = useState(false);
   const [expandedEditId, setExpandedEditId] = useState<number | null>(null);
+  const [scrollBackToId, setScrollBackToId] = useState<number | null>(null);
+  const [highlightId, setHighlightId] = useState<number | null>(null);
+  const editFormRef = useRef<HTMLDivElement>(null);
+  const newFormRef  = useRef<HTMLDivElement>(null);
+  const rowRefs     = useRef<Map<number, HTMLTableRowElement>>(new Map());
+  const lastEditedId = useRef<number | null>(null);
   const selectedCliente = useRepairStore((s) => s.selectedCliente);
   const selectedMovil = useRepairStore((s) => s.selectedMovil);
   const selectMovil = useRepairStore((s) => s.selectMovil);
@@ -45,9 +52,29 @@ export default function TabMoviles() {
     selectMovil(movil);
   };
 
+  useEffect(() => {
+    if (expandedEditId !== null)
+      editFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [expandedEditId]);
+
+  useEffect(() => {
+    if (showNewForm)
+      newFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [showNewForm]);
+
+  useEffect(() => {
+    if (scrollBackToId !== null && !loading) {
+      rowRefs.current.get(scrollBackToId)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setHighlightId(scrollBackToId);
+      setScrollBackToId(null);
+      setTimeout(() => setHighlightId(null), 3000);
+    }
+  }, [scrollBackToId, loading]);
+
   const handleToggleEdit = (id: number) => {
     const next = expandedEditId === id ? null : id;
     console.log("[linear] TabMoviles setExpandedEditId:", next);
+    if (next !== null) lastEditedId.current = id;
     setExpandedEditId(next);
     if (next !== null) setShowNewForm(false);
   };
@@ -61,7 +88,9 @@ export default function TabMoviles() {
 
   const handleEditSuccess = () => {
     console.log("[linear] TabMoviles handleEdit success, reloading");
+    const id = lastEditedId.current;
     setExpandedEditId(null);
+    setScrollBackToId(id);
     handleLoadData();
   };
 
@@ -95,11 +124,16 @@ export default function TabMoviles() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2">
         <h2 className="text-2xl font-bold">Móviles</h2>
-        <button onClick={handleToggleNew} className={buttonVariants({ variant: showNewForm ? "outline" : "default" })}>
-          {showNewForm ? "✕ Cancelar" : "+ Agregar Móvil"}
-        </button>
+        <div>
+          <button
+            onClick={handleToggleNew}
+            className={showNewForm ? buttonVariants({ variant: "outline" }) : "bg-green-500 hover:bg-green-400 text-white text-sm font-medium px-4 py-2 rounded-md transition-colors"}
+          >
+            {showNewForm ? "✕ Cancelar" : "+ Agregar Móvil"}
+          </button>
+        </div>
       </div>
 
       {selectedCliente && (
@@ -134,52 +168,82 @@ export default function TabMoviles() {
       )}
 
       {filtered.length > 0 ? (
-        <div className="overflow-x-auto rounded-lg border border-gray-200">
+        <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
           <table className="min-w-full text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Patente</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Marca</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Modelo</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Año</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Color</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Tipo</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Acciones</th>
+            <thead>
+              <tr className="border-b border-gray-200 bg-gray-50/80">
+                <th className="px-3 py-3 w-20" />
+                <th className="px-3 py-3 w-24 text-center" title="Archivos adjuntos">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mx-auto text-gray-400">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
+                  </svg>
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Patente</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Marca</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Modelo</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Año</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Color</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">Tipo</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-100">
               {filtered.map((movil) => {
                 const isSelected = selectedMovil?.id === movil.id;
                 const isEditing = expandedEditId === movil.id;
                 return (
                   <tr
                     key={movil.id}
+                    ref={(el) => { if (el) rowRefs.current.set(movil.id, el); else rowRefs.current.delete(movil.id); }}
                     onClick={() => handleSelect(movil)}
-                    className={`cursor-pointer border-t border-gray-100 transition ${
-                      isEditing ? "bg-green-50" : isSelected ? "bg-green-100" : "hover:bg-gray-50"
+                    className={`cursor-pointer transition-all duration-700 ${
+                      highlightId === movil.id ? "bg-green-200 ring-1 ring-inset ring-green-400" :
+                      isEditing ? "bg-green-50" : isSelected ? "bg-green-50" : "hover:bg-gray-50/70"
                     }`}
                   >
-                    <td className="px-4 py-3 font-medium">{(movil as any).patente || "—"}</td>
-                    <td className="px-4 py-3">{(movil as any).marca || "—"}</td>
-                    <td className="px-4 py-3">{(movil as any).modelo || "—"}</td>
+                    <td className="px-3 py-2.5 w-20">
+                      <div className="flex items-center gap-1">
+                        <Link
+                          href={`/portal/eventos/temas/${movil.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          title="Ver detalle"
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.641 0-8.573-3.007-9.964-7.178Z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                          </svg>
+                        </Link>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleToggleEdit(movil.id); }}
+                          title={isEditing ? "Cerrar" : "Editar"}
+                          className={`inline-flex items-center justify-center w-7 h-7 rounded-lg transition-colors ${
+                            isEditing ? "text-red-500 bg-red-50" : "text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          {isEditing ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                              <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                            </svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                              <path d="m5.433 13.917 1.262-3.155A4 4 0 0 1 7.58 9.42l6.92-6.918a2.121 2.121 0 0 1 3 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 0 1-.643-.643Z" />
+                              <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0 0 10 3H4.75A2.75 2.75 0 0 0 2 5.75v9.5A2.75 2.75 0 0 0 4.75 18h9.5A2.75 2.75 0 0 0 17 15.25V10a.75.75 0 0 0-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5Z" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5 w-24">
+                      <FileIndicatorsCell module="temas" row={movil} />
+                    </td>
+                    <td className="px-4 py-3 font-medium text-gray-800">{(movil as any).patente || "—"}</td>
+                    <td className="px-4 py-3 text-gray-700">{(movil as any).marca || "—"}</td>
+                    <td className="px-4 py-3 text-gray-700">{(movil as any).modelo || "—"}</td>
                     <td className="px-4 py-3 text-gray-500">{(movil as any).anio || "—"}</td>
                     <td className="px-4 py-3 text-gray-500">{(movil as any).color || "—"}</td>
                     <td className="px-4 py-3 text-gray-500">{(movil as any).tipoVehic || "—"}</td>
-                    <td className="px-4 py-3">
-                      <Link
-                        href={`/portal/eventos/temas/${movil.id}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-blue-600 hover:underline text-xs mr-2"
-                      >
-                        Ver
-                      </Link>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleToggleEdit(movil.id); }}
-                        className={`text-xs underline ${isEditing ? "text-red-500" : "text-gray-500 hover:text-gray-700"}`}
-                      >
-                        {isEditing ? "Cerrar" : "Editar"}
-                      </button>
-                    </td>
                   </tr>
                 );
               })}
@@ -198,7 +262,7 @@ export default function TabMoviles() {
 
       {/* Formulario de edición inline */}
       {editingItem && (
-        <div className="border border-green-300 rounded-lg p-4 bg-green-50">
+        <div ref={editFormRef} className="border border-green-300 rounded-lg p-4 bg-green-50">
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-semibold text-green-800">
               ✏️ Editando: {(editingItem as any).patente} — {(editingItem as any).marca} {(editingItem as any).modelo}
@@ -211,7 +275,7 @@ export default function TabMoviles() {
 
       {/* Formulario de creación inline */}
       {showNewForm && (
-        <div className="border border-dashed border-green-400 rounded-lg p-4 bg-green-50">
+        <div ref={newFormRef} className="border border-dashed border-green-400 rounded-lg p-4 bg-green-50">
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-semibold text-green-800">
               + Nuevo Móvil

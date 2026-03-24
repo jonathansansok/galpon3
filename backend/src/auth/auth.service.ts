@@ -50,7 +50,7 @@ export class AuthService {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
-      maxAge: 8 * 60 * 60 * 1000, // 8 horas
+      maxAge: 12 * 60 * 60 * 1000, // 12 horas
       path: '/',
     });
 

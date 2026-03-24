@@ -1,4 +1,4 @@
-import { IsInt, IsString, IsBoolean, IsOptional, Min, MaxLength } from 'class-validator';
+import { IsInt, IsString, IsBoolean, IsOptional, Min, MaxLength, IsNumber } from 'class-validator';
 
 export class CreatePlazaDto {
   @IsInt()
@@ -28,4 +28,8 @@ export class CreatePlazaDto {
   @IsInt()
   @IsOptional()
   alto?: number;
+
+  @IsInt()
+  @IsOptional()
+  pisoId?: number;
 }

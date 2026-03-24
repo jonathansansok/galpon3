@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getTrabajoRealizado, updateTrabajoRealizado } from "../../TrabajosRealizados.api";
+import { getHorario } from "../../../plazas-config/Horario.api";
+import { getFeriados } from "../../../admin/Feriados.api";
+import { HorarioDiaConfig, FeriadoConfig } from "@/utils/businessHours";
+import TurnoDatePicker from "@/components/ui/TurnoDatePicker";
 
 interface Props {
   params: { id: string };
@@ -20,6 +24,13 @@ export default function EditTrabajoRealizadoPage({ params }: Props) {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [horarioConfig, setHorarioConfig] = useState<HorarioDiaConfig[]>([]);
+  const [feriadosConfig, setFeriadosConfig] = useState<FeriadoConfig[]>([]);
+
+  useEffect(() => {
+    getHorario().then(setHorarioConfig).catch(() => {});
+    getFeriados().then((d) => setFeriadosConfig(d.map((f) => ({ fecha: f.fecha, esAnual: f.esAnual, nombre: f.nombre })))).catch(() => {});
+  }, []);
 
   useEffect(() => {
     getTrabajoRealizado(params.id)
@@ -70,16 +81,14 @@ export default function EditTrabajoRealizadoPage({ params }: Props) {
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de realización</label>
-          <input
-            type="datetime-local"
-            name="fechaRealiz"
-            value={form.fechaRealiz}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          />
-        </div>
+        <TurnoDatePicker
+          value={form.fechaRealiz}
+          onChange={(iso) => setForm((prev) => ({ ...prev, fechaRealiz: iso }))}
+          horario={horarioConfig}
+          feriados={feriadosConfig}
+          label="Fecha de realización"
+          allowPast
+        />
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
           <textarea

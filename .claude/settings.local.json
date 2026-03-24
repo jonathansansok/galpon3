@@ -5,7 +5,16 @@
       "Bash(claude mcp:*)",
       "Bash(git push:*)",
       "Bash(npm run:*)",
-      "Bash(grep -l \"select\\\\|dropdown\\\\|combo\" \"C:\\\\repos\\\\galpon3\\\\galpon3\\\\frontend\\\\src\\\\components\\\\ui\"/*.tsx)"
+      "Bash(grep -l \"select\\\\|dropdown\\\\|combo\" \"C:\\\\repos\\\\galpon3\\\\galpon3\\\\frontend\\\\src\\\\components\\\\ui\"/*.tsx)",
+      "Bash(find /c/repos/galpon3/galpon3/frontend/src -type f \\\\\\(-name *calendar* -o -name *Calendar* -o -name *calendario* -o -name *Calendario* \\\\\\))",
+      "Bash(grep -rn \"with-movil-data\\\\|withMovilData\" C:/repos/galpon3/galpon3/backend/src --include=*.ts)",
+      "Bash(grep -rn \"clienteData\\\\|setClienteData\\\\|telefono\" C:/repos/galpon3/galpon3/frontend/src/lib/ --include=*.ts --include=*.tsx)",
+      "Skill(update-config)",
+      "Bash(where playwright-mcp:*)",
+      "Bash(grep -rn \"toast\\\\|toastify\\\\|Toast\" C:/repos/galpon3/galpon3/frontend/src --include=*.tsx --include=*.ts -l)",
+      "Bash(grep -r window.console /c/repos/galpon3/galpon3/frontend --include=*.ts --include=*.tsx --include=*.js)",
+      "Bash(grep -r \"suppress\\\\|silent\\\\|quiet\" /c/repos/galpon3/galpon3/frontend --include=*.json --include=*.config.*)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")"
     ]
   }
 }

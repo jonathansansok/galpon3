@@ -1,6 +1,6 @@
 //frontend\src\components\layouts\AppContentLayoutComponent.tsx
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import {
@@ -43,10 +43,14 @@ export default function AppContentLayoutComponent(
   const router = useRouter();
   const pathname = usePathname();
 
-  console.log('[AppContentLayout] user:', user, 'privilege:', privilege);
+  const [mounted, setMounted] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [calendarioOpen, setCalendarioOpen] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!mounted) return null;
 
   // Redirigir C1 a turnos si intenta acceder a otra sección
   const isC1 = privilege === "C1";
@@ -78,9 +82,8 @@ export default function AppContentLayoutComponent(
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <div className="relative h-full">
-          {/* Contenido desplazable */}
-          <div className="p-6 h-full overflow-y-auto pb-40">
+        <div className="h-full">
+          <div className="p-6 h-full overflow-y-auto">
             <div className="flex flex-col justify-start items-center">
               <Link href="/" onClick={handleLinkClick}>
                 <h1 className="text-2xl text-center cursor-pointer font-bold text-blue-900 border-b border-gray-100 pb-1 w-full">
@@ -90,15 +93,27 @@ export default function AppContentLayoutComponent(
               <div className="my-0 border-b border-gray-100 pb-4">
                 {[
                   { href: "/portal/eventos/tabs", label: "Flujo de Reparación", icon: <FaClipboardList className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
+                  { href: "/portal/eventos/marcas", label: "Marcas/Modelos", icon: <FaCar className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
+                  { href: "/portal/eventos/piezas", label: "Piezas", icon: <FaCogs className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
+                  { href: "/portal/eventos/partes", label: "Partes", icon: <FaCogs className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
+                ].filter((item) => !privilege || item.roles.includes(privilege)).map((item) => (
+                  <Link key={item.href} href={item.href} onClick={handleLinkClick}>
+                    <div className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto">
+                      {item.icon}
+                      <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
+                        {item.label}
+                      </h3>
+                    </div>
+                  </Link>
+                ))}
+                <hr className="my-2 border-gray-300" />
+                {[
                   { href: "/portal/eventos", label: "Dashboard", icon: <MdOutlineSpaceDashboard className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                   { href: "/portal/eventos/ingresos", label: "Clientes", icon: <CgProfile className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                   { href: "/portal/eventos/temas", label: "Móviles", icon: <FaCarAlt className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                   { href: "/portal/eventos/presupuestos", label: "Presupuestos", icon: <FaFileInvoiceDollar className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                   { href: "/portal/eventos/turnos", label: "Turnos", icon: <MdOutlineEvent className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1", "C1"] },
                   { href: "/portal/eventos/ingresosok", label: "Ingresos", icon: <FaCheckCircle className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
-                  { href: "/portal/eventos/marcas", label: "Marcas/Modelos", icon: <FaCar className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
-                  { href: "/portal/eventos/piezas", label: "Piezas", icon: <FaCogs className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
-                  { href: "/portal/eventos/partes", label: "Partes", icon: <FaCogs className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                   { href: "/portal/eventos/realizados", label: "Trabajos realizados", icon: <FaWrench className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1", "B1"] },
                   { href: "/portal/eventos/plazas-config", label: "Config. Plazas", icon: <FaWarehouse className="text-2xl text-gray-600 group-hover:text-white" />, roles: ["A1"] },
                 ].filter((item) => !privilege || item.roles.includes(privilege)).map((item) => (
@@ -122,22 +137,16 @@ export default function AppContentLayoutComponent(
                   </Link>
                 )}
               </div>
+              <button
+                onClick={() => setShowLogoutModal(true)}
+                className="flex mb-1 justify-start items-center gap-4 pl-5 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg m-auto w-full mt-4"
+              >
+                <MdOutlineLogout className="text-2xl text-gray-600 group-hover:text-white" />
+                <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
+                  Cerrar sesión
+                </h3>
+              </button>
             </div>
-          </div>
-          {/* Botón de logout fijo */}
-          <div className="absolute bottom-14 left-0 w-full p-6 bg-white border-t border-gray-200">
-            <p className="text-left text-gray-800 font-bold mb-5 break-words">
-              {[user?.nombre, user?.apellido].filter(Boolean).join(" ") || user?.email}
-            </p>
-            <button
-              onClick={() => setShowLogoutModal(true)}
-              className="flex w-full justify-start items-center gap-4 pl-5 border border-gray-200 hover:bg-gray-900 p-2 rounded-md group cursor-pointer hover:shadow-lg"
-            >
-              <MdOutlineLogout className="text-2xl text-gray-600 group-hover:text-white" />
-              <h3 className="text-base text-gray-800 group-hover:text-white font-semibold">
-                Logout
-              </h3>
-            </button>
           </div>
         </div>
       </div>

@@ -202,3 +202,21 @@ export async function deleteTurno(id: string) {
     return { success: false, data: null, error: (error as Error)?.message || "Error desconocido", message: null };
   }
 }
+
+export interface Reparador {
+  id: number;
+  uuid: string;
+  nombre: string | null;
+  apellido: string | null;
+  privilege: string;
+}
+
+export async function getReparadores(): Promise<Reparador[]> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/users/reparadores`, { cache: "no-store" });
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+}

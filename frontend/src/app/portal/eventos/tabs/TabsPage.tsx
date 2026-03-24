@@ -1,5 +1,6 @@
 "use client";
 // frontend/src/app/portal/eventos/tabs/TabsPage.tsx
+import { useState, useEffect } from "react";
 import { useRepairStore } from "@/lib/repairStore";
 import RepairBreadcrumb from "./RepairBreadcrumb";
 import TabClientes from "./tabs/TabClientes";
@@ -19,6 +20,9 @@ const TABS = [
 ] as const;
 
 export default function TabsPage() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   const activeTab = useRepairStore((s) => s.activeTab);
   const setActiveTab = useRepairStore((s) => s.setActiveTab);
   const selectedCliente = useRepairStore((s) => s.selectedCliente);
@@ -39,6 +43,8 @@ export default function TabsPage() {
     console.log("[linear] TabsPage handleTabClick:", index);
     setActiveTab(index);
   };
+
+  if (!mounted) return null;
 
   return (
     <div className="flex flex-col w-full px-4 py-6 gap-4">

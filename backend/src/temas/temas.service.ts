@@ -90,40 +90,44 @@ export class TemasService {
   }
 
   async update(id: number, updateTemasDto: UpdateTemaDto) {
+    console.log(`🟩 [TEMA SVC] update id=${id} START`);
     try {
-      // Parsear nombresOriginales si viene como string JSON
       if (updateTemasDto.nombresOriginales && typeof updateTemasDto.nombresOriginales === 'string') {
         try { updateTemasDto.nombresOriginales = JSON.parse(updateTemasDto.nombresOriginales); } catch { /* ignore */ }
       }
 
-      // Limpiar campos de archivos que se enviaron como vacíos (eliminados desde frontend)
+      // Log de todos los campos de archivo antes de limpiar
+      const beforeClean = this.FILE_FIELDS.map((f) => `${f}=${JSON.stringify(updateTemasDto[f])}`);
+      console.log(`🟩 [TEMA SVC] file fields ANTES limpieza: ${beforeClean.join(' | ')}`);
+
       for (const field of this.FILE_FIELDS) {
         if (updateTemasDto[field] === '') {
+          console.log(`🟩 [TEMA SVC] campo '${field}' vacío → null`);
           updateTemasDto[field] = null;
         }
       }
 
+      const afterClean = this.FILE_FIELDS
+        .filter((f) => updateTemasDto[f] !== undefined)
+        .map((f) => `${f}=${JSON.stringify(updateTemasDto[f])}`);
+      console.log(`🟩 [TEMA SVC] file fields DESPUÉS limpieza: ${afterClean.join(' | ')}`);
+      console.log(`🟩 [TEMA SVC] llamando prisma.update id=${id}…`);
+
       const result = await this.prismaService.temas.update({
-        where: {
-          id,
-        },
+        where: { id },
         data: updateTemasDto,
       });
 
-      if (!result) {
-        throw new NotFoundException(`Temas record with id ${id} not found`);
-      }
+      console.log(`🟩 [TEMA SVC] ✅ prisma.update OK id=${result?.id} patente=${result?.patente}`);
 
+      if (!result) throw new NotFoundException(`Temas record with id ${id} not found`);
       return result;
     } catch (error) {
-      console.error('[ERROR] Error al actualizar el tema:', error);
-
+      console.error(`🟩 [TEMA SVC] ❌ ERROR update id=${id}:`, error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ConflictException('El registro ya existe.');
-        }
+        if (error.code === 'P2002') throw new ConflictException('El registro ya existe.');
+        console.error(`🟩 [TEMA SVC] Prisma error code=${error.code} meta=${JSON.stringify(error.meta)}`);
       }
-
       throw new InternalServerErrorException('Error al actualizar el tema');
     }
   }

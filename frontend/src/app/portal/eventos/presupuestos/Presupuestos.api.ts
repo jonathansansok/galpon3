@@ -20,6 +20,17 @@ export async function getPresupuestosWithMovilData() {
   }
 }
 
+export async function getPresupuestoClienteTelefono(id: number): Promise<string> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/presupuestos/${id}/cliente-telefono`, { cache: "no-store" });
+    if (!res.ok) return "";
+    const data = await res.json();
+    return data.clienteTelefono ?? "";
+  } catch {
+    return "";
+  }
+}
+
 export async function getMovilById(movilId: string) {
   try {
     const res = await fetch(`${BACKEND_URL}/api/temas/${movilId}`, {

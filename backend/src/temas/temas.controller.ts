@@ -155,14 +155,23 @@ export class TemasController {
     @Body() updateTemasDto: UpdateTemaDto,
     @Req() req: Request,
   ) {
+    console.log(`🟩 [TEMA CTRL] PATCH /temas/${id} ── START`);
+    console.log(`🟩 [TEMA CTRL] archivos recibidos: ${files?.length ?? 0}`);
+    if (files?.length) {
+      console.log('🟩 [TEMA CTRL] archivos:', files.map((f) => ({
+        name: f.originalname, size: f.size, field: (f as any).key ?? 'disk',
+      })));
+    }
+    console.log('🟩 [TEMA CTRL] DTO body keys:', Object.keys(updateTemasDto));
+    console.log('🟩 [TEMA CTRL] DTO file fields en body:', {
+      imagen: updateTemasDto['imagen'], imagenDer: updateTemasDto['imagenDer'],
+      imagenIz: updateTemasDto['imagenIz'], pdf1: updateTemasDto['pdf1'],
+    });
     try {
-      // Validar el token CSRF
       validateRequest(req);
-      console.log('Token CSRF válido');
+      console.log('🟩 [TEMA CTRL] CSRF válido');
 
-      // Procesar los archivos
       if (files && Array.isArray(files)) {
-        console.log('multimedia', 'archivos recibidos PATCH temas', files?.map(f => ({ name: f.originalname, size: f.size })));
         files.forEach((file) => {
           if (file.size > 4 * 1024 * 1024) {
             throw new HttpException(
@@ -192,24 +201,22 @@ export class TemasController {
           this.processFile(file, updateTemasDto, 'pdf10-', 'pdf10', '.pdf');
           this.processFile(file, updateTemasDto, 'word1-', 'word1', '.docx');
         });
+        console.log('🟩 [TEMA CTRL] DTO file fields post-processFile:', {
+          imagen: updateTemasDto['imagen'], imagenDer: updateTemasDto['imagenDer'],
+          imagenIz: updateTemasDto['imagenIz'], pdf1: updateTemasDto['pdf1'],
+        });
       } else {
-        console.warn('[PATCH] No se recibieron archivos.');
+        console.warn('🟩 [TEMA CTRL] ⚠️ sin archivos en PATCH');
       }
 
+      console.log(`🟩 [TEMA CTRL] llamando service.update id=${id}…`);
       const result = await this.temasService.update(id, updateTemasDto);
-      return {
-        message: 'Tema actualizado exitosamente',
-        data: result,
-      };
+      console.log(`🟩 [TEMA CTRL] ✅ update OK id=${result?.id}`);
+      return { message: 'Tema actualizado exitosamente', data: result };
     } catch (error) {
-      console.error('Error al actualizar tema:', error.message);
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      throw new HttpException(
-        'Invalid CSRF token or other error',
-        HttpStatus.FORBIDDEN,
-      );
+      console.error(`🟩 [TEMA CTRL] ❌ ERROR en PATCH id=${id}:`, error.message, error.stack);
+      if (error instanceof HttpException) throw error;
+      throw new HttpException('Invalid CSRF token or other error', HttpStatus.FORBIDDEN);
     }
   }
 

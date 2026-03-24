@@ -13,12 +13,17 @@ export interface Plaza {
   posY: number | null;
   ancho: number | null;
   alto: number | null;
+  pisoId: number | null;
+  piso?: { id: number; nombre: string; orden: number } | null;
   createdAt: string;
   updatedAt: string;
 }
 
-export async function getPlazas(): Promise<Plaza[]> {
-  const res = await fetch(`${BACKEND_URL}/api/plazas`, { cache: 'no-store' });
+export async function getPlazas(pisoId?: number): Promise<Plaza[]> {
+  const url = pisoId !== undefined
+    ? `${BACKEND_URL}/api/plazas?pisoId=${pisoId}`
+    : `${BACKEND_URL}/api/plazas`;
+  const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error('Error al obtener plazas');
   return res.json();
 }
@@ -29,7 +34,7 @@ export async function getPlazaTurnosActivos(id: number): Promise<{ count: number
   return res.json();
 }
 
-export async function createPlaza(data: { numero: number; nombre: string; activa?: boolean }) {
+export async function createPlaza(data: { numero: number; nombre: string; activa?: boolean; pisoId?: number }) {
   const csrfToken = await getCsrfToken();
   const res = await fetch(`${BACKEND_URL}/api/plazas`, {
     method: 'POST',
@@ -42,7 +47,7 @@ export async function createPlaza(data: { numero: number; nombre: string; activa
   return { success: true, data: json };
 }
 
-export async function updatePlaza(id: number, data: Partial<{ numero: number; nombre: string; activa: boolean }>) {
+export async function updatePlaza(id: number, data: Partial<{ numero: number; nombre: string; activa: boolean; pisoId: number; posX: number; posY: number; ancho: number; alto: number }>) {
   const csrfToken = await getCsrfToken();
   const res = await fetch(`${BACKEND_URL}/api/plazas/${id}`, {
     method: 'PATCH',
@@ -53,23 +58,6 @@ export async function updatePlaza(id: number, data: Partial<{ numero: number; no
   const json = await res.json().catch(() => null);
   if (!res.ok) return { success: false, error: json?.message || 'Error al actualizar' };
   return { success: true, data: json };
-}
-
-export async function getTallerConfig(): Promise<{ canvasW: number; canvasH: number }> {
-  const res = await fetch(`${BACKEND_URL}/api/taller-config`, { cache: 'no-store' });
-  if (!res.ok) return { canvasW: 1400, canvasH: 600 };
-  return res.json();
-}
-
-export async function updateTallerConfig(canvasW: number, canvasH: number) {
-  const csrfToken = await getCsrfToken();
-  const res = await fetch(`${BACKEND_URL}/api/taller-config`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', 'csrf-token': csrfToken },
-    credentials: 'include',
-    body: JSON.stringify({ canvasW, canvasH }),
-  });
-  return res.ok;
 }
 
 export async function deletePlaza(id: number, reasignarA?: number) {

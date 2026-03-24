@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { ImSpinner2 } from "react-icons/im";
 import { FaShieldAlt } from "react-icons/fa";
 import { useUserStore } from "@/lib/store";
-import { getMe, logout as logoutApi } from "@/lib/api/auth";
+import { getMe } from "@/lib/api/auth";
 
 const AUTH_CACHE_KEY = "auth_user";
 
@@ -22,14 +22,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const setComp = useUserStore((state) => state.setComp);
   const isAuthPage = pathname.startsWith("/auth/");
 
-  // Si hay caché en localStorage, cargamos inmediatamente sin spinner
-  const cached = !isAuthPage ? (() => {
-    try { return JSON.parse(localStorage.getItem(AUTH_CACHE_KEY) || "null"); } catch { return null; }
-  })() : null;
-
-  const [isLoading, setIsLoading] = useState(!cached);
-
-  console.log('[AuthProvider] pathname:', pathname, 'isAuthPage:', isAuthPage, 'cached:', !!cached);
+  // Siempre true al inicio: garantiza que servidor y cliente renderizan lo mismo
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (isAuthPage) {
@@ -37,14 +31,19 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       return;
     }
 
-    // Restaurar desde caché al instante (nueva pestaña, F5 sin BFCache, etc.)
+    // Leer caché solo en el cliente (localStorage no existe en servidor)
+    const cached = (() => {
+      try { return JSON.parse(localStorage.getItem(AUTH_CACHE_KEY) || "null"); } catch { return null; }
+    })();
+
     if (cached) {
       setUser(cached.user);
       setPrivilege(cached.privilege);
       setComp(cached.comp);
+      setIsLoading(false); // ocultar spinner inmediatamente si hay caché
     }
 
-    // Validar sesión contra el backend (siempre, en segundo plano si hay caché)
+    // Siempre validar sesión contra el backend
     getMe()
       .then((userData) => {
         setUser(userData);
@@ -72,12 +71,12 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
     const handleActivity = () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(async () => {
-        await logoutApi().catch(() => {});
-        localStorage.removeItem(AUTH_CACHE_KEY);
+      timeoutRef.current = setTimeout(() => {
+        // Solo redirigir ESTA pestaña — no tocar servidor ni localStorage
+        // para no desloguear otras pestañas activas
         setUser(null);
         router.push("/auth/login");
-      }, 3600000); // 1 hora de inactividad
+      }, 43200000); // 12 horas de inactividad
     };
 
     window.addEventListener("mousemove", handleActivity);

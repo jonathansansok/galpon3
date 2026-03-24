@@ -4,12 +4,17 @@
 import { Button } from "@/components/ui/button";
 import Textarea from "@/components/ui/Textarea";
 import { useForm } from "react-hook-form";
-import { createTurno, updateTurno, getPlazaAvailability, getTurno } from "../Turnos.api";
+import { createTurno, updateTurno, getPlazaAvailability, getTurno, getReparadores, Reparador } from "../Turnos.api";
 import { getPresupuestosWithMovilData, updatePresupuestoEstado } from "../../presupuestos/Presupuestos.api";
 import { getPlazas, Plaza } from "../../plazas-config/Plazas.api";
+import { getHorario, HorarioDia } from "../../plazas-config/Horario.api";
+import { getFeriados, Feriado } from "../../admin/Feriados.api";
+import { calcularFinLaborable, FeriadoConfig } from "@/utils/businessHours";
 import { getPresupuestosAsociados } from "../../temas/Temas.api";
 import { useParams, useRouter } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
+import { ShowTurnos } from "@/app/utils/alertUtils";
+import TurnoDatePicker from "@/components/ui/TurnoDatePicker";
 import { useState, useEffect, useRef } from "react";
 
 interface FormValues {
@@ -21,6 +26,7 @@ interface FormValues {
   fechaHoraFinReal: string;
   estado: string;
   observaciones: string;
+  reparadorIds: string; // JSON array serializado
 }
 
 export function TurnoForm({ turno, onSuccess, editId, preselectedPresupuesto, movilId }: { turno: any; onSuccess?: () => void; editId?: number; preselectedPresupuesto?: any; movilId?: number }) {
@@ -30,8 +36,12 @@ export function TurnoForm({ turno, onSuccess, editId, preselectedPresupuesto, mo
   const [presupuestosAprobados, setPresupuestosAprobados] = useState<any[]>([]);
   const [plazaAvailability, setPlazaAvailability] = useState<Record<number, any[]> | null>(null);
   const [plazas, setPlazas] = useState<Plaza[]>([]);
+  const [reparadores, setReparadores] = useState<Reparador[]>([]);
   const [presupuestoDropdownOpen, setPresupuestoDropdownOpen] = useState(false);
   const presupuestoDropdownRef = useRef<HTMLDivElement>(null);
+  const [horarioConfig, setHorarioConfig] = useState<HorarioDia[]>([]);
+  const [feriadosConfig, setFeriadosConfig] = useState<FeriadoConfig[]>([]);
+  const [duracionHoras, setDuracionHoras] = useState("");
 
   const toDatetimeLocal = (val: string | null | undefined) => {
     if (!val) return "";
@@ -59,6 +69,9 @@ export function TurnoForm({ turno, onSuccess, editId, preselectedPresupuesto, mo
       fechaHoraFinReal: toDatetimeLocal(turno?.fechaHoraFinReal),
       estado: turno?.estado || "Programado",
       observaciones: turno?.observaciones || "",
+      reparadorIds: turno?.reparadorIds
+        ? JSON.stringify(String(turno.reparadorIds).split(",").map(Number).filter(Boolean))
+        : "[]",
     },
   });
 
@@ -70,7 +83,7 @@ export function TurnoForm({ turno, onSuccess, editId, preselectedPresupuesto, mo
     Creado:        { bg: "bg-gray-50",    text: "text-gray-700" },
     "En revisión": { bg: "bg-blue-50",    text: "text-blue-800" },
     Aprobado:      { bg: "bg-green-50",   text: "text-green-800" },
-    "En curso":    { bg: "bg-orange-50",  text: "text-orange-500 italic" },
+    "En curso":    { bg: "bg-violet-50",  text: "text-violet-700 italic" },
     Finalizado:    { bg: "bg-gray-100",   text: "text-gray-400 italic" },
   };
 
@@ -101,6 +114,9 @@ export function TurnoForm({ turno, onSuccess, editId, preselectedPresupuesto, mo
             setValue("fechaHoraFinReal", toDatetimeLocal(data.fechaHoraFinReal));
             setValue("estado", data.estado || "Programado");
             setValue("observaciones", data.observaciones || "");
+            setValue("reparadorIds", data.reparadorIds
+              ? JSON.stringify(String(data.reparadorIds).split(",").map(Number).filter(Boolean))
+              : "[]");
           }
         } catch (error) {
           console.error("[turnos] Error al cargar turno:", error);
@@ -144,7 +160,43 @@ export function TurnoForm({ turno, onSuccess, editId, preselectedPresupuesto, mo
 
   useEffect(() => {
     getPlazas().then((data) => setPlazas(data.filter((p) => p.activa))).catch(() => {});
+    getReparadores().then(setReparadores).catch(() => {});
+    getHorario().then(setHorarioConfig).catch(() => {});
+    getFeriados().then((data) => setFeriadosConfig(data.map((f) => ({ fecha: f.fecha, esAnual: f.esAnual, nombre: f.nombre })))).catch(() => {});
   }, []);
+
+  const handleDuracionChange = (value: string) => {
+    setDuracionHoras(value);
+    if (!value || !watchInicio || horarioConfig.length !== 7) return;
+    const horas = parseFloat(value);
+    if (isNaN(horas) || horas <= 0) return;
+    const inicio = new Date(watchInicio);
+    if (isNaN(inicio.getTime())) return;
+    const fin = calcularFinLaborable(inicio, horas, horarioConfig, feriadosConfig);
+    setValue("fechaHoraFinEstimada", toDatetimeLocal(fin.toISOString()));
+  };
+
+  useEffect(() => {
+    if (duracionHoras && watchInicio && horarioConfig.length === 7) {
+      handleDuracionChange(duracionHoras);
+    }
+  }, [watchInicio]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-rellenar duración desde preciosCyP del presupuesto seleccionado
+  useEffect(() => {
+    if (!watchPresupuestoId || effectiveId) return; // no tocar en modo edición
+    const sel = presupuestosAprobados.find(
+      (p: any) => (p.uuid || String(p.id)) === watchPresupuestoId
+    );
+    if (!sel?.preciosCyP) return;
+    try {
+      const cyp = JSON.parse(sel.preciosCyP);
+      const total = (cyp?.chapa?.horas ?? 0) + (cyp?.pintura?.horas ?? 0);
+      if (total > 0 && !duracionHoras) {
+        handleDuracionChange(String(total));
+      }
+    } catch { /* preciosCyP malformado — ignorar */ }
+  }, [watchPresupuestoId, presupuestosAprobados]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Consultar disponibilidad cuando cambian las fechas
   useEffect(() => {
@@ -195,6 +247,7 @@ export function TurnoForm({ turno, onSuccess, editId, preselectedPresupuesto, mo
       fechaHoraFinEstimada: data.fechaHoraFinEstimada,
       estado: data.estado,
       observaciones: data.observaciones || null,
+      reparadorIds: (() => { try { return JSON.parse(data.reparadorIds || "[]"); } catch { return []; } })(),
     };
     if (data.fechaHoraInicioReal) {
       payload.fechaHoraInicioReal = data.fechaHoraInicioReal;
@@ -221,11 +274,31 @@ export function TurnoForm({ turno, onSuccess, editId, preselectedPresupuesto, mo
             console.warn("[turnos] No se pudo actualizar estado del presupuesto:", err);
           }
         }
-        await Alert.success({
-          title: effectiveId ? "Turno actualizado" : "Turno creado",
-          text: result.message || "Operación exitosa",
-          icon: "success",
-        });
+        const selectedPresupuesto = presupuestosAprobados.find(
+          (p: any) => String(p.id) === String(data.presupuestoId) || p.uuid === data.presupuestoId
+        ) ?? preselectedPresupuesto ?? null;
+        const plazaObj = plazas.find((p) => p.numero === parseInt(data.plaza));
+        const plazaNombre = plazaObj ? plazaObj.nombre : `Plaza ${data.plaza}`;
+        const reparadorIds: number[] = (() => { try { return JSON.parse(data.reparadorIds || "[]"); } catch { return []; } })();
+        const reparadoresTexto = reparadorIds
+          .map((id) => {
+            const r = reparadores.find((rep) => rep.id === id);
+            return r ? `${r.nombre} ${r.apellido}` : String(id);
+          })
+          .join(", ");
+        const clienteTelefono: string =
+          selectedPresupuesto?.clienteTelefono ??
+          preselectedPresupuesto?.clienteTelefono ??
+          "";
+        await ShowTurnos(
+          true,
+          effectiveId ? "Turno actualizado" : "Turno creado",
+          { ...payload, ...result.data },
+          selectedPresupuesto,
+          plazaNombre,
+          reparadoresTexto,
+          clienteTelefono
+        );
         if (onSuccess) {
           onSuccess();
         } else {
@@ -300,16 +373,38 @@ export function TurnoForm({ turno, onSuccess, editId, preselectedPresupuesto, mo
       </div>
 
       {/* Fechas estimadas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="relative mb-4">
-          <input type="datetime-local" id="fechaHoraInicioEstimada" {...register("fechaHoraInicioEstimada")} className={floatInput} required />
-          <label htmlFor="fechaHoraInicioEstimada" className={floatLabel}>Inicio Estimado *</label>
-        </div>
-        <div className="relative mb-4">
-          <input type="datetime-local" id="fechaHoraFinEstimada" {...register("fechaHoraFinEstimada")} className={floatInput} required />
-          <label htmlFor="fechaHoraFinEstimada" className={floatLabel}>Fin Estimado *</label>
-        </div>
+      <TurnoDatePicker
+        value={watchInicio ?? ""}
+        onChange={(iso) => setValue("fechaHoraInicioEstimada", toDatetimeLocal(iso))}
+        horario={horarioConfig}
+        feriados={feriadosConfig}
+        label="Inicio Estimado"
+        required
+      />
+
+      <div className="relative mb-4">
+        <input
+          type="number"
+          id="duracionHoras"
+          min="0.5"
+          step="0.5"
+          value={duracionHoras}
+          onChange={(e) => handleDuracionChange(e.target.value)}
+          className={floatInput}
+          placeholder=" "
+        />
+        <label htmlFor="duracionHoras" className={floatLabel}>Duración estimada (hs laborables) — opcional</label>
       </div>
+
+      <TurnoDatePicker
+        value={watch("fechaHoraFinEstimada") ?? ""}
+        onChange={(iso) => setValue("fechaHoraFinEstimada", toDatetimeLocal(iso))}
+        horario={horarioConfig}
+        feriados={feriadosConfig}
+        label="Fin Estimado"
+        required
+        minDate={watchInicio ? new Date(watchInicio) : undefined}
+      />
 
       {/* Plaza */}
       <div className="relative mb-4">
@@ -351,6 +446,38 @@ export function TurnoForm({ turno, onSuccess, editId, preselectedPresupuesto, mo
         </select>
         <label htmlFor="estado" className={floatLabel}>Estado</label>
       </div>
+
+      {/* Reparadores — multi-select con checkboxes */}
+      {reparadores.length > 0 && (() => {
+        const selected: number[] = (() => { try { return JSON.parse(watch("reparadorIds") || "[]"); } catch { return []; } })();
+        const toggle = (id: number) => {
+          const next = selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id];
+          setValue("reparadorIds", JSON.stringify(next));
+        };
+        return (
+          <div className="mb-4">
+            <p className="text-sm text-gray-500 mb-2">
+              Reparadores asignados{selected.length > 0 && <span className="ml-1 text-blue-600 font-medium">({selected.length})</span>}
+            </p>
+            <div className="border border-gray-300 rounded-lg divide-y divide-gray-100 max-h-48 overflow-y-auto">
+              {reparadores.map((r) => {
+                const checked = selected.includes(r.id);
+                return (
+                  <label key={r.id} className={`flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors ${checked ? "bg-blue-50" : ""}`}>
+                    <input type="checkbox" checked={checked} onChange={() => toggle(r.id)} className="w-4 h-4 rounded text-blue-600" />
+                    <span className="text-sm text-gray-800 flex-1">
+                      {[r.apellido, r.nombre].filter(Boolean).join(", ")}
+                    </span>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${r.privilege === "A1" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"}`}>
+                      {r.privilege === "A1" ? "Admin" : "Operador"}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Observaciones */}
       <Textarea

@@ -18,7 +18,7 @@ interface Props {
 const estadoBadge = (estado: string) => {
   const colors: Record<string, string> = {
     Programado: "bg-blue-100 text-blue-800",
-    "En curso": "bg-blue-100 text-blue-800",
+    "En curso": "bg-violet-100 text-violet-800",
     Finalizado: "bg-green-100 text-green-800",
     Cancelado: "bg-red-100 text-red-800",
   };

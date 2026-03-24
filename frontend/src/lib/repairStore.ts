@@ -17,6 +17,7 @@ interface RepairState {
   selectPresupuesto: (presupuesto: Presupuesto | null) => void;
   selectTurno: (turno: Turno | null) => void;
   jumpToIngreso: (presupuesto: Presupuesto, turno: Turno) => void;
+  jumpFromCalendar: (turno: Turno) => void;
   clearAll: () => void;
 }
 
@@ -70,6 +71,45 @@ export const useRepairStore = create<RepairState>((set) => ({
   jumpToIngreso: (presupuesto, turno) => {
     console.log("[linear] jumpToIngreso turnoId:", turno.id, "presupuestoId:", presupuesto.uuid ?? presupuesto.id);
     set({
+      selectedPresupuesto: presupuesto,
+      selectedTurno: turno,
+      activeTab: 4,
+    });
+  },
+
+  jumpFromCalendar: (turno) => {
+    const t = turno as any;
+    console.log("[linear] jumpFromCalendar turnoId:", turno.id, "clienteId:", t.clienteId, "movilId:", t.movilId);
+    const cliente: any = {
+      id: t.clienteId ?? 0,
+      apellido: t.clienteApellido ?? "",
+      nombres: t.clienteNombres ?? "",
+      telefono: t.clienteTelefono ?? "",
+    };
+    const movil: any = {
+      id: t.movilId ? Number(t.movilId) : 0,
+      patente: t.patente ?? "",
+      marca: t.marca ?? "",
+      modelo: t.modelo ?? "",
+      anio: t.anio ?? "",
+      color: t.color ?? "",
+      clienteId: t.clienteId ?? 0,
+    };
+    const presupuesto: any = {
+      id: t.presupuestoNumId ?? 0,
+      uuid: t.presupuestoId ?? "",
+      patente: t.patente ?? null,
+      marca: t.marca ?? null,
+      modelo: t.modelo ?? null,
+      anio: t.anio ?? null,
+      monto: t.monto ?? null,
+      estado: t.presupuestoEstado ?? "Aprobado",
+      movilId: t.movilId ?? null,
+      observaciones: t.presupuestoObservaciones ?? null,
+    };
+    set({
+      selectedCliente: cliente,
+      selectedMovil: movil,
       selectedPresupuesto: presupuesto,
       selectedTurno: turno,
       activeTab: 4,

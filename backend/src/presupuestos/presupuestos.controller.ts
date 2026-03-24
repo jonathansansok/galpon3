@@ -33,6 +33,11 @@ const { validateRequest } = doubleCsrf({
 @Controller('presupuestos')
 export class PresupuestosController {
   constructor(private readonly presupuestosService: PresupuestosService) {}
+  @Get(':id/cliente-telefono')
+  async findOneWithClienteData(@Param('id', ParseIntPipe) id: number) {
+    return this.presupuestosService.findOneWithClienteData(id);
+  }
+
   @Get('with-movil-data')
   @ApiOperation({ summary: 'Obtener presupuestos con datos de móviles' })
   async findAllWithMovilData(@Req() req: Request) {

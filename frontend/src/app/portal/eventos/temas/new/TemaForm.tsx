@@ -173,7 +173,7 @@ export function TemaForm({ tema, onSuccess, initialClienteId, editId }: { tema: 
   useEffect(() => {
     if (effectiveId) {
       console.log("[DEBUG] Valor de tema?.patente:", tema?.patente);
-      setIdMovil(Number(params.id));
+      setIdMovil(Number(effectiveId));
       setPatente(tema?.patente || "");
     }
   }, [effectiveId, setIdMovil, setPatente, tema?.patente]);
@@ -229,9 +229,9 @@ export function TemaForm({ tema, onSuccess, initialClienteId, editId }: { tema: 
     const fetchClienteAsociado = async () => {
       try {
         if (effectiveId) {
-          console.log("[DEBUG] ID del tema:", params.id); // Verificar el ID del tema
+          console.log("[DEBUG] ID del tema:", effectiveId);
 
-          const cliente = await getClienteAsociado(params.id);
+          const cliente = await getClienteAsociado(effectiveId);
           console.log(
             "[DEBUG] Datos del cliente obtenidos del backend:",
             cliente
@@ -301,12 +301,16 @@ export function TemaForm({ tema, onSuccess, initialClienteId, editId }: { tema: 
   };
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    console.log("[DEBUG] Valor de anio antes de parsear:", anio);
+    console.info("🟦 [TEMA] ── onSubmit START ──────────────────────────────");
+    console.info("🟦 [TEMA] effectiveId:", effectiveId, "| modo:", effectiveId ? "PATCH/update" : "POST/create");
+    console.info("🟦 [TEMA] anio:", anio, "patente:", data.patente);
 
-    // Validar con toast + scroll + red borders
     clearFieldErrors();
     const { valid } = validateAndNotify(data, temaValidationRules);
-    if (!valid) return;
+    if (!valid) {
+      console.warn("🟦 [TEMA] Validación fallida, abortando");
+      return;
+    }
 
     const confirmation = await Alert.confirm({
       title: "¿Estás seguro?",
@@ -319,7 +323,7 @@ export function TemaForm({ tema, onSuccess, initialClienteId, editId }: { tema: 
       return;
     }
 
-    setIsSubmitting(true); // Bloquear el botón
+    setIsSubmitting(true);
 
     try {
       const payload: any = {
@@ -330,7 +334,7 @@ export function TemaForm({ tema, onSuccess, initialClienteId, editId }: { tema: 
         patente: data.patente,
         marca: data.marca,
         modelo: data.modelo,
-        anio: anio, // `anio` ya es una cadena
+        anio: anio,
         color: data.color,
         tipoPintura: data.tipoPintura,
         paisOrigen: data.paisOrigen,
@@ -341,82 +345,95 @@ export function TemaForm({ tema, onSuccess, initialClienteId, editId }: { tema: 
         vin: data.vin,
       };
 
-      console.log("[DEBUG] Payload enviado al backend:", payload);
+      console.info("🟦 [TEMA] payload texto (sin archivos):", payload);
       const formData = new FormData();
       for (const key in payload) {
-        formData.append(key, payload[key]);
+        // Nunca enviar null/undefined a FormData — se convierte en el string "null"
+        if (payload[key] !== null && payload[key] !== undefined && payload[key] !== "") {
+          formData.append(key, payload[key]);
+        } else {
+          console.info(`🟦 [TEMA] skip campo vacío en formData: ${key}=${JSON.stringify(payload[key])}`);
+        }
       }
       if (initialClienteId) {
         formData.append("clienteId", String(initialClienteId));
-        console.log("[linear] TemaForm appending initialClienteId:", initialClienteId);
+        console.info("🟦 [TEMA] initialClienteId appended:", initialClienteId);
       }
 
-      // Procesar imágenes y archivos
+      // ── Diagnóstico del estado de files ──────────────────────────────
+      const filesSummary = ALL_FILE_FIELDS.map((f) => ({
+        field: f,
+        hasValue: !!files[f],
+        isDataUrl: files[f]?.startsWith("data:") ?? false,
+        isExistingUrl: files[f]?.startsWith("http") ?? false,
+        len: files[f]?.length ?? 0,
+      }));
+      const pendingUploads = filesSummary.filter((s) => s.isDataUrl);
+      console.info(`🟦 [TEMA] archivos en estado: total=${ALL_FILE_FIELDS.length} pendingUpload=${pendingUploads.length}`);
+      console.info("🟦 [TEMA] files summary:", filesSummary.filter((s) => s.hasValue));
+
       const sanitizeName = (name: string) => name.replace(/[^a-zA-Z0-9._-]/g, "_").substring(0, 60);
 
-      const processFile = async (
-        file: string | null,
-        key: string,
-        extension: string
-      ) => {
-        if (file && file.startsWith("data:")) {
+      const processFile = async (file: string | null, key: string, extension: string) => {
+        if (!file || !file.startsWith("data:")) {
+          console.info(`🟦 [TEMA] processFile SKIP key=${key} (no dataURL)`);
+          return;
+        }
+        console.info(`🟦 [TEMA] processFile START key=${key} ext=${extension} dataLen=${file.length}`);
+        try {
           const origName = originalNames[key];
           const baseName = origName ? sanitizeName(origName.replace(/\.[^.]+$/, "")) : key;
           const uniqueFileName = `${key}--${baseName}-${Date.now()}.${extension}`;
-          console.log("multimedia", "processFile", { key, extension, uniqueFileName });
-          const response = await fetch(file);
-          const blob = await response.blob();
+          console.info(`🟦 [TEMA] processFile fetching blob key=${key} filename=${uniqueFileName}`);
+          const fetchResp = await fetch(file);
+          const blob = await fetchResp.blob();
+          console.info(`🟦 [TEMA] processFile blob ready key=${key} size=${blob.size} type=${blob.type}`);
           formData.append("files", blob, uniqueFileName);
           formData.append(key, uniqueFileName);
+          console.info(`🟦 [TEMA] processFile DONE key=${key} → ${uniqueFileName}`);
+        } catch (err) {
+          console.error(`🟦 [TEMA] processFile ERROR key=${key}:`, err);
+          throw err;
         }
       };
 
-      const fileCount = ALL_FILE_FIELDS.filter((f) => files[f]?.startsWith("data:")).length;
-      console.log("multimedia", "TemaForm submit", { fileCount });
-
+      console.info("🟦 [TEMA] Promise.all processFile START");
       await Promise.all(
         ALL_FILE_FIELDS.map((field) => {
           const ext = field.startsWith("pdf") ? "pdf" : field.startsWith("word") ? "docx" : "png";
           return processFile(files[field], field, ext);
         })
       );
+      console.info("🟦 [TEMA] Promise.all processFile DONE");
 
-      // Enviar explícitamente campos vacíos para archivos eliminados
+      // Campos vacíos para archivos eliminados
       for (const field of ALL_FILE_FIELDS) {
         if (!files[field] && !formData.has(field)) {
           formData.append(field, "");
         }
       }
-
-      // Enviar nombres originales de archivos
       formData.append("nombresOriginales", JSON.stringify(originalNames));
 
-      try {
-        let response;
+      const formDataKeys = [...formData.keys()];
+      const blobEntries = formDataKeys.filter((k) => k === "files");
+      console.info(`🟦 [TEMA] formData listo — keys: [${formDataKeys.join(", ")}] | blobs: ${blobEntries.length}`);
 
+      try {
+        console.info(`🟦 [TEMA] llamando ${effectiveId ? "updateTema" : "createTema"} id=${effectiveId ?? "nuevo"}`);
+        let response;
         if (effectiveId) {
           response = await updateTema(effectiveId!, formData);
         } else {
           response = await createTema(formData);
         }
 
-        const mensajeTitulo = effectiveId
-          ? "Actualización de Móvil"
-          : "Creación de Móvil";
+        console.info("🟦 [TEMA] respuesta API:", { success: response.success, error: response.error, dataId: response.data?.id });
 
-        console.log("[DEBUG] response completo:", response);
-        console.log("[DEBUG] response.success:", response.success);
-        console.log("[DEBUG] response.data:", response.data);
-        console.log("[DEBUG] response.error:", response.error);
-
-        await ShowTemas(
-          response.success,
-          mensajeTitulo,
-          response.data ?? response.error,
-          clienteAsociado // Pasar los datos del cliente asociado
-        );
+        const mensajeTitulo = effectiveId ? "Actualización de Móvil" : "Creación de Móvil";
+        await ShowTemas(response.success, mensajeTitulo, response.data ?? response.error, clienteAsociado);
 
         if (response.success) {
+          console.info("🟦 [TEMA] éxito ✅ id:", response.data?.id);
           clearFieldErrors();
           if (onSuccess) {
             onSuccess(response.data?.id);
@@ -424,20 +441,17 @@ export function TemaForm({ tema, onSuccess, initialClienteId, editId }: { tema: 
             window.location.href = "/portal/eventos/temas";
           }
         } else {
-          console.error(
-            "[ERROR] Error al crear o actualizar tema:",
-            response.error
-          );
+          console.error("🟦 [TEMA] backend devolvió error ❌:", response.error);
           handleBackendErrors(response);
         }
       } catch (error) {
-        console.error("[EXCEPTION] Error inesperado:", error);
+        console.error("🟦 [TEMA] EXCEPTION en fetch/update ❌:", error);
         handleBackendErrors({ message: error instanceof Error ? error.message : "Error desconocido" });
       } finally {
         setIsSubmitting(false);
       }
     } finally {
-      setIsSubmitting(false); // Desbloquear el botón
+      setIsSubmitting(false);
     }
   };
   const goToTemas = () => {
@@ -462,8 +476,8 @@ export function TemaForm({ tema, onSuccess, initialClienteId, editId }: { tema: 
           type="button"
           onClick={() => {
             if (effectiveId) {
-              setIdMovil(Number(params.id)); // Guardar el ID del móvil en Zustand
-              console.log(`ID del móvil (${params.id}) guardado en Zustand.`);
+              setIdMovil(Number(effectiveId)); // Guardar el ID del móvil en Zustand
+              console.log(`ID del móvil (${effectiveId}) guardado en Zustand.`);
               router.push("/portal/eventos/presupuestos/new"); // Navegar en la misma ventana
             } else {
               console.error("No se encontró el ID del móvil.");
@@ -650,10 +664,10 @@ export function TemaForm({ tema, onSuccess, initialClienteId, editId }: { tema: 
             disabled={isSubmitting} // Deshabilitar el botón si está enviando
           >
             {isSubmitting
-              ? params.id
+              ? effectiveId
                 ? "Actualizando..."
                 : "Posteando..."
-              : params.id
+              : effectiveId
               ? "Actualizar Móvil"
               : "Crear Móvil"}
           </Button>

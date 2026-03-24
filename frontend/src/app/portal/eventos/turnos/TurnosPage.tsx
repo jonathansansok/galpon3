@@ -5,6 +5,10 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { getTurnosWithPresupuestoData, getPlazaAvailability } from "./Turnos.api";
+import { getHorario } from "../plazas-config/Horario.api";
+import { getFeriados } from "../admin/Feriados.api";
+import { HorarioDiaConfig, FeriadoConfig } from "@/utils/businessHours";
+import TurnoDatePicker from "@/components/ui/TurnoDatePicker";
 import { Turno, TurnoSearchResult } from "@/types/Turno";
 import { useRouter } from "next/navigation";
 import TableMoviles from "@/components/eventossearch/TableMoviles";
@@ -19,7 +23,7 @@ const TOTAL_PLAZAS = 8;
 const estadoBadge = (estado: string) => {
   const colors: Record<string, string> = {
     Programado: "bg-blue-100 text-blue-800",
-    "En curso": "bg-blue-100 text-blue-800",
+    "En curso": "bg-violet-100 text-violet-800",
     Finalizado: "bg-green-100 text-green-800",
     Cancelado: "bg-red-100 text-red-800",
   };
@@ -42,10 +46,17 @@ export default function TurnosPage() {
   // Disponibilidad
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
+  const [horarioConfig, setHorarioConfig] = useState<HorarioDiaConfig[]>([]);
+  const [feriadosConfig, setFeriadosConfig] = useState<FeriadoConfig[]>([]);
   const [availability, setAvailability] = useState<Record<number, any[]> | null>(null);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
 
   // Auto-cargar datos si hay filtros guardados en sessionStorage
+  useEffect(() => {
+    getHorario().then(setHorarioConfig).catch(() => {});
+    getFeriados().then((d) => setFeriadosConfig(d.map((f) => ({ fecha: f.fecha, esAnual: f.esAnual, nombre: f.nombre })))).catch(() => {});
+  }, []);
+
   useEffect(() => {
     if (hasAutoLoadedRef.current) return;
     hasAutoLoadedRef.current = true;
@@ -261,37 +272,25 @@ export default function TurnosPage() {
       <div className="w-full bg-white rounded-lg shadow p-4 mb-6">
         <h2 className="text-xl font-semibold mb-3">Disponibilidad de Plazas</h2>
         <div className="flex gap-4 items-end mb-4 flex-wrap">
-          <div className="relative">
-            <input
-              type="datetime-local"
-              id="fechaInicio"
+          <div className="w-64">
+            <TurnoDatePicker
               value={fechaInicio}
-              onChange={(e) => setFechaInicio(e.target.value)}
-              className="block px-2.5 pb-1.5 pt-3 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-              placeholder=" "
+              onChange={setFechaInicio}
+              horario={horarioConfig}
+              feriados={feriadosConfig}
+              label="Fecha/Hora Inicio"
+              allowPast
             />
-            <label
-              htmlFor="fechaInicio"
-              className="absolute text-sm text-gray-500 duration-300 transform -translate-y-3 scale-75 top-1 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-1 peer-focus:scale-75 peer-focus:-translate-y-3 start-1"
-            >
-              Fecha/Hora Inicio
-            </label>
           </div>
-          <div className="relative">
-            <input
-              type="datetime-local"
-              id="fechaFin"
+          <div className="w-64">
+            <TurnoDatePicker
               value={fechaFin}
-              onChange={(e) => setFechaFin(e.target.value)}
-              className="block px-2.5 pb-1.5 pt-3 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-              placeholder=" "
+              onChange={setFechaFin}
+              horario={horarioConfig}
+              feriados={feriadosConfig}
+              label="Fecha/Hora Fin"
+              allowPast
             />
-            <label
-              htmlFor="fechaFin"
-              className="absolute text-sm text-gray-500 duration-300 transform -translate-y-3 scale-75 top-1 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-1 peer-focus:scale-75 peer-focus:-translate-y-3 start-1"
-            >
-              Fecha/Hora Fin
-            </label>
           </div>
           <button
             onClick={handleCheckAvailability}

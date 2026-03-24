@@ -1,13 +1,14 @@
 //frontend\src\app\portal\eventos\presupuestos\new\PresupuestoForm.tsx
 "use client";
 import { usePresupuestoStore } from "@/lib/store"; // Importar el store de Zustand
+import { useRepairStore } from "@/lib/repairStore";
 import { InputField } from "@/components/ui/InputField";
 import { useUserStore } from "@/lib/store"; // Importar el store de Zustand
 import { Button } from "@/components/ui/button";
 import Textarea from "@/components/ui/Textarea";
 import { useForm, SubmitHandler } from "react-hook-form";
 import WatermarkBackground from "@/components/WatermarkBackground";
-import { createPresupuesto, updatePresupuesto } from "../Presupuestos.api";
+import { createPresupuesto, updatePresupuesto, getPresupuestoClienteTelefono } from "../Presupuestos.api";
 import { useParams, useRouter } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
 import { useState, useEffect, useCallback } from "react";
@@ -34,6 +35,7 @@ interface FormValues {
 
 export function PresupuestoForm({ presupuesto, onSuccess, editId }: { presupuesto: any; onSuccess?: () => void; editId?: number }) {
   const clienteData = usePresupuestoStore((state) => state.clienteData);
+  const selectedCliente = useRepairStore((s) => s.selectedCliente);
 
   useEffect(() => {
     console.log(
@@ -206,7 +208,9 @@ export function PresupuestoForm({ presupuesto, onSuccess, editId }: { presupuest
 
       const formData = new FormData();
       for (const key in payload) {
-        formData.append(key, payload[key]);
+        if (payload[key] !== null && payload[key] !== undefined && payload[key] !== "") {
+          formData.append(key, payload[key]);
+        }
       }
 
       // Procesar imágenes y archivos
@@ -250,12 +254,20 @@ export function PresupuestoForm({ presupuesto, onSuccess, editId }: { presupuest
           ? "Actualización de Presupuesto"
           : "Creación de Presupuesto";
 
-        console.log("[DEBUG] response completo:", response);
-
+        // Resolver teléfono: primero desde el backend (funciona siempre, incluso sin navegación por tabs)
+        const savedId = response.data?.id as number | undefined;
+        const telefonoFromBackend = savedId ? await getPresupuestoClienteTelefono(savedId) : "";
+        const clienteInfo = {
+          nombre: clienteData?.nombre ?? selectedCliente?.nombres ?? "",
+          apellido: clienteData?.apellido ?? selectedCliente?.apellido ?? "",
+          telefono: telefonoFromBackend || clienteData?.telefono || selectedCliente?.telefono || "",
+          email: clienteData?.email ?? selectedCliente?.emailCliente ?? "",
+        };
         await ShowPresupuestos(
           response.success,
           mensajeTitulo,
-          response.data ?? response.error
+          response.data ?? response.error,
+          clienteInfo
         );
 
         if (response.success) {

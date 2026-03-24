@@ -1,8 +1,12 @@
 //frontend\src\app\portal\eventos\trabajos-realizados\new\page.tsx
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createTrabajoRealizado } from "../TrabajosRealizados.api";
+import { getHorario } from "../../plazas-config/Horario.api";
+import { getFeriados } from "../../admin/Feriados.api";
+import { HorarioDiaConfig, FeriadoConfig } from "@/utils/businessHours";
+import TurnoDatePicker from "@/components/ui/TurnoDatePicker";
 
 export default function NewTrabajoRealizadoPage() {
   const router = useRouter();
@@ -15,6 +19,13 @@ export default function NewTrabajoRealizadoPage() {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [horarioConfig, setHorarioConfig] = useState<HorarioDiaConfig[]>([]);
+  const [feriadosConfig, setFeriadosConfig] = useState<FeriadoConfig[]>([]);
+
+  useEffect(() => {
+    getHorario().then(setHorarioConfig).catch(() => {});
+    getFeriados().then((d) => setFeriadosConfig(d.map((f) => ({ fecha: f.fecha, esAnual: f.esAnual, nombre: f.nombre })))).catch(() => {});
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -47,16 +58,14 @@ export default function NewTrabajoRealizadoPage() {
             placeholder="UUID del turno asociado"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de realización</label>
-          <input
-            type="datetime-local"
-            name="fechaRealiz"
-            value={form.fechaRealiz}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          />
-        </div>
+        <TurnoDatePicker
+          value={form.fechaRealiz}
+          onChange={(iso) => setForm((prev) => ({ ...prev, fechaRealiz: iso }))}
+          horario={horarioConfig}
+          feriados={feriadosConfig}
+          label="Fecha de realización"
+          allowPast
+        />
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
           <textarea

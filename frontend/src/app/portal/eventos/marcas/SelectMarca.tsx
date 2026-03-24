@@ -23,39 +23,36 @@ const SelectMarca: React.FC<SelectFieldProps> = ({
   );
   const [isLoading, setIsLoading] = useState(false); // Estado para mostrar el estado de carga
 
-  const fetchMarcas = async () => {
-    Swal.fire({
-      title: "Actualizando marcas...",
-      text: "Por favor, espera mientras se actualizan las marcas.",
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading(); // Mostrar el spinner de carga
-      },
-    });
-
-    setIsLoading(true); // Mostrar estado de carga
+  const loadMarcas = async (showFeedback = false) => {
+    if (showFeedback) {
+      Swal.fire({
+        title: "Actualizando marcas...",
+        text: "Por favor, espera mientras se actualizan las marcas.",
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); },
+      });
+    }
+    setIsLoading(true);
     try {
       const marcas = await getMarcas();
-      setOptions(
-        marcas.map((marca: any) => ({ value: marca.id, label: marca.label }))
-      ); // Asegúrate de usar `id` como value
-      Swal.close(); // Cerrar el SweetAlert al finalizar
-      Swal.fire(
-        "Actualizado",
-        "Las marcas se han actualizado con éxito.",
-        "success"
-      );
+      setOptions(marcas.map((marca: any) => ({ value: marca.id, label: marca.label })));
+      if (showFeedback) {
+        Swal.close();
+        Swal.fire("Actualizado", "Las marcas se han actualizado con éxito.", "success");
+      }
     } catch (error) {
       console.error("Error al obtener las marcas:", error);
-      Swal.close(); // Cerrar el SweetAlert al finalizar
-      Swal.fire("Error", "Hubo un problema al actualizar las marcas.", "error");
+      if (showFeedback) {
+        Swal.close();
+        Swal.fire("Error", "Hubo un problema al actualizar las marcas.", "error");
+      }
     } finally {
-      setIsLoading(false); // Ocultar estado de carga
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchMarcas(); // Obtener las marcas al cargar el componente
+    loadMarcas(false); // carga silenciosa al montar
   }, []);
 
   return (
@@ -81,7 +78,7 @@ const SelectMarca: React.FC<SelectFieldProps> = ({
         {/* Botón de actualización */}
         <button
           type="button"
-          onClick={fetchMarcas}
+          onClick={() => loadMarcas(true)}
           className="p-2 bg-blue-500 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
           title="Actualizar marcas"
         >

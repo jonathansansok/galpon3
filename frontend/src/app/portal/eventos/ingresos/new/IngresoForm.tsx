@@ -20,6 +20,7 @@ import { getTemas } from "../../temas/Temas.api"; // Obtener lista de móviles
 
 import { useParams, useRouter } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
+import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
 import { InputField } from "@/components/ui/InputField";
 import { DomiciliosModal } from "@/components/ui/DomiciliosModal";
@@ -61,7 +62,7 @@ interface FormValues {
   [key: string]: string;
 }
 
-export function IngresoForm({ ingreso, onSuccess, editId }: { ingreso: any; onSuccess?: () => void; editId?: number }) {
+export function IngresoForm({ ingreso, onSuccess, editId, hideMultimedia }: { ingreso: any; onSuccess?: () => void; editId?: number; hideMultimedia?: boolean }) {
   const { handleSubmit, setValue, register, watch } = useForm<FormValues>({
     defaultValues: {
       numeroCuit: ingreso?.numeroCuit || "",
@@ -317,7 +318,9 @@ export function IngresoForm({ ingreso, onSuccess, editId }: { ingreso: any; onSu
         });
       const formData = new FormData();
       for (const key in payload) {
-        formData.append(key, payload[key]);
+        if (payload[key] !== null && payload[key] !== undefined && payload[key] !== "") {
+          formData.append(key, payload[key]);
+        }
       }
 
       // Procesar imágenes y archivos
@@ -448,54 +451,58 @@ export function IngresoForm({ ingreso, onSuccess, editId }: { ingreso: any; onSu
           setSelectedMoviles={setSelectedMoviles}
           handleAnexarMoviles={handleAnexarMoviles}
         />
-        <Button
-          type="button"
-          onClick={() => setIsPhotosOpen(true)}
-          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
-        >
-          Fotografías
-        </Button>
-        <PhotosModal
-          isOpen={isPhotosOpen}
-          onClose={() => setIsPhotosOpen(false)}
-          files={files}
-          setFile={setFile}
-          getFileUrl={getFileUrl}
-          imagenesHistorial={imagenesHistorial}
-          originalNames={originalNames}
-          setOriginalName={setOriginalName}
-        />
-        <Button
-          type="button"
-          onClick={() => setIsPdfOpen(true)}
-          className="bg-red-600 hover:bg-red-800 text-white px-4 py-2 rounded-lg"
-        >
-          PDFs
-        </Button>
-        <PdfModal
-          isOpen={isPdfOpen}
-          onClose={() => setIsPdfOpen(false)}
-          files={files}
-          setFile={setFile}
-          getFileUrl={getFileUrl}
-          originalNames={originalNames}
-          setOriginalName={setOriginalName}
-        />
-        <Button
-          type="button"
-          onClick={() => setIsWordOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-        >
-          Word
-        </Button>
-        <WordModal
-          isOpen={isWordOpen}
-          onClose={() => setIsWordOpen(false)}
-          files={files}
-          setFile={setFile}
-          originalNames={originalNames}
-          setOriginalName={setOriginalName}
-        />
+        {!hideMultimedia && (
+          <>
+            <Button
+              type="button"
+              onClick={() => setIsPhotosOpen(true)}
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
+            >
+              Fotografías
+            </Button>
+            <PhotosModal
+              isOpen={isPhotosOpen}
+              onClose={() => setIsPhotosOpen(false)}
+              files={files}
+              setFile={setFile}
+              getFileUrl={getFileUrl}
+              imagenesHistorial={imagenesHistorial}
+              originalNames={originalNames}
+              setOriginalName={setOriginalName}
+            />
+            <Button
+              type="button"
+              onClick={() => setIsPdfOpen(true)}
+              className="bg-red-600 hover:bg-red-800 text-white px-4 py-2 rounded-lg"
+            >
+              PDFs
+            </Button>
+            <PdfModal
+              isOpen={isPdfOpen}
+              onClose={() => setIsPdfOpen(false)}
+              files={files}
+              setFile={setFile}
+              getFileUrl={getFileUrl}
+              originalNames={originalNames}
+              setOriginalName={setOriginalName}
+            />
+            <Button
+              type="button"
+              onClick={() => setIsWordOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+            >
+              Word
+            </Button>
+            <WordModal
+              isOpen={isWordOpen}
+              onClose={() => setIsWordOpen(false)}
+              files={files}
+              setFile={setFile}
+              originalNames={originalNames}
+              setOriginalName={setOriginalName}
+            />
+          </>
+        )}
         <InputField
           register={register}
           name="apellido"
@@ -520,12 +527,23 @@ export function IngresoForm({ ingreso, onSuccess, editId }: { ingreso: any; onSu
           }}
         />
         <InputField register={register} name="cp" label="C.P." placeholder="" />
-        <InputField
-          register={register}
-          name="telefono"
-          label="Teléfono"
-          placeholder=""
-        />
+        <div className="relative mb-4">
+          <input
+            {...register("telefono")}
+            id="telefono"
+            type="text"
+            autoComplete="off"
+            placeholder=" "
+            onFocus={() => toast.info(
+              "Formato: 549 + código de área + número. Ej: 5491155667788 (CABA) · 5492215566778 (La Plata)",
+              { toastId: "tel-hint", autoClose: 6000 }
+            )}
+            className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+          />
+          <label htmlFor="telefono" className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 origin-[0] bg-white ml-2 peer-focus:ml-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4">
+            Teléfono
+          </label>
+        </div>
         <SelectIVA
           value={watch("iva")}
           onChange={(value) => setValue("iva", value)}

@@ -54,6 +54,14 @@ export class UsersService {
     });
   }
 
+  async findReparadores() {
+    return this.prisma.users.findMany({
+      where: { privilege: { in: ['A1', 'B1'] } },
+      select: { id: true, uuid: true, nombre: true, apellido: true, privilege: true },
+      orderBy: { apellido: 'asc' },
+    });
+  }
+
   async findByResetToken(hashedToken: string) {
     return this.prisma.users.findFirst({
       where: {

@@ -19,7 +19,9 @@ import { AuditInterceptor } from './notifications/audit.interceptor';
 import { CsrfModule } from './csrf/csrf.module';
 import { CsrfMiddleware } from './csrf/csrf.middleware';
 import { PlazasModule } from './plazas/plazas.module';
-import { TallerConfigModule } from './taller-config/taller-config.module';
+import { PisosModule } from './pisos/pisos.module';
+import { HorarioModule } from './horario/horario.module';
+import { FeriadosModule } from './feriados/feriados.module';
 
 @Module({
   imports: [
@@ -38,7 +40,9 @@ import { TallerConfigModule } from './taller-config/taller-config.module';
     AuthModule,
     NotificationsModule,
     PlazasModule,
-    TallerConfigModule,
+    PisosModule,
+    HorarioModule,
+    FeriadosModule,
   ],
   controllers: [],
   providers: [

@@ -228,6 +228,7 @@ model Users {
   resetToken          String?    @db.VarChar(255)
   resetTokenExpiry    DateTime?
   auditLogs           AuditLog[]
+  turnosAsignados     TurnoReparadores[]
 }
 
 model AuditLog {
@@ -260,15 +261,32 @@ model Turnos {
   fechaHoraFinReal         DateTime?
   estado                   String    @default("Programado")
   observaciones            String?   @db.Text
+  reparadores              TurnoReparadores[]
 }
 
-model TallerConfig {
-  id        Int      @id @default(1)
+model TurnoReparadores {
+  turnoId  Int
+  userId   Int
+  turno    Turnos @relation(fields: [turnoId], references: [id], onDelete: Cascade)
+  user     Users  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([turnoId, userId])
+  @@map("TurnoReparadores")
+}
+
+model Pisos {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid()) @db.VarChar(36)
+  nombre    String   @db.VarChar(100)
+  orden     Int      @unique
   canvasW   Int      @default(1400)
   canvasH   Int      @default(600)
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  plazas    Plazas[]
 
-  @@map("TallerConfig")
+  @@map("Pisos")
 }
 
 model Plazas {
@@ -281,10 +299,38 @@ model Plazas {
   posY      Int?
   ancho     Int?
   alto      Int?
+  pisoId    Int?
+  piso      Pisos?   @relation(fields: [pisoId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("Plazas")
+}
+
+model Feriado {
+  id        Int      @id @default(autoincrement())
+  fecha     DateTime @db.Date
+  nombre    String   @db.VarChar(100)
+  esAnual   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("Feriado")
+}
+
+model HorarioDia {
+  id             Int      @id @default(autoincrement())
+  diaSemana      Int      @unique  // 0=Dom, 1=Lun, ..., 6=Sáb (JS Date.getDay())
+  activo         Boolean  @default(true)
+  horaEntrada    String   @db.VarChar(5)  // "08:00"
+  horaSalida     String   @db.VarChar(5)  // "18:00"
+  tieneAlmuerzo  Boolean  @default(false)
+  inicioAlmuerzo String?  @db.VarChar(5)  // "12:00"
+  finAlmuerzo    String?  @db.VarChar(5)  // "13:00"
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("HorarioDia")
 }
 
 model Partes {

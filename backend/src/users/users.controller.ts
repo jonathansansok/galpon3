@@ -31,6 +31,11 @@ export class UsersController {
     return this.usersService.findAdmins();
   }
 
+  @Get('reparadores')
+  async findReparadores() {
+    return this.usersService.findReparadores();
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@Request() req) {

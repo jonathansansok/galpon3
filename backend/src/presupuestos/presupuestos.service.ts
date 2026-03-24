@@ -32,6 +32,7 @@ export class PresupuestosService {
           modelo: string | null;
           anio: string | null;
           color: string | null;
+          clienteTelefono: string | null;
         }>
       >(Prisma.sql`
         SELECT
@@ -44,12 +45,14 @@ export class PresupuestosService {
           p.monto,
           p.estado,
           p.observaciones,
-          t.marca, 
-          t.modelo, 
-          t.anio, 
-          t.color
+          t.marca,
+          t.modelo,
+          t.anio,
+          t.color,
+          i.telefono as clienteTelefono
         FROM Presupuestos p
         LEFT JOIN Temas t ON p.movilId = t.id
+        LEFT JOIN Ingresos i ON t.clienteId = i.id
       `);
 
       console.log('[DEBUG] Resultado de la consulta SQL:', result); // <-- Agrega este log
@@ -65,6 +68,20 @@ export class PresupuestosService {
       );
     }
   }
+  async findOneWithClienteData(id: number) {
+    const result = await this.prismaService.$queryRaw<Array<{ clienteTelefono: string | null }>>(
+      Prisma.sql`
+        SELECT i.telefono as clienteTelefono
+        FROM Presupuestos p
+        LEFT JOIN Temas t ON p.movilId = t.id
+        LEFT JOIN Ingresos i ON t.clienteId = i.id
+        WHERE p.id = ${id}
+        LIMIT 1
+      `
+    );
+    return result[0] ?? { clienteTelefono: null };
+  }
+
   async findByMovilId(movilId: string) {
     try {
       const presupuestos = await this.prismaService.presupuestos.findMany({

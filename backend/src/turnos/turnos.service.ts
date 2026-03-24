@@ -59,6 +59,21 @@ export class TurnosService {
           modelo: string | null;
           anio: string | null;
           color: string | null;
+          reparadorId: number | null;
+          reparadorNombre: string | null;
+          reparadorApellido: string | null;
+          clienteTelefono: string | null;
+          clienteId: number | null;
+          clienteApellido: string | null;
+          clienteNombres: string | null;
+          movilId: string | null;
+          presupuestoNumId: number | null;
+          presupuestoObservaciones: string | null;
+          chapaRows: string | null;
+          pinturaRows: string | null;
+          preciosCyP: string | null;
+          tipoTrabajo: string | null;
+          magnitudDanio: string | null;
         }>
       >(Prisma.sql`
         SELECT
@@ -67,11 +82,22 @@ export class TurnosService {
           t.fechaHoraInicioEstimada, t.fechaHoraFinEstimada,
           t.fechaHoraInicioReal, t.fechaHoraFinReal,
           t.estado, t.observaciones,
-          p.monto, p.estado as presupuestoEstado, p.patente,
-          tm.marca, tm.modelo, tm.anio, tm.color
+          p.id as presupuestoNumId, p.monto, p.estado as presupuestoEstado, p.patente,
+          p.observaciones as presupuestoObservaciones,
+          p.chapaRows, p.pinturaRows, p.preciosCyP, p.tipoTrabajo, p.magnitudDanio,
+          tm.id as movilId, tm.marca, tm.modelo, tm.anio, tm.color,
+          i.id as clienteId, i.apellido as clienteApellido, i.nombres as clienteNombres,
+          i.telefono as clienteTelefono,
+          (SELECT GROUP_CONCAT(u2.id ORDER BY u2.apellido SEPARATOR ',')
+           FROM TurnoReparadores tr2 JOIN Users u2 ON tr2.userId = u2.id
+           WHERE tr2.turnoId = t.id) as reparadorIds,
+          (SELECT GROUP_CONCAT(CONCAT(IFNULL(u2.apellido,''),' ',IFNULL(u2.nombre,'')) ORDER BY u2.apellido SEPARATOR ' | ')
+           FROM TurnoReparadores tr2 JOIN Users u2 ON tr2.userId = u2.id
+           WHERE tr2.turnoId = t.id) as reparadoresTexto
         FROM Turnos t
         LEFT JOIN Presupuestos p ON t.presupuestoId = p.uuid
         LEFT JOIN Temas tm ON p.movilId = tm.id
+        LEFT JOIN Ingresos i ON tm.clienteId = i.id
         ORDER BY t.fechaHoraInicioEstimada ASC
       `);
       console.log('[turnos] Resultado de la consulta SQL:', result);
@@ -139,8 +165,9 @@ export class TurnosService {
         );
       }
 
+      const { reparadorIds, ...rest } = createTurnoDto;
       const data: any = {
-        ...createTurnoDto,
+        ...rest,
         fechaHoraInicioEstimada: new Date(createTurnoDto.fechaHoraInicioEstimada),
         fechaHoraFinEstimada: new Date(createTurnoDto.fechaHoraFinEstimada),
       };
@@ -152,7 +179,14 @@ export class TurnosService {
       }
 
       const result = await this.prismaService.turnos.create({ data });
-      console.log('[turnos] Turno creado con éxito:', result);
+
+      // Asignar reparadores
+      if (reparadorIds && reparadorIds.length > 0) {
+        await this.prismaService.turnoReparadores.createMany({
+          data: reparadorIds.map((userId) => ({ turnoId: result.id, userId })),
+          skipDuplicates: true,
+        });
+      }
 
       // Sincronizar estado del presupuesto
       if (createTurnoDto.presupuestoId) {
@@ -220,32 +254,29 @@ export class TurnosService {
         }
       }
 
-      const data: any = { ...updateTurnoDto };
-      if (data.fechaHoraInicioEstimada) {
-        data.fechaHoraInicioEstimada = new Date(data.fechaHoraInicioEstimada);
-      }
-      if (data.fechaHoraFinEstimada) {
-        data.fechaHoraFinEstimada = new Date(data.fechaHoraFinEstimada);
-      }
-      if (data.fechaHoraInicioReal) {
-        data.fechaHoraInicioReal = new Date(data.fechaHoraInicioReal);
-      }
-      if (data.fechaHoraFinReal) {
-        data.fechaHoraFinReal = new Date(data.fechaHoraFinReal);
-      }
+      const { reparadorIds, ...rest } = updateTurnoDto as any;
+      const data: any = { ...rest };
+      if (data.fechaHoraInicioEstimada) data.fechaHoraInicioEstimada = new Date(data.fechaHoraInicioEstimada);
+      if (data.fechaHoraFinEstimada)   data.fechaHoraFinEstimada   = new Date(data.fechaHoraFinEstimada);
+      if (data.fechaHoraInicioReal)    data.fechaHoraInicioReal    = new Date(data.fechaHoraInicioReal);
+      if (data.fechaHoraFinReal)       data.fechaHoraFinReal       = new Date(data.fechaHoraFinReal);
 
-      const result = await this.prismaService.turnos.update({
-        where: { id },
-        data,
-      });
-      console.log('[turnos] Turno actualizado con éxito:', result);
+      const result = await this.prismaService.turnos.update({ where: { id }, data });
+
+      // Reemplazar reparadores si se enviaron
+      if (reparadorIds !== undefined) {
+        await this.prismaService.turnoReparadores.deleteMany({ where: { turnoId: id } });
+        if (reparadorIds.length > 0) {
+          await this.prismaService.turnoReparadores.createMany({
+            data: reparadorIds.map((userId: number) => ({ turnoId: id, userId })),
+            skipDuplicates: true,
+          });
+        }
+      }
 
       // Sincronizar estado del presupuesto
       if (result.presupuestoId && updateTurnoDto.estado) {
-        await this.syncPresupuestoEstado(
-          result.presupuestoId,
-          updateTurnoDto.estado,
-        );
+        await this.syncPresupuestoEstado(result.presupuestoId, updateTurnoDto.estado);
       }
 
       return result;
@@ -335,7 +366,13 @@ export class TurnosService {
           t.fechaHoraInicioReal, t.fechaHoraFinReal,
           t.estado, t.observaciones,
           p.monto, p.estado as presupuestoEstado, p.patente,
-          tm.marca, tm.modelo, tm.anio, tm.color
+          tm.marca, tm.modelo, tm.anio, tm.color,
+          (SELECT GROUP_CONCAT(u2.id ORDER BY u2.apellido SEPARATOR ',')
+           FROM TurnoReparadores tr2 JOIN Users u2 ON tr2.userId = u2.id
+           WHERE tr2.turnoId = t.id) as reparadorIds,
+          (SELECT GROUP_CONCAT(CONCAT(IFNULL(u2.apellido,''),' ',IFNULL(u2.nombre,'')) ORDER BY u2.apellido SEPARATOR ' | ')
+           FROM TurnoReparadores tr2 JOIN Users u2 ON tr2.userId = u2.id
+           WHERE tr2.turnoId = t.id) as reparadoresTexto
         FROM Turnos t
         LEFT JOIN Presupuestos p ON t.presupuestoId = p.uuid
         LEFT JOIN Temas tm ON p.movilId = tm.id

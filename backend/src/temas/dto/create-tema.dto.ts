@@ -5,7 +5,11 @@ import { Transform } from 'class-transformer';
 export class CreateTemaDto {
   @IsOptional()
   @IsDate()
-  @Transform(({ value }) => (value ? new Date(value) : value))
+  @Transform(({ value }) => {
+    if (!value || value === 'null' || value === 'undefined' || value === '') return undefined;
+    const d = new Date(value);
+    return isNaN(d.getTime()) ? undefined : d;
+  })
   fechaHora?: Date;
 
   @IsString()

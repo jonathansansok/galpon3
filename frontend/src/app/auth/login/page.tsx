@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { login } from "@/lib/api/auth";
@@ -12,33 +12,42 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const setUser = useUserStore((state) => state.setUser);
   const setPrivilege = useUserStore((state) => state.setPrivilege);
   const setComp = useUserStore((state) => state.setComp);
+  const user = useUserStore((state) => state.user);
 
-  console.log('[LoginPage] Rendered');
+  useEffect(() => { setMounted(true); }, []);
+
+  // Si ya hay sesión activa, redirigir sin mostrar el formulario
+  useEffect(() => {
+    if (mounted && user) router.push("/");
+  }, [mounted, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    console.log('[LoginPage] handleSubmit called, email:', email);
-
     try {
       const data = await login(email, password);
-      console.log('[LoginPage] login success:', data);
+      const privilege = data.user.privilege || null;
+      const comp = data.user.comp || null;
       setUser(data.user);
-      setPrivilege(data.user.privilege || null);
-      setComp(data.user.comp || null);
+      setPrivilege(privilege);
+      setComp(comp);
+      // Escribir caché ANTES de navegar: AuthProvider la leerá al llegar al home
+      // y llamará setIsLoading(false) inmediatamente sin esperar getMe()
+      localStorage.setItem("auth_user", JSON.stringify({ user: data.user, privilege, comp }));
       toast.success("Sesión iniciada correctamente");
       router.push("/");
     } catch (err: any) {
-      console.log('[LoginPage] login error:', err.message);
       toast.error(err.message || "Error al iniciar sesión");
-    } finally {
       setLoading(false);
     }
   };
+
+  if (!mounted || user) return null;
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-blue-900">

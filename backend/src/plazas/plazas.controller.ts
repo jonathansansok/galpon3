@@ -22,9 +22,10 @@ export class PlazasController {
   constructor(private readonly plazasService: PlazasService) {}
 
   @Get()
-  async findAll() {
+  async findAll(@Query('pisoId') pisoId?: string) {
     try {
-      return await this.plazasService.findAll();
+      const id = pisoId !== undefined ? parseInt(pisoId, 10) : undefined;
+      return await this.plazasService.findAll(id);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
