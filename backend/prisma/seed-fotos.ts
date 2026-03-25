@@ -66,13 +66,13 @@ function sleep(ms: number) {
 
 // ─── Upload ────────────────────────────────────────────────────────────────────
 
-async function uploadToR2(buffer: Buffer, key: string) {
+async function uploadToR2(buffer: Buffer, key: string, contentType = 'image/jpeg') {
   await r2.send(
     new PutObjectCommand({
       Bucket: BUCKET,
       Key: key,
       Body: buffer,
-      ContentType: 'image/jpeg',
+      ContentType: contentType,
     }),
   );
 }
@@ -163,6 +163,54 @@ async function seedFotosMoviles() {
   }
 }
 
+// ─── Seed PDFs presupuestos ────────────────────────────────────────────────────
+
+// URLs de PDFs de muestra públicos (se descargan una vez y se reusan)
+const SAMPLE_PDFS = [
+  'https://www.africau.edu/images/default/sample.pdf',
+  'https://www.w3.org/WAI/WCAG21/Techniques/pdf/PDF2/artifact.pdf',
+  'https://www.irs.gov/pub/irs-pdf/fw4.pdf',
+];
+
+async function seedPdfPresupuestos() {
+  console.log('\n--- PDFs Presupuestos ---');
+
+  // Descargar los PDFs de muestra una sola vez
+  const pdfBuffers: Buffer[] = [];
+  for (const url of SAMPLE_PDFS) {
+    try {
+      const buf = await fetchBuffer(url);
+      pdfBuffers.push(buf);
+      console.log(`  [DL] ${url} (${(buf.length / 1024).toFixed(0)} KB)`);
+    } catch (e: any) {
+      console.error(`  [ERR-DL] ${url}: ${e.message}`);
+    }
+  }
+  if (pdfBuffers.length === 0) {
+    console.error('  No se pudo descargar ningún PDF de muestra. Abortando.');
+    return;
+  }
+
+  const presupuestos = await prisma.presupuestos.findMany({
+    select: { id: true, patente: true, monto: true, pdf1: true },
+  });
+  console.log(`  Encontrados: ${presupuestos.length} presupuestos`);
+
+  for (const p of presupuestos) {
+    if (p.pdf1) { console.log(`  [SKIP] ${p.patente} ya tiene pdf1`); continue; }
+    try {
+      const buf = pdfBuffers[Math.floor(Math.random() * pdfBuffers.length)];
+      const filename = `pdf1-${Date.now()}-${Math.round(Math.random() * 1e6)}.pdf`;
+      await uploadToR2(buf, `presupuestos/${filename}`, 'application/pdf');
+      await prisma.presupuestos.update({ where: { id: p.id }, data: { pdf1: filename } });
+      console.log(`  [OK] ${p.patente} $${p.monto} → ${filename}`);
+    } catch (e: any) {
+      console.error(`  [ERR] ${p.patente}: ${e.message}`);
+    }
+    await sleep(200);
+  }
+}
+
 // ─── Main ──────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -171,6 +219,7 @@ async function main() {
 
   await seedFotosClientes();
   await seedFotosMoviles();
+  await seedPdfPresupuestos();
 
   await prisma.$disconnect();
   console.log('\n=== DONE ===');

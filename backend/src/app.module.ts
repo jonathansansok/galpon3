@@ -22,6 +22,7 @@ import { PlazasModule } from './plazas/plazas.module';
 import { PisosModule } from './pisos/pisos.module';
 import { HorarioModule } from './horario/horario.module';
 import { FeriadosModule } from './feriados/feriados.module';
+import { HealthController } from './health/health.controller';
 
 @Module({
   imports: [
@@ -44,7 +45,7 @@ import { FeriadosModule } from './feriados/feriados.module';
     HorarioModule,
     FeriadosModule,
   ],
-  controllers: [],
+  controllers: [HealthController],
   providers: [
     PrismaService,
     {
