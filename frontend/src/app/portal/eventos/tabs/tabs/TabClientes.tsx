@@ -239,7 +239,7 @@ export default function TabClientes() {
             </h3>
             <button onClick={() => setExpandedEditId(null)} className="text-gray-400 hover:text-red-500 text-lg font-bold">✕</button>
           </div>
-          <IngresoForm ingreso={editingItem} editId={editingItem.id} onSuccess={handleEditSuccess} hideMultimedia />
+          <IngresoForm ingreso={editingItem} editId={editingItem.id} onSuccess={handleEditSuccess} />
         </div>
       )}
 
@@ -250,7 +250,7 @@ export default function TabClientes() {
             <h3 className="font-semibold text-green-800">+ Nuevo Cliente</h3>
             <button onClick={() => setShowNewForm(false)} className="text-gray-400 hover:text-red-500 text-lg font-bold">✕</button>
           </div>
-          <IngresoForm ingreso={null} onSuccess={handleNewSuccess} hideMultimedia />
+          <IngresoForm ingreso={null} onSuccess={handleNewSuccess} />
         </div>
       )}
     </div>

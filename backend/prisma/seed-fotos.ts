@@ -30,17 +30,23 @@ const BUCKET = process.env.R2_BUCKET_NAME!;
 
 // ─── HTTP helpers ──────────────────────────────────────────────────────────────
 
-function fetchBuffer(url: string, redirects = 5): Promise<Buffer> {
+function fetchBuffer(url: string, redirects = 8): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     if (redirects === 0) return reject(new Error('Too many redirects'));
     const client = url.startsWith('https') ? https : http;
     client
-      .get(url, { headers: { 'User-Agent': 'galpon3-seed/1.0' } }, (res) => {
+      .get(url, { headers: { 'User-Agent': 'Mozilla/5.0 galpon3-seed/1.0' } }, (res) => {
         if (
-          (res.statusCode === 301 || res.statusCode === 302 || res.statusCode === 307) &&
+          (res.statusCode === 301 || res.statusCode === 302 || res.statusCode === 307 || res.statusCode === 308) &&
           res.headers.location
         ) {
-          return resolve(fetchBuffer(res.headers.location, redirects - 1));
+          // Resolver redirects relativos contra la URL base
+          let next = res.headers.location;
+          if (!next.startsWith('http')) {
+            const base = new URL(url);
+            next = new URL(next, `${base.protocol}//${base.host}`).toString();
+          }
+          return resolve(fetchBuffer(next, redirects - 1));
         }
         if (res.statusCode !== 200) {
           return reject(new Error(`HTTP ${res.statusCode} for ${url}`));
@@ -96,7 +102,7 @@ async function getPersonPhoto(sexo?: string | null): Promise<Buffer> {
   return fetchBuffer(url);
 }
 
-// loremflickr redirige a fotos reales de Flickr filtradas por keyword
+// loremflickr — fotos reales de autos desde Flickr
 const usedCarSeeds = new Set<number>();
 
 async function getCarPhoto(): Promise<Buffer> {
@@ -112,11 +118,12 @@ async function getCarPhoto(): Promise<Buffer> {
 async function seedFotosClientes() {
   console.log('\n--- Fotos Clientes (ingresos) ---');
   const clientes = await prisma.ingresos.findMany({
-    select: { id: true, apellido: true, nombres: true, sexo: true },
+    select: { id: true, apellido: true, nombres: true, sexo: true, imagen: true },
   });
   console.log(`  Encontrados: ${clientes.length} clientes`);
 
   for (const c of clientes) {
+    if (c.imagen) { console.log(`  [SKIP] ${c.apellido} ya tiene foto`); continue; }
     try {
       const buffer = await getPersonPhoto(c.sexo);
       const filename = makeFilename();
@@ -135,11 +142,14 @@ async function seedFotosClientes() {
 async function seedFotosMoviles() {
   console.log('\n--- Fotos Móviles (temas) ---');
   const moviles = await prisma.temas.findMany({
-    select: { id: true, patente: true, marca: true, modelo: true },
+    select: { id: true, patente: true, marca: true, modelo: true, imagen: true },
   });
   console.log(`  Encontrados: ${moviles.length} móviles`);
 
+  const forceMoviles = process.env.FORCE_MOVILES === 'true';
+
   for (const m of moviles) {
+    if (m.imagen && !forceMoviles) { console.log(`  [SKIP] ${m.patente} ya tiene foto`); continue; }
     try {
       const buffer = await getCarPhoto();
       const filename = makeFilename();
