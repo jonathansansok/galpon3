@@ -24,6 +24,22 @@ export interface Presupuesto {
   pdf8?: string | null;
   pdf9?: string | null;
   pdf10?: string | null;
+  imagen?: string | null;
+  imagenDer?: string | null;
+  imagenIz?: string | null;
+  imagenDact?: string | null;
+  imagenSen1?: string | null;
+  imagenSen2?: string | null;
+  imagenSen3?: string | null;
+  imagenSen4?: string | null;
+  imagenSen5?: string | null;
+  imagenSen6?: string | null;
+  word1?: string | null;
+  tipoTrabajo?: string | null;
+  magnitudDanio?: string | null;
+  chapaRows?: string | null;
+  pinturaRows?: string | null;
+  preciosCyP?: string | null;
 }
 export interface SearchResult {
   item: Presupuesto;

@@ -159,7 +159,7 @@ export function PresupuestoForm({ presupuesto, onSuccess, editId }: { presupuest
     try { return presupuesto?.magnitudDanio ? JSON.parse(presupuesto.magnitudDanio) : []; }
     catch { return []; }
   });
-  const { files, setFile, getFileUrl } = useFileFields("presupuestos", presupuesto);
+  const { files, setFile, getFileUrl, originalNames, setOriginalName } = useFileFields("presupuestos", presupuesto);
   const [isPhotosOpen, setIsPhotosOpen] = useState(false);
   const [isPdfOpen, setIsPdfOpen] = useState(false);
   const [isWordOpen, setIsWordOpen] = useState(false);
@@ -214,15 +214,16 @@ export function PresupuestoForm({ presupuesto, onSuccess, editId }: { presupuest
       }
 
       // Procesar imágenes y archivos
+      const sanitizeName = (name: string) => name.replace(/[^a-zA-Z0-9._-]/g, "_").substring(0, 60);
       const processFile = async (
         file: string | null,
         key: string,
         extension: string
       ) => {
         if (file && file.startsWith("data:")) {
-          const uniqueFileName = `${key}-${Date.now()}-${Math.floor(
-            Math.random() * 1000000
-          )}.${extension}`;
+          const origName = originalNames[key];
+          const baseName = origName ? sanitizeName(origName.replace(/\.[^.]+$/, "")) : key;
+          const uniqueFileName = `${key}--${baseName}-${Date.now()}.${extension}`;
           console.log("multimedia", "processFile", { key, extension, uniqueFileName });
           const response = await fetch(file);
           const blob = await response.blob();
@@ -240,6 +241,16 @@ export function PresupuestoForm({ presupuesto, onSuccess, editId }: { presupuest
           return processFile(files[field], field, ext);
         })
       );
+
+      // Enviar "" para campos eliminados (señal al backend de borrar el campo)
+      for (const field of ALL_FILE_FIELDS) {
+        if (!files[field] && !formData.has(field)) {
+          formData.append(field, "");
+        }
+      }
+
+      // Nombres originales para tracking en backend
+      formData.append("nombresOriginales", JSON.stringify(originalNames));
 
       try {
         let response;
@@ -376,6 +387,8 @@ export function PresupuestoForm({ presupuesto, onSuccess, editId }: { presupuest
           files={files}
           setFile={setFile}
           getFileUrl={getFileUrl}
+          originalNames={originalNames}
+          setOriginalName={setOriginalName}
         />
 
         <Button
@@ -391,6 +404,8 @@ export function PresupuestoForm({ presupuesto, onSuccess, editId }: { presupuest
           files={files}
           setFile={setFile}
           getFileUrl={getFileUrl}
+          originalNames={originalNames}
+          setOriginalName={setOriginalName}
         />
         <Button
           type="button"
