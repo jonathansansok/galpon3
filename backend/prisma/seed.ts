@@ -3,7 +3,7 @@ import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-// ─── Truncate completo ────────────────────────────────────────────────────────
+// ─── Truncate completo ───────────────────────
 
 async function truncateAll() {
   console.log('\n=== TRUNCATE ALL ===');

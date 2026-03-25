@@ -1,4 +1,3 @@
-//frontend\src\components\eventossearch\Table.tsx
 import React, { ReactNode, useState } from "react";
 import { FaEdit, FaEye, FaFilePdf } from "react-icons/fa";
 import { formatDateTime } from "@/app/utils/formatData";
