@@ -17,7 +17,17 @@
       "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
       "mcp__render__list_deploys",
       "mcp__render__list_logs",
-      "mcp__render__list_workspaces"
+      "mcp__render__list_workspaces",
+      "mcp__render__get_service",
+      "mcp__render__update_environment_variables",
+      "Bash(uv --version)",
+      "Bash(python3.13 --version)",
+      "Bash(pip install:*)",
+      "Bash(winget install:*)",
+      "Bash(sh)",
+      "Bash(git clone:*)",
+      "Bash(uv sync:*)",
+      "Bash(where uv:*)"
     ]
   }
 }

@@ -105,6 +105,14 @@ npx prisma generate                    # Regenerate Prisma client
 | Base de datos | `galpon3-mysql-galpon3.b.aivencloud.com:26483` | Aiven |
 | Archivos | `https://pub-0bd8e4d879a54a60b29c7ffc695f395a.r2.dev` | Cloudflare R2 |
 
+### MCP disponibles en Claude Code
+
+| Servicio | Cómo usarlo |
+|----------|-------------|
+| **Render** | Plugin built-in de Claude Code. Service ID: `srv-d70br4qa214c73e76l9g`. Permite ver logs, deploys, env vars y métricas directamente desde la conversación. |
+| **Aiven** | MCP oficial Python. Repo clonado en `C:/Users/Jonathan/.claude/mcp-servers/mcp-aiven`. Configurado en `.mcp.json` global. Permite listar proyectos, servicios y detalles desde la conversación. |
+| **UptimeRobot** | Sin MCP disponible. Monitor ID: `802630481`. Gestionar en https://dashboard.uptimerobot.com/monitors/802630481. Ping cada 5 min a `https://galpon3.onrender.com/api` para mantener Render activo. |
+
 ### 1. Cloudflare R2 — dash.cloudflare.com
 - **Account ID:** `0f50c4ecf0ce79bb91967d8b2aaa6ec1`
 - **Bucket:** `galpon3-uploads` (región: ENAM)
