@@ -181,11 +181,12 @@ model Presupuestos {
   pdf9          String?  @db.VarChar(255)
   pdf10         String?  @db.VarChar(255)
   word1         String?  @db.VarChar(255)
-  tipoTrabajo   String?  @db.VarChar(50)
-  magnitudDanio String?  @db.Text
-  chapaRows     String?  @db.LongText
-  pinturaRows   String?  @db.LongText
-  preciosCyP    String?  @db.Text
+  tipoTrabajo       String?  @db.VarChar(50)
+  magnitudDanio     String?  @db.Text
+  chapaRows         String?  @db.LongText
+  pinturaRows       String?  @db.LongText
+  preciosCyP        String?  @db.Text
+  nombresOriginales Json? // Nombres originales de archivos subidos
 }
 
 model Marcas {

@@ -494,10 +494,10 @@ export function PresupuestoForm({ presupuesto, onSuccess, editId }: { presupuest
         </Button>
         <Button type="submit" className="bg-blue-500" disabled={isSubmitting}>
           {isSubmitting
-            ? params.id
+            ? effectiveId
               ? "Actualizando..."
               : "Creando..."
-            : params.id
+            : effectiveId
             ? "Actualizar Presupuesto"
             : "Crear Presupuesto"}
         </Button>
