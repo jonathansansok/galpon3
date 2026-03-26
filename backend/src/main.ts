@@ -11,24 +11,13 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.setGlobalPrefix('api');
 
-  const allowedOrigins = [
-    'http://192.168.250.220',
-    'http://192.168.250.220:3000',
-    'http://localhost:3000',
-    process.env.FRONTEND_URL,
-    process.env.FRONTEND_URL_ALT,
-  ].filter(Boolean);
-
   app.enableCors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else if (origin.endsWith('.vercel.app')) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+    origin: [
+      'http://192.168.250.220',
+      'http://192.168.250.220:3000',
+      'http://localhost:3000',
+      process.env.FRONTEND_URL,
+    ].filter(Boolean),
     credentials: true,
   });
 
