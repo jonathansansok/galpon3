@@ -22,27 +22,36 @@ export class HorarioService implements OnModuleInit {
       const count = await this.prisma.horarioDia.count();
       if (count === 0) {
         await this.prisma.horarioDia.createMany({ data: DEFAULTS });
-        console.log('[horario] Horario por defecto creado (7 días)');
+        console.log('[HORARIO] Horario por defecto creado (7 días)');
       }
     } catch (e) {
-      console.error('[horario] Error al sembrar horario:', e);
+      console.error('[HORARIO] Error al sembrar horario:', e);
     }
   }
 
-  findAll() {
-    return this.prisma.horarioDia.findMany({ orderBy: { diaSemana: 'asc' } });
+  async findAll() {
+    console.log('[HORARIO] [FIND ALL] Obteniendo horario semanal');
+    const result = await this.prisma.horarioDia.findMany({ orderBy: { diaSemana: 'asc' } });
+    console.log('[HORARIO] [FIND ALL] Total días:', result.length);
+    return result;
   }
 
-  upsert(diaSemana: number, dto: UpdateHorarioDto) {
+  async upsert(diaSemana: number, dto: UpdateHorarioDto) {
+    console.log('[HORARIO] [UPSERT] diaSemana:', diaSemana, 'dto:', dto);
     const def = DEFAULTS.find((d) => d.diaSemana === diaSemana) ?? DEFAULTS[1];
-    return this.prisma.horarioDia.upsert({
+    const result = await this.prisma.horarioDia.upsert({
       where: { diaSemana },
       create: { diaSemana, ...def, ...dto },
       update: dto,
     });
+    console.log('[HORARIO] [UPSERT] OK diaSemana:', diaSemana);
+    return result;
   }
 
-  upsertMany(dtos: UpdateHorarioDto[]) {
-    return Promise.all(dtos.map((dto) => this.upsert(dto.diaSemana!, dto)));
+  async upsertMany(dtos: UpdateHorarioDto[]) {
+    console.log('[HORARIO] [UPSERT MANY] dias:', dtos.map((d) => d.diaSemana).join(', '));
+    const result = await Promise.all(dtos.map((dto) => this.upsert(dto.diaSemana!, dto)));
+    console.log('[HORARIO] [UPSERT MANY] OK actualizados:', result.length);
+    return result;
   }
 }

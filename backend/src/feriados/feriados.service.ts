@@ -7,23 +7,35 @@ import { CreateFeriadoDto } from './dto/create-feriado.dto';
 export class FeriadosService {
   constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return this.prisma.feriado.findMany({ orderBy: { fecha: 'asc' } });
+  async findAll() {
+    console.log('[FERIADOS] [FIND ALL] Obteniendo todos los feriados');
+    const result = await this.prisma.feriado.findMany({ orderBy: { fecha: 'asc' } });
+    console.log('[FERIADOS] [FIND ALL] Total:', result.length);
+    return result;
   }
 
-  create(dto: CreateFeriadoDto) {
-    return this.prisma.feriado.create({
+  async create(dto: CreateFeriadoDto) {
+    console.log('[FERIADOS] [CREATE] dto:', dto);
+    const result = await this.prisma.feriado.create({
       data: {
         fecha: new Date(dto.fecha),
         nombre: dto.nombre,
         esAnual: dto.esAnual ?? false,
       },
     });
+    console.log('[FERIADOS] [CREATE] OK id:', result.id, 'nombre:', result.nombre);
+    return result;
   }
 
   async remove(id: number) {
+    console.log('[FERIADOS] [REMOVE] id:', id);
     const exists = await this.prisma.feriado.findUnique({ where: { id } });
-    if (!exists) throw new NotFoundException(`Feriado ${id} no encontrado`);
-    return this.prisma.feriado.delete({ where: { id } });
+    if (!exists) {
+      console.error('[FERIADOS] [REMOVE] Feriado no encontrado id:', id);
+      throw new NotFoundException(`Feriado ${id} no encontrado`);
+    }
+    const result = await this.prisma.feriado.delete({ where: { id } });
+    console.log('[FERIADOS] [REMOVE] OK id:', id);
+    return result;
   }
 }

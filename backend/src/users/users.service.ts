@@ -7,15 +7,17 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async findByEmail(email: string) {
-    return this.prisma.users.findUnique({
-      where: { email },
-    });
+    console.log('[USERS] [FIND BY EMAIL] email:', email);
+    const result = await this.prisma.users.findUnique({ where: { email } });
+    console.log('[USERS] [FIND BY EMAIL]', result ? `encontrado id:${result.id}` : 'no encontrado');
+    return result;
   }
 
   async findById(id: number) {
-    return this.prisma.users.findUnique({
-      where: { id },
-    });
+    console.log('[USERS] [FIND BY ID] id:', id);
+    const result = await this.prisma.users.findUnique({ where: { id } });
+    console.log('[USERS] [FIND BY ID]', result ? `encontrado email:${result.email}` : 'no encontrado');
+    return result;
   }
 
   async createUser(data: {
@@ -25,8 +27,8 @@ export class UsersService {
     apellido?: string;
     telefono?: string;
   }) {
-    console.log('[UsersService] createUser data:', JSON.stringify({ email: data.email, nombre: data.nombre, apellido: data.apellido, telefono: data.telefono }));
-    return this.prisma.users.create({
+    console.log('[USERS] [CREATE] email:', data.email, 'nombre:', data.nombre, 'apellido:', data.apellido);
+    const result = await this.prisma.users.create({
       data: {
         email: data.email,
         password: data.password,
@@ -35,16 +37,22 @@ export class UsersService {
         telefono: data.telefono,
       },
     });
+    console.log('[USERS] [CREATE] OK id:', result.id, 'email:', result.email);
+    return result;
   }
 
   async updatePassword(userId: number, hashedPassword: string) {
-    return this.prisma.users.update({
+    console.log('[USERS] [UPDATE PASSWORD] userId:', userId);
+    const result = await this.prisma.users.update({
       where: { id: userId },
       data: { password: hashedPassword },
     });
+    console.log('[USERS] [UPDATE PASSWORD] OK userId:', userId);
+    return result;
   }
 
   async setResetToken(userId: number, hashedToken: string, expiry: Date) {
+    console.log('[USERS] [SET RESET TOKEN] userId:', userId, 'expiry:', expiry);
     return this.prisma.users.update({
       where: { id: userId },
       data: {
@@ -55,14 +63,18 @@ export class UsersService {
   }
 
   async findReparadores() {
-    return this.prisma.users.findMany({
+    console.log('[USERS] [FIND REPARADORES]');
+    const result = await this.prisma.users.findMany({
       where: { privilege: { in: ['A1', 'B1'] } },
       select: { id: true, uuid: true, nombre: true, apellido: true, privilege: true },
       orderBy: { apellido: 'asc' },
     });
+    console.log('[USERS] [FIND REPARADORES] Total:', result.length);
+    return result;
   }
 
   async findByResetToken(hashedToken: string) {
+    console.log('[USERS] [FIND BY RESET TOKEN]');
     return this.prisma.users.findFirst({
       where: {
         resetToken: hashedToken,
@@ -72,6 +84,7 @@ export class UsersService {
   }
 
   async clearResetToken(userId: number) {
+    console.log('[USERS] [CLEAR RESET TOKEN] userId:', userId);
     return this.prisma.users.update({
       where: { id: userId },
       data: {
@@ -82,20 +95,19 @@ export class UsersService {
   }
 
   async findAdmins() {
-    return this.prisma.users.findMany({
+    console.log('[USERS] [FIND ADMINS]');
+    const result = await this.prisma.users.findMany({
       where: { privilege: 'A1' },
-      select: {
-        id: true,
-        nombre: true,
-        apellido: true,
-        telefono: true,
-      },
+      select: { id: true, nombre: true, apellido: true, telefono: true },
       orderBy: { nombre: 'asc' },
     });
+    console.log('[USERS] [FIND ADMINS] Total:', result.length);
+    return result;
   }
 
   async findAll() {
-    return this.prisma.users.findMany({
+    console.log('[USERS] [FIND ALL]');
+    const result = await this.prisma.users.findMany({
       select: {
         id: true,
         email: true,
@@ -110,6 +122,8 @@ export class UsersService {
       },
       orderBy: { id: 'asc' },
     });
+    console.log('[USERS] [FIND ALL] Total:', result.length);
+    return result;
   }
 
   async updateUser(
@@ -124,7 +138,8 @@ export class UsersService {
       status?: string;
     },
   ) {
-    return this.prisma.users.update({
+    console.log('[USERS] [UPDATE] userId:', userId, 'campos:', Object.keys(data).join(', '));
+    const result = await this.prisma.users.update({
       where: { id: userId },
       data,
       select: {
@@ -140,17 +155,21 @@ export class UsersService {
         updatedAt: true,
       },
     });
+    console.log('[USERS] [UPDATE] OK userId:', userId);
+    return result;
   }
 
   async deleteUser(userId: number) {
+    console.log('[USERS] [DELETE] userId:', userId);
     const user = await this.prisma.users.findUnique({ where: { id: userId } });
     const email = user?.email || 'desconocido';
+    console.log('[USERS] [DELETE] email a eliminar:', email);
 
-    // Estampar email en el detalle de cada log antes de desasociar
     const logs = await this.prisma.auditLog.findMany({
       where: { userId },
       select: { id: true, detail: true },
     });
+    console.log('[USERS] [DELETE] logs a desasociar:', logs.length);
     await Promise.all(
       logs.map((log) =>
         this.prisma.auditLog.update({
@@ -165,8 +184,8 @@ export class UsersService {
       ),
     );
 
-    return this.prisma.users.delete({
-      where: { id: userId },
-    });
+    const result = await this.prisma.users.delete({ where: { id: userId } });
+    console.log('[USERS] [DELETE] OK email:', email);
+    return result;
   }
 }
