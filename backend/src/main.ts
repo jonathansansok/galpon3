@@ -9,6 +9,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.set('trust proxy', 1); // Render / proxies reversos: confiar en X-Forwarded-* headers
   app.setGlobalPrefix('api');
 
   app.enableCors({
