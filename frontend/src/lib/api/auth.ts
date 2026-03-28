@@ -16,21 +16,36 @@ export async function getAdmins(): Promise<AdminUser[]> {
 export async function login(email: string, password: string) {
   const url = `${BACKEND_URL}/api/auth/login`;
   console.log('[auth.ts] login fetch:', url);
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ email, password }),
-  });
-  console.log('[auth.ts] login response status:', res.status);
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    console.log('[auth.ts] login error data:', data);
-    throw new Error(data.message || 'Error al iniciar sesión');
+
+  const MAX_RETRIES = 3;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
+      console.log('[auth.ts] login response status:', res.status);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        console.log('[auth.ts] login error data:', data);
+        throw new Error(data.message || 'Error al iniciar sesión');
+      }
+      const data = await res.json();
+      console.log('[auth.ts] login success data:', data);
+      return data;
+    } catch (err: any) {
+      const esErrorDeRed = err instanceof TypeError && err.message === 'Failed to fetch';
+      if (esErrorDeRed && attempt < MAX_RETRIES) {
+        console.log(`[auth.ts] login intento ${attempt} fallido, reintentando en ${attempt}s...`);
+        await new Promise((r) => setTimeout(r, attempt * 1000));
+        continue;
+      }
+      if (esErrorDeRed) throw new Error('No se pudo conectar al servidor. Verificá tu conexión e intentá de nuevo.');
+      throw err;
+    }
   }
-  const data = await res.json();
-  console.log('[auth.ts] login success data:', data);
-  return data;
 }
 
 export async function register(

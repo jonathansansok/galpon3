@@ -9,6 +9,18 @@ const nextConfig = {
     NEXT_PUBLIC_R2_URL: process.env.NEXT_PUBLIC_R2_URL,
   },
 
+  // Proxy /api/* → backend en producción para evitar problemas de cookies cross-origin
+  async rewrites() {
+    const target = process.env.INTERNAL_BACKEND_URL;
+    if (!target) return [];
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${target}/api/:path*`,
+      },
+    ];
+  },
+
   images: {
     remotePatterns: [
       {

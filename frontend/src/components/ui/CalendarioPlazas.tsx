@@ -50,18 +50,20 @@ export default function CalendarioPlazas({ isOpen, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [tooltipTurno, setTooltipTurno] = useState<Turno | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const [tooltipFeriado, setTooltipFeriado] = useState<string | null>(null);
   const tooltipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const showTooltip = (t: Turno, e: React.MouseEvent) => {
+  const showTooltip = (t: Turno, e: React.MouseEvent, feriado: string | null = null) => {
     if (tooltipTimer.current) clearTimeout(tooltipTimer.current);
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const x = rect.right + 8 + 320 > window.innerWidth ? rect.left - 328 : rect.right + 8;
     const y = Math.min(rect.top, window.innerHeight - 520);
     setTooltipTurno(t);
     setTooltipPos({ x, y });
+    setTooltipFeriado(feriado);
   };
   const hideTooltip = () => {
-    tooltipTimer.current = setTimeout(() => { setTooltipTurno(null); setTooltipPos(null); }, 150);
+    tooltipTimer.current = setTimeout(() => { setTooltipTurno(null); setTooltipPos(null); setTooltipFeriado(null); }, 150);
   };
   const cancelHide = () => { if (tooltipTimer.current) clearTimeout(tooltipTimer.current); };
   const [horarioConfig, setHorarioConfig] = useState<HorarioDia[] | null>(null);
@@ -169,6 +171,13 @@ export default function CalendarioPlazas({ isOpen, onClose }: Props) {
     const magnitud: string[] = tryParse(t.magnitudDanio) ?? [];
     return (
     <div className="w-80 bg-gray-900 text-white text-xs rounded-lg shadow-xl overflow-hidden overflow-y-auto max-h-[80vh]">
+      {/* Banner feriado */}
+      {tooltipFeriado && (
+        <div className="px-3 py-2 bg-yellow-400 text-yellow-900 font-semibold text-[11px] flex items-center gap-1.5">
+          <span>⚠️</span>
+          <span>Feriado: <strong>{tooltipFeriado}</strong> — Este día no cuenta como día de reparación. Se posterga al siguiente día hábil.</span>
+        </div>
+      )}
       {/* Header */}
       <div className="px-3 py-2 bg-gray-800 border-b border-gray-700">
         <div className="flex items-center justify-between gap-2">
@@ -462,7 +471,7 @@ export default function CalendarioPlazas({ isOpen, onClose }: Props) {
                 return (
                   <td key={p.numero} className={`border border-gray-200 p-1.5 align-top min-h-[70px] ${noHabil ? "bg-gray-100/60" : ""}`}>
                     <div className="flex flex-col gap-2">
-                      {!noHabil && pills.map((t) => {
+                      {(feriadoDia ? pills : !noHabil ? pills : []).map((t) => {
                         const inicioT = toLocalDate(t.fechaHoraInicioEstimada);
                         const finT = toLocalDate(t.fechaHoraFinEstimada);
                         const inicioReal = toLocalDate(t.fechaHoraInicioReal);
@@ -475,8 +484,8 @@ export default function CalendarioPlazas({ isOpen, onClose }: Props) {
                           ? Math.ceil((finT.getTime() - inicioT.getTime()) / (1000 * 60 * 60 * 24))
                           : null;
                         return (
-                          <div key={t.id} className={`rounded-md px-2 py-1.5 shadow-sm ${pillStyle(t)} cursor-pointer`}
-                            onMouseEnter={(e) => showTooltip(t, e)}
+                          <div key={t.id} className={`rounded-md px-2 py-1.5 shadow-sm ${pillStyle(t)} cursor-pointer ${feriadoDia ? "opacity-50" : ""}`}
+                            onMouseEnter={(e) => showTooltip(t, e, feriadoDia || null)}
                             onMouseLeave={hideTooltip}
                             onClick={() => handleTurnoClick(t)}>
                             <div className="flex flex-col gap-1 leading-tight">
@@ -584,8 +593,8 @@ export default function CalendarioPlazas({ isOpen, onClose }: Props) {
                     const esInicio = inicioT ? isSameDay(dia, inicioT) : false;
                     return (
                       <div key={t.id}
-                        className={`rounded px-1 py-0.5 text-[10px] truncate border cursor-pointer ${pillStyle(t)}`}
-                        onMouseEnter={(e) => showTooltip(t, e)}
+                        className={`rounded px-1 py-0.5 text-[10px] truncate border cursor-pointer ${pillStyle(t)} ${feriadoMes ? "opacity-50" : ""}`}
+                        onMouseEnter={(e) => showTooltip(t, e, feriadoMes)}
                         onMouseLeave={hideTooltip}
                         onClick={() => handleTurnoClick(t)}>
                         {!esInicio && <span className="mr-0.5 opacity-60">↑</span>}

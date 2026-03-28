@@ -27,7 +27,8 @@
       "Bash(sh)",
       "Bash(git clone:*)",
       "Bash(uv sync:*)",
-      "Bash(where uv:*)"
+      "Bash(where uv:*)",
+      "Bash(echo \"EXIT: $?\")"
     ]
   }
 }
